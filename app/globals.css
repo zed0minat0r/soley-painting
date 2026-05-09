@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&family=Sacramento&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -14,6 +14,7 @@
 
   --font-heading: "Cormorant Garamond", Georgia, serif;
   --font-body:    "DM Sans", system-ui, sans-serif;
+  --font-script:  "Sacramento", cursive;
 
   /* Page bg lerps during ServicesScrollLock scroll */
   --page-bg: var(--color-chalk);
