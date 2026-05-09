@@ -302,6 +302,15 @@
   display: none;
 }
 
+/* ── Navbar paint-stroke underline (Spark cycle 5, replaces color-only hover) */
+/* Hover: stroke grows left→right; color lifts to chalk */
+.nav-link-stroke:hover {
+  color: var(--color-chalk) !important;
+}
+.nav-link-stroke:hover .nav-stroke-line {
+  transform: scaleX(1);
+}
+
 /* ── Footer responsive grid ──────────────────────────────────────────── */
 .footer-grid {
   display: grid;
@@ -414,7 +423,7 @@
 .portfolio-eyebrow {
   font-family: var(--font-body);
   font-size: 0.75rem;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--color-terra);
   margin-bottom: 0.75rem;

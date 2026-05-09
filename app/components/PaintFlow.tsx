@@ -274,8 +274,8 @@ export default function PaintFlow() {
             <p
               style={{
                 fontFamily: 'var(--font-body)',
-                fontSize: '0.875rem',
-                letterSpacing: '0.22em',
+                fontSize: '0.75rem',
+                letterSpacing: '0.3em',
                 textTransform: 'uppercase',
                 color: 'var(--color-terra)',
                 marginBottom: '0.75rem',
@@ -299,8 +299,8 @@ export default function PaintFlow() {
           <p
             style={{
               fontFamily: 'var(--font-body)',
-              fontSize: '0.9375rem',
-              lineHeight: 1.65,
+              fontSize: '1rem',
+              lineHeight: 1.72,
               color: 'rgba(245,240,234,0.55)',
               maxWidth: '34ch',
             }}

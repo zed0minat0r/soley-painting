@@ -2,6 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react'
 
+/* ── Navbar — Spark cycle 5 Frame B ──────────────────────────────────────
+   Paint-stroke underline accent: a narrow terracotta line grows from 0→100%
+   width under each link on hover, anchored at the bottom of the link.
+   Uses CSS custom properties + inline scaleX so it stays server-safe.
+   Replaces: bare color-change only hover with no brand character.
+   Ref: Scout Site B (Edina) whitespace/typography rhythm.               */
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const raf = useRef<number | null>(null)
@@ -68,23 +75,40 @@ export default function Navbar() {
           <a
             key={label}
             href={href}
+            className="nav-link-stroke"
             style={{
               fontFamily: 'var(--font-body)',
               fontWeight: 500,
               fontSize: '0.875rem',
-              letterSpacing: '0.1em',
+              letterSpacing: '0.14em',
               textTransform: 'uppercase',
               color: 'rgba(245, 240, 234, 0.78)',
               textDecoration: 'none',
-              transition: 'color 0.2s ease',
               minHeight: '44px',
               display: 'inline-flex',
               alignItems: 'center',
+              position: 'relative',
+              paddingBottom: '2px',
             }}
-            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = 'var(--color-terra)')}
-            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(245, 240, 234, 0.78)')}
           >
             {label}
+            {/* Paint-stroke underline — grows left→right on hover, held by CSS */}
+            <span
+              className="nav-stroke-line"
+              aria-hidden
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                width: '100%',
+                height: '1.5px',
+                background: 'var(--color-terra)',
+                transformOrigin: 'left center',
+                transform: 'scaleX(0)',
+                transition: 'transform 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
+                pointerEvents: 'none',
+              }}
+            />
           </a>
         ))}
         <a

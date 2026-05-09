@@ -60,8 +60,8 @@ export default function Contact() {
               className="scroll-reveal-left"
               style={{
                 fontFamily: 'var(--font-body)',
-                fontSize: '0.875rem',
-                letterSpacing: '0.2em',
+                fontSize: '0.75rem',
+                letterSpacing: '0.3em',
                 textTransform: 'uppercase',
                 color: 'var(--color-terra)',
                 marginBottom: '1rem',
@@ -91,7 +91,7 @@ export default function Contact() {
               style={{
                 fontFamily: 'var(--font-body)',
                 fontSize: '1rem',
-                lineHeight: 1.75,
+                lineHeight: 1.72,
                 color: 'rgba(44, 31, 22, 0.7)',
                 maxWidth: '38ch',
                 marginBottom: '2.5rem',
@@ -145,8 +145,8 @@ export default function Contact() {
                   <p
                     style={{
                       fontFamily: 'var(--font-body)',
-                      fontSize: '0.9rem',
-                      lineHeight: 1.55,
+                      fontSize: '1rem',
+                      lineHeight: 1.6,
                       color: 'rgba(44, 31, 22, 0.72)',
                     }}
                   >
@@ -191,7 +191,8 @@ export default function Contact() {
                   <p
                     style={{
                       fontFamily: 'var(--font-body)',
-                      fontSize: '0.9rem',
+                      fontSize: '1rem',
+                      lineHeight: 1.55,
                       color: 'rgba(44, 31, 22, 0.6)',
                     }}
                   >

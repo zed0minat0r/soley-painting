@@ -191,8 +191,8 @@ export default function Process() {
           <p
             style={{
               fontFamily: 'var(--font-body)',
-              fontSize: '0.875rem',
-              letterSpacing: '0.2em',
+              fontSize: '0.75rem',
+              letterSpacing: '0.3em',
               textTransform: 'uppercase',
               color: 'var(--color-terra)',
               marginBottom: '1rem',

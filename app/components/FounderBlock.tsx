@@ -169,8 +169,8 @@ export default function FounderBlock() {
               <p
                 style={{
                   fontFamily: 'var(--font-body)',
-                  fontSize: '0.875rem',
-                  letterSpacing: '0.22em',
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.3em',
                   textTransform: 'uppercase',
                   color: 'var(--color-terra)',
                   marginBottom: '1rem',
@@ -196,7 +196,7 @@ export default function FounderBlock() {
                 style={{
                   fontFamily: 'var(--font-body)',
                   fontSize: '1rem',
-                  lineHeight: 1.75,
+                  lineHeight: 1.72,
                   color: 'rgba(245,240,234,0.65)',
                   maxWidth: '44ch',
                 }}
@@ -276,7 +276,8 @@ export default function FounderBlock() {
                   <p
                     style={{
                       fontFamily: 'var(--font-body)',
-                      fontSize: '0.9rem',
+                      fontSize: '1rem',
+                      lineHeight: 1.55,
                       color: 'rgba(245,240,234,0.65)',
                     }}
                   >
