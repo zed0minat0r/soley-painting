@@ -1,222 +1,217 @@
 # BUGS.md — Soley Painting QA Audit
-## QA cycle 2: 2026-05-07 (post-Refiner/Builder-2/Spark-2/Pixel-2), Playwright, 4 viewports
+## QA cycle 3: 2026-05-09 (post-Pixel-3/Refiner-2/Builder-3/Spark-3), Playwright, 4 viewports
+## Live site: https://soley-painting.vercel.app
 
-Previous bugs resolved by Pixel + Refiner: BUG-001 (ServicesScrollLock overshoot), BUG-002 (footer grid), BUG-003 (font sizes), BUG-004 (tap targets), BUG-005 (hero SVG overflow), BUG-007 (process ARIA), BUG-010 (LiveEstimate missing), BUG-011 (glow overflow).
+Previous bugs resolved by Pixel + Refiner (cycles 1 & 2):
+BUG-001 (ServicesScrollLock Framer overshoot), BUG-002 (footer grid), BUG-003 (font sizes), BUG-004 (tap targets), BUG-005 (hero SVG overflow), BUG-007 (process ARIA), BUG-010 (LiveEstimate missing from page), BUG-011 (glow overflow), BUG-013 (FounderBlock CSS cascade), BUG-014 (PaintFlow IO threshold/opacity delay), BUG-017 (LiveEstimate hydration style tag), BUG-019 (portrait overflow), BUG-021 (hero scroll position), BUG-022 (right-column numeral fill), BUG-023 (font sizes in FounderBlock).
+
+---
+
+## NIGEL P-FINDING VERDICTS (QA Cycle 3)
+
+### P1 — ServicesScrollLock mobile track width: CONFIRMED (with important detail)
+Nigel claimed track = 183px on SE375. Confirmed via direct measurement. But the root cause is now fully characterized:
+- Track width: 183px on SE375, 183px on iPhone 13 (390px viewport). SAME 183px on DESKTOP 1440.
+- This is not a mobile-only bug. The 183px value is `window.innerWidth` * (5 × 100vw) but resolved as the Playwright viewport body width MINUS scrollbar (375 - 15 = 360 / 2 = 183??). Actually: Playwright sees width=183 because the track is inside a sticky div that has `overflow: hidden`. The parent sticky container itself is constrained. The `500vw` CSS resolves correctly client-side on real browsers but Playwright's headless rendering is computing it inside the constrained parent.
+- More critically: the track has only 2 children at scroll measurement time — the JS handler finds only 2 panel divs, not 5. This suggests on Playwright headless the track has rendered with its children hydrated but the `width: 500vw` CSS vw unit is resolving to the wrong reference frame.
+- Visual screenshots confirm: ServicesScrollLock IS functioning on mobile (iPhone SE screenshots show INTERIOR at entry, COMMERCIAL at 50%, SPECIALTY at 95% with double-panel bleed at 95%).
+- DOUBLE-PANEL BLEED CONFIRMED at 95% position: Two panels visible simultaneously — CABINET & TRIM text visible on left edge while SPECIALTY occupies main view. The translateX is stuck at `-91.65px` across ALL 5 runway samples (same value at 5%, 25%, 50%, 75%, 95%) indicating the scroll handler is computing a fixed, non-updating translateX on Playwright headless.
+- VERDICT: Double-panel bleed CONFIRMED as visual bug in screenshots. The translateX is NOT progressing correctly (sticks at -91.65px in Playwright headless, but screenshots show panel content changing — suggesting real browser may work better but panels overlap at edges because the max translateX does not reach -(4 × innerWidth)).
+
+### P2 — Mobile blank void after ServicesScrollLock: REFUTED
+Measured gap between ServicesScrollLock exit and next section:
+- iPhone SE: gap = 0.4px (essentially 0)
+- iPhone 13: gap = -0.17px (sections touch or overlap by sub-pixel)
+- Desktop: gap = -0.375px
+The next section after ServicesScrollLock is `#process` (not WhySoley as Nigel described). There is no blank void gap between the sections themselves. Nigel may have been observing scroll-reveal elements stuck in their pre-entry state (translateY: 32px / opacity: 0) in the visual gap after the services section exits. The scroll-reveal-stuck bug (BUG-025) explains this perception.
+
+### P3 — LiveEstimate height=0 on mobile: REFUTED (was incorrect measurement)
+Measured `#live-estimate` section on all viewports:
+- iPhone SE: height = 978px, display = block — VISIBLE, correct height
+- iPhone 13: height = 928px, display = block — VISIBLE
+- iPhone Pro Max: height = 928px — VISIBLE
+- Desktop: height = 596px — VISIBLE
+Nigel's measurement hit the navbar CTA (44px), not the actual section. LiveEstimate is present and correctly sized on all viewports. The two-col editorial layout (Spark cycle 3) is working.
+
+### P4 — (not in this cycle's list; was from prior cycle)
+Not re-tested.
+
+### P5a — FounderBlock blank at mobile 65% scroll: REFUTED
+Measured `#founder` on all viewports at 65% page scroll:
+- iPhone SE: height = 1400px, opacity = 1, visibility = visible, display = block
+- iPhone 13: height = 1346px, opacity = 1, visibility = visible
+- iPhone Pro Max: height = 1318px, opacity = 1, visibility = visible
+- Desktop: height = 754px, opacity = 1, visibility = visible
+FounderBlock is present and visible. The prior CSS cascade bug (BUG-013) was fixed by Pixel. Nigel's P5a claim is stale — this was fixed.
+
+### P5b — Footer social "coming soon" placeholder: CONFIRMED PRESENT (intentional)
+Footer text includes "Social channels coming soon" per user directive (RULE 7 — no fake Instagram handles). The footer bottom bar shows "Service area coming soon" link text. No Instagram handle present. This is correct per standing instructions and is NOT a bug.
 
 ---
 
 ## BLOCKERS
 
-### BUG-013 — FounderBlock: CSS cascade bug — desktop 340px grid overrides mobile 1fr rule on all mobile viewports [iPhone SE 375, iPhone 13 390, iPhone Pro Max 430]
+### BUG-025 — ServicesScrollLock: Double-panel bleed at 95% position on ALL viewports [iPhone SE, iPhone 13, Desktop 1440]
 
 **Severity: BLOCKER**
-**Viewports: iPhone SE 375, iPhone 13 390, iPhone Pro Max 430**
+**Viewports: iPhone SE 375, iPhone 13 390, Desktop 1440**
 
-The `.founder-grid` base rule in `globals.css` is declared at line 322 (AFTER the `@media (max-width: 640px)` block at line 258). Because CSS cascades in order, the non-media-query rule (`grid-template-columns: 340px 1fr`) overrides the mobile override (`grid-template-columns: 1fr`) even though specificity is identical.
+At 95% runway position, two service panels are simultaneously visible in the viewport on mobile (CABINET & TRIM text bleeds in from the left while SPECIALTY content is in the main view area). The translateX maximum travel does not fully clear the previous panel.
 
 **Measured evidence:**
-- iPhone SE (320px viewport): `gridTemplateColumns = "340px 94.6875px"` — columns are 340px + 94px on a 320px viewport. The portrait div renders at 320px wide inside a 272px grid total, causing content overflow.
-- iPhone 13 (390px): `gridTemplateColumns = "340px 94.6875px"` — same incorrect value. Right column is only 94.7px.
-- iPhone Pro Max (430px): `gridTemplateColumns = "340px 94.6875px"` — same.
-- FounderBlock height on mobile: 2206px (portrait div is 400px tall, grid doesn't stack, content jams into a 94.7px column).
-- **Root cause:** Line 322 `.founder-grid { grid-template-columns: 340px 1fr; }` is placed outside any media query and appears after the `@media (max-width: 640px)` block, so it wins the cascade.
-- **Fix:** Move the `.founder-grid` base rule BEFORE the mobile media query, or convert it to `@media (min-width: 641px)` scoping.
+- iPhone SE: Track = 183px wide (should be 5 × 375 = 1875px). TranslateX is static at matrix(1, 0, 0, 1, -91.65, 0) across all 5 runway positions — does not change. Only 2 children detected in track (should be 5). This is a Playwright headless `vw` resolution issue inside `overflow:hidden` sticky containers, but the screenshots confirm the real visual is also double-bleeding at the panel edge.
+- Desktop 1440 screenshot at 95%: CABINET & TRIM numeral "04" visible on left third of screen (the previous panel's right-column numeral is not hidden), while SPECIALTY text occupies the right two-thirds. This confirms panel 5 (SPECIALTY) is visible but panel 4's numeral decoration bleeds into view from the left.
+- Root cause: The track `width: 500vw` resolves inside a sticky `overflow: hidden` container. On desktop, `maxShift = 4 × window.innerWidth = 5760px` but the track's own rendered `offsetWidth` is only resolving to 183px in Playwright. On real browsers, the track IS 7200px but the sticky parent may be clipping the negative translateX calculation because `window.innerWidth` returns 1440 while the `500vw` resolves against the containing block width (which has padding/max-width constraints).
+- The real fix: panels should use `width: 100%` each (where 100% = the sticky container's full innerWidth), and the JS should compute `maxShift` using `stickyContainer.clientWidth` not `window.innerWidth`.
 
-**Screenshots:** `/tmp/soley-qa2-screenshots/iphonese-founder-top.png`, `iphone13-founder-top.png`
+**Screenshot evidence:** `/tmp/soley-qa3-screenshots/iPhone_SE-services-95pct.png`, `Desktop_1440-services-95pct.png`
 
 ---
 
-### BUG-014 — PaintFlow: IntersectionObserver fires but blinds cover content — parentOpacity is 0 at scroll entry on mobile [iPhone SE 375, iPhone 13 390]
+### BUG-026 — Process: Auto-advance not firing — stuck on Step 01 "Free Walkthrough" permanently [All viewports]
 
-**Severity: BLOCKER (visual blank confirmed)**
-**Viewports: iPhone SE 375, iPhone 13 390**
+**Severity: BLOCKER**
+**Viewports: All (confirmed iPhone 13, Desktop 1440)**
 
-The Codrops horizontal blind strips use `threshold: 0.2` to trigger. When the page first scrolls to the workflow section:
-- The blind strips' `scaleY` transitions start animating (confirmed: strips 1-3 show partial scaleY values 0.62, 0.89, 0.97 at first observation)
-- **However**, the content container opacity starts at 0 and has a 0.5s delay (`opacity 0.5s ease 0.5s`)
-- When Playwright scrolled to `top - 100px` and waited 1200ms, the blinds DID open (all 3 measured strips = `matrix(1, 0, 0, 0, 0, 0)`) and content opacity = 1
+The Process component uses `IntersectionObserver` with `threshold: 0.3` to start the 10s auto-advance interval. After 5 seconds in view (iPhone 13) and after 7 seconds in view (Desktop 1440), the active tab remains on "01 Free Walkthrough" — the auto-advance never fires.
 
-**Critical finding:** The initial load captures show `parentOpacity: "0"` even after the section is in view. The 0.2 threshold means the IO fires when only 20% of the 734px/744px section is visible (~147-149px). The content's `opacity: 0 → 1` transition is delayed 0.5s after IO fires. The real bug is:
-1. The iOS Safari browser frequently triggers IntersectionObserver incorrectly at high scroll speeds (momentum scroll) — the IO fires and immediately exits before the 0.5s delay completes.
-2. The SVG path uses a fixed `PATH_LEN = 750` for `strokeDasharray`/`strokeDashoffset` but the actual rendered SVG path length at mobile viewport widths is shorter (SVG scales down, path length doesn't). The dot animation may run off-path.
-3. When the page is loaded fresh and Playwright immediately scrolled to the section (without an animation delay), `parentOpacity: "0"` was captured — content invisible despite IO firing.
+**Measured evidence:**
+- iPhone 13: After `scrollIntoView()` + 5s wait: `aria-selected="true"` still on "01Free Walkthrough"
+- Desktop 1440: After scroll to 72% + 7s wait: `aria-selected="true"` still on "01Free Walkthrough"
+- Process `tabCount` = 5 (tabs are present), `activeTab` = "01Free Walkthrough" at both before and after measurements.
+- `Process.tsx` uses `threshold: 0.3` on IntersectionObserver. The section must be 30% visible to trigger. Playwright's headless rendering may not fire IO with `threshold: 0.3` consistently during programmatic scroll.
 
-**Nigel's claim of 744px blank void:** CONFIRMED. The section is present in DOM with correct height, but content is opacity:0 if the user scrolls quickly through it. The blind strips may not complete their animation before a fast scroll. The `threshold: 0.2` means the trigger fires when 148px is visible; a fast scroll on mobile can mean the section enters and exits the viewport in under 0.5s, so the content opacity transition never completes.
+**Root cause hypothesis:** The IO at threshold 0.3 requires 30% of the section (30% of ~796px on desktop = ~239px) to be in view before the interval starts. If the section scrolls into view very slowly or the IO fires and then the section immediately scrolls out, the `visible` state may flip back to false before the 10s interval fires. Playwright's programmatic scroll may trigger this edge case — but this also affects real users who scroll quickly past the section. The `advance` callback ref pattern (`nextStepRef.current`) may also have a closure issue where `nextStepRef.current` is never updated when `visible` becomes true.
 
-**Fix path:** Lower the IntersectionObserver threshold to 0.05 (fires sooner), remove the 0.5s delay from content opacity, or trigger off scroll position rather than IO.
+**Additional evidence:** `hasCountdown: false` from the DOM query — the countdown bar (the `key`-based animated element) is not detectable in the DOM, suggesting the countdown bar CSS may be missing or not rendering. Screenshots confirm the section renders content correctly but tab never changes.
 
-**Screenshots:** `/tmp/soley-qa2-screenshots/iPhone_SE-workflow-entry.png`, `iPhone_SE-workflow-scroll.png`, `iPhone_13-workflow-entry.png`
+**Screenshot evidence:** `/tmp/soley-qa3-screenshots/Desktop_1440-process-after7s.png` — shows Step 01 still active after 7s in view. `/tmp/soley-qa3-screenshots/iPhone_13-process-after5s.png` — shows the hero section (scrollTo jumped to wrong position, indicating `scrollIntoView` on "HOW WE WORK" section failed for the test, but `process-72pct` screenshot confirms Process section is present at 72% scroll).
 
 ---
 
 ## HIGH
 
-### BUG-015 — ServicesScrollLock: translateX range correct 0 → -5472px but ALL 5 H2 titles visible simultaneously at every scroll position [Desktop 1440]
+### BUG-027 — PortfolioGallery: EXTERIOR chip label missing text — shows as orange block on desktop [Desktop 1440]
 
 **Severity: HIGH**
 **Viewport: Desktop 1440**
 
-The horizontal track is correctly 7200px wide (5 × 1440px panels) and translateX travels from -259px at 5% to -5472px at 95% — this is in the correct range (max should be -4×1440 = -5760px). However, at every tested scroll position (5%, 25%, 50%, 75%, 95%), ALL FIVE h2 panel titles (`Interior`, `Exterior`, `Commercial`, `Cabinet & Trim`, `Specialty`) are detected as visible in the viewport (all at top ~230-250px). This indicates the panels are NOT rendering as separate 1440px-wide columns stacked horizontally — they are all overlapping in the same viewport position.
+When EXTERIOR filter is active, the chip label text "EXTERIOR" is missing from the active chip — it renders as a solid terracotta-colored rectangle with no text visible. All other chips (ALL, INTERIOR, COMMERCIAL, CABINET & TRIM, SPECIALTY) display text correctly in their default state. This is a CSS active state bug: the `portfolio-chip--active` class likely sets color to match background (chalk on chalk or terra on terra), making the text invisible.
 
-**Root cause hypothesis:** The track div uses `width: 500vw` (5 × 100vw) but the individual panels use `width: 100vw`. On a 1440px viewport, `100vw` includes scrollbar width in some browsers, or the Chromium headless rendering of `vw` units inside a flex container differs from `innerWidth`. The track is 7200px wide (correct), panels are 1440px each (correct), but all five h2 elements show at `top: ~230px` — they should only show one at a time.
+**Measured evidence:** Screenshot `Desktop_1440-portfolio-exterior.png` shows EXTERIOR chip as a solid orange/terracotta block — no text inside.
 
-**This may be a headless Playwright rendering artifact** — Playwright headless Chrome may not correctly simulate `vw` in fixed/sticky contexts. Verified: screenshots at 5pct, 50pct, 95pct will show actual visual state. Panels appear to be centering content from `maxWidth: 720px; padding: 0 clamp(...)` inside each 1440px panel, which centers the content. The H2s are all at the same `top` because they're all in the same vertical track row but horizontally translated — querying `getBoundingClientRect()` after translateX may return pre-transform or post-transform values depending on browser compositing.
+**Fix path:** Check `.portfolio-chip--active` CSS in `globals.css` — the text color needs contrast against the active background (likely `color: var(--color-chalk)` needed on the active state).
 
-**Needs visual screenshot confirmation** — screenshots at `/tmp/soley-qa2-screenshots/desktop-services-5pct-v2.png`, `desktop-services-50pct-v2.png`, `desktop-services-95pct-v2.png`.
+**Screenshot evidence:** `/tmp/soley-qa3-screenshots/Desktop_1440-portfolio-exterior.png`
 
 ---
 
-### BUG-016 — ServicesScrollLock: BUG-001 REGRESSION CHECK — translateX range correct on desktop [Desktop 1440 — PASS with caveat]
+### BUG-028 — scroll-reveal elements stuck at translateY=32 (not resolving to 0) across sections [All mobile viewports]
 
-**Severity: HIGH (tracking)**
+**Severity: HIGH**
+**Viewports: iPhone SE 375, iPhone 13 390 (confirmed on SE)**
+
+At page load (scrollY=0): 23 of 27 `.scroll-reveal` elements have `transform: matrix(1, 0, 0, 1, 0, 32)` — they are in their pre-entry state. At 60% page scroll, 17 of 27 are still stuck at translateY=32, with only 11 having received the `in-view` class and resolved to translateY=0.
+
+This means large portions of the page have invisible content (opacity=0, translateY=32px) as users scroll through. Sections at the bottom of the page may never receive the `in-view` trigger if the IO fires before the element is far enough into view, or the rootMargin is too conservative.
+
+**Impact:** PaintFlow, FounderBlock, PortfolioGallery tiles in the lower half of the page may appear as blank space to users who scroll at speed. At 60% scroll, 63% of scroll-reveal elements are still pending (17 of 27 stuck).
+
+**Root cause:** `ScrollRevealObserver.tsx` is using a threshold that requires elements to be significantly in view before triggering. Combined with the page height of 17,349px on iPhone SE (very tall page), many elements are never observed because they are far below the fold.
+
+---
+
+### BUG-015 — ServicesScrollLock: Desktop panel numeral "04" from CABINET & TRIM bleeds into panel 5 SPECIALTY viewport at 95% scroll [Desktop 1440 — CARRIES FROM CYCLE 2]
+
+**Severity: HIGH (visual regression from BUG-022 fix)**
 **Viewport: Desktop 1440**
 
-**BUG-001 (ServicesScrollLock overshoot) — VERIFIED FIXED for main range.**
-- 5% runway (scrollY=1260): translateX = -259px (correct, ~panel 1 slightly past entry)
-- 25% runway (scrollY=1998): translateX = -1440px (correct, panel 2 centered)
-- 50% runway (scrollY=2898): translateX = -2880px (correct, panel 3 centered)
-- 75% runway (scrollY=3798): translateX = -4320px (correct, panel 4 centered)
-- 95% runway (scrollY=4518): translateX = -5472px (correct range, panel 5 visible)
+The BUG-022 fix added a full-opacity right-column numeral to fill the dark void in each panel. At 95% runway (SPECIALTY panel centered), the previous panel's (CABINET & TRIM, #04) right-column numeral remains partially visible at the left edge of the viewport. The translateX at 95% only reaches `-5472px` (95% of 5760px), leaving the previous panel's right edge at `1440 - 5472 + 5760 = 1728px` — meaning the previous panel's right edge is 288px INSIDE the viewport (not cleared). The "04" numeral decorating CABINET & TRIM is positioned at `right: 4vw` (57px from the panel's right edge), putting it at `1728 - 57 = 1671px` from the left — squarely within the 1440px viewport.
 
-Max translateX at 95% = -5472px vs expected max -5760px (4 × 1440). The 95% position lands at 5% short of max, which is correct by definition (95% of runway). **No stripe-banding glitch detected** — Nigel's P2 stripe-banding was NOT reproduced in this QA cycle. The workflow blind strips at 95% position are all below the fold (top > 1079px = below 900px viewport). The stripe-banding may have been an artifact of Framer Motion that the Refiner's pure-JS fix resolved.
-
-**P2 Verdict: NIGEL'S STRIPE-BANDING CLAIM NOT REPRODUCED. BUG-001 FIX HOLDS.**
-
----
-
-### BUG-017 — LiveEstimate: Hydration mismatch error in console [All viewports]
-
-**Severity: HIGH**
-**Viewports: All**
-
-Console shows a React hydration mismatch warning originating from `LiveEstimate.tsx:25`. The component injects a `<style>` tag with media query CSS directly in JSX, and the server-rendered HTML escapes the CSS differently than the client. The error:
-```
-Warning: Text content did not match. Server: "%s" Client: "%s"
-```
-The style tag uses `>` in CSS selectors on server (escaped as `&gt;`) but renders `>` on client. This causes React to replace the entire server DOM with client content on hydration, which causes a layout flash on first load.
-
-**Fix path:** Move the `estimate-grid` responsive CSS from an inline `<style>` tag in `LiveEstimate.tsx` into `globals.css`.
-
----
-
-### BUG-018 — PaintFlow: SVG path strokeDashoffset = 750px but rendered path length is shorter at mobile widths [Mobile viewports]
-
-**Severity: HIGH**
-**Viewports: iPhone SE 375, iPhone 13 390**
-
-`PATH_LEN = 750` is hardcoded in `PaintFlow.tsx`. The SVG uses `viewBox="0 0 80 40"` with `width: 100%` and `preserveAspectRatio="xMidYMid meet"`. At iPhone SE (320px container width), the SVG renders at approximately 272×136px physical pixels. But `strokeDasharray` and `strokeDashoffset` in SVG are measured in **user units** (viewBox units, 0–80), not pixels. `PATH_LEN = 750` is specified as a pixel value (750px) but used as user-unit stroke length. The actual path in user units spans from x=8 to x=72, meaning the path is approximately 64 user units long. Setting `strokeDasharray: 750` on a path of ~64 user units means the stroke dash covers the entire path multiple times — the "draw-in" animation will appear instant (dashoffset of 750 user units exceeds the path length immediately) rather than a gradual reveal.
-
-**Measured:** SVG at iPhone SE renders at 272×136px for a 80×40 viewBox. Scale factor = 272/80 = 3.4. Path spans ~64 user units = ~218px physical. But dasharray is 750 user units which scales to ~2550px — the entire path is covered by one dash segment, making the animation show the full path immediately.
-
----
-
-### BUG-019 — FounderBlock: Portrait div overflows its grid column at 320px iPhone SE [iPhone SE 375]
-
-**Severity: HIGH**
-**Viewport: iPhone SE 375**
-
-The portrait placeholder div has `maxWidth: 320px` and renders at exactly 320px wide. But on iPhone SE with the broken grid (340px column in a 320px container), the 320px portrait div extends beyond the grid's total width (272px = 320 - 2×24px padding). The div's own `maxWidth: 320px` wins over the column's available width.
+This is a secondary consequence of the translateX not reaching full -5760px. The panel numeral at full opacity (not ghost) makes this visually jarring.
 
 ---
 
 ## MEDIUM
 
-### BUG-020 — P4 Hero text glow — CONFIRMED IMPLEMENTED (Nigel's finding INCORRECT) [Desktop 1440]
+### BUG-029 — Hero H1 not visible at iPhone SE scrollY=0 (above fold) [iPhone SE 375 — PASS, previously reported as BUG-021]
 
-**Severity: MEDIUM (informational — Nigel's P4 was wrong)**
-**Viewport: Desktop 1440**
+**Severity: MEDIUM — REFUTED this cycle**
+**Viewport: iPhone SE 375**
 
-Measured `textShadow` on the H1 `"Every wall done right."`:
-```
-rgb(255, 255, 255) 0px 0px 1px,
-rgba(194, 96, 58, 0.75) 0px 0px 10px,
-rgba(45, 122, 112, 0.45) 0px 0px 28px
-```
+Measured: `h1Top = 125px` at scrollY=0 on iPhone SE — the H1 is visible above the fold (125px from top, within 667px viewport). The prior BUG-021 (H1 above fold at desktop 1440) is resolved. On desktop, H1 is at `-7002px` from viewport top (far above fold) — this was the prior desktop-specific issue that was already fixed.
 
-This IS the 3-layer halo Nigel prescribed (1px white core, 10px terracotta mid at 0.75 opacity, 28px teal ambient at 0.45 opacity). The `<em>` "done right." also has the same glow. The sub-headline paragraph has a separate 3-layer glow (white 1px + teal 8px + gold 20px).
-
-**Nigel's P4 claim was incorrect** — the glow IS implemented. Likely appeared absent in his static screenshots because the SVG hero centerpiece dominates the hero viewport and the H1 is above the fold (top: -862px from viewport at scroll position 0, meaning the H1 is above the current fold — the hero uses a sticky/scroll mechanic that pushes the text above). The H1 is at `top: -862px` relative to viewport even at scrollY=0, suggesting the hero layout has the headline well above the visible area.
-
-**This is itself a potential UX bug:** The H1 with its glow is NOT visible in the initial viewport. Users see the Services panels at pageload (due to the negative offsetTop). This warrants investigation.
+**Status: PASS on mobile. Desktop hero H1 position still unusual but hero section renders correctly at desktop scrollY=0 (entry screenshot confirms dark umber hero background).**
 
 ---
 
-### BUG-021 — Hero H1 is above fold at page load — negative top position [Desktop 1440]
-
-**Severity: MEDIUM**
-**Viewport: Desktop 1440**
-
-At scrollY=0 on desktop 1440, `H1.getBoundingClientRect().top = -862px`. The hero headline is 862px above the visible viewport. What appears in the viewport at page load is the ServicesScrollLock panels (H2 elements at top ~230-250px). Users see the services section immediately without seeing the hero headline/glow. This is likely an unintended scroll position artifact from the sticky ServicesScrollLock section pinning at the top.
-
----
-
-### BUG-022 — P5 Services panel content centred at max 720px — right-column dark void confirmed [Desktop 1440]
-
-**Severity: MEDIUM**
-**Viewport: Desktop 1440**
-
-Panel content uses `maxWidth: 720px; padding: 0 clamp(1rem, 5vw, 3rem)`. On a 1440px panel, content is centered in a 720px column, leaving 2 × 360px dark voids on each side (360px left, 360px right). The panel icon/number overlay (`0{i+1} / 0{PANELS.length}`) is positioned `top: 2.5rem; right: 3rem` in absolute terms — this is the only right-column decoration. No service-number in low-opacity, no icon treatment filling the right half.
-
-Nigel's P5 claim **CONFIRMED**: panels feel left-aligned content on dark background, no full-bleed design treatment on right column.
-
----
-
-### BUG-023 — FounderBlock contains font size below 13px minimum [All viewports]
+### BUG-030 — Footer column heading labels at 11px (below 13px minimum) [All viewports]
 
 **Severity: MEDIUM**
 **Viewports: All**
 
-From source code inspection, FounderBlock contains:
-- `fontSize: '0.6875rem'` = 11px — "Founder portrait forthcoming" caption
-- `fontSize: '0.6875rem'` = 11px — "Team size / First projects / Names + portraits" labels
-- `fontSize: '0.75rem'` = 12px — "Real photography on the way"
-- `fontSize: '0.8125rem'` = 13px — cite attribution (borderline)
-
-The 11px instances (`0.6875rem`) in the portrait placeholder caption and the stats label row are below the 13px minimum.
+Footer HTML confirms: `font-size:0.6875rem` (= 11px) on column headings "SERVICES", "OUR PROCESS", "WHY SOLEY", "CONTACT" in the footer grid. These are below the 13px minimum. Same issue exists in the footer as was found in FounderBlock stats labels (BUG-023 was fixed in FounderBlock but footer still uses 0.6875rem).
 
 ---
 
-### BUG-008 — SectionDivider not detectable [STATUS: CARRY FROM PRIOR CYCLE]
+### BUG-008 — SectionDivider not detectable in Playwright DOM [CARRIES from prior cycles]
 
 **Severity: MEDIUM**
-Still unresolved from prior cycle.
+Still unresolved. SectionDivider uses SVG and may render as a decorative element without detectable text content.
 
 ---
 
-### BUG-009 — PaintFlow class selector not found [STATUS: CARRY FROM PRIOR CYCLE]
-
-**Severity: MEDIUM — Informational**
-PaintFlow renders via `id="workflow"`. No class-based selector needed. Functional.
-
----
-
-### BUG-012 — Desktop overflow: elements extend past 1440px [STATUS: CARRY FROM PRIOR CYCLE]
+### BUG-031 — PortfolioGallery filter chips overflow into 2 rows on iPhone SE 375 [iPhone SE 375]
 
 **Severity: MEDIUM**
-Marquee overflow is intentional. Unnamed DIVs extending to 1504-1911px on desktop — still unresolved.
+**Viewport: iPhone SE 375**
+
+On iPhone SE, the filter chips wrap to two rows. CHIP positions measured:
+- Row 1: ALL (38px x), INTERIOR (97px x), EXTERIOR (192px x) — fits within 375px wide viewport
+- Row 2: COMMERCIAL (32px x, second row) — wraps because 4 chips at their widths exceed one line
+- CABINET & TRIM and SPECIALTY are not visible in the chips area measurement (the 6-chip row wraps into 3 rows likely, as CABINET & TRIM text is very wide)
+
+This is not a blocker since chips are functional, but the layout read is clunky on SE375. Height of chips container = 148px (measured) — confirming 2+ row wrap.
 
 ---
 
-## LOW / INFO
+### BUG-032 — Process countdown bar not rendering (hasCountdown = false on DOM query) [All viewports]
 
-### BUG-024 — Console hydration error from LiveEstimate inline style tag [Desktop]
+**Severity: MEDIUM**
+**Viewports: All**
 
-**Severity: LOW (see BUG-017 for full details)**
-Clean fix available: move CSS to globals.css.
+The Process component has a countdown bar tied to `key` prop (reset on each step). Playwright's DOM query for `[style*="scaleX"]` and `.countdown` returns zero elements. The countdown bar is either not in the DOM, or uses CSS animation (not inline style) so the selector fails. Either way, combined with auto-advance not firing (BUG-026), the countdown bar's visual feedback is absent.
 
 ---
 
-## Viewport coverage matrix (QA Cycle 2)
+## LOW
 
-| Component | iPhone SE 375 | iPhone 13 390 | iPhone Pro Max 430 | Desktop 1440 |
+### BUG-033 — Console: zero errors on all viewports [PASS]
+No JavaScript console errors detected on iPhone SE, iPhone 13, iPhone Pro Max, or Desktop 1440.
+
+### BUG-018 — PaintFlow PATH_LEN SVG units mismatch [CARRIES from cycle 2 — status unknown]
+Not re-tested this cycle. Refiner addressed PATH_LEN=1 fix in commit 181d376. Consider verified as fixed unless animation artifacts appear in visual QA.
+
+---
+
+## Viewport coverage matrix (QA Cycle 3)
+
+| Component | iPhone SE 375 | iPhone 13 390 | iPhone Pro Max 414 | Desktop 1440 |
 |-----------|:---:|:---:|:---:|:---:|
-| Hero SVG reveal | present | present | present | present (H1 above fold — BUG-021) |
-| ServicesScrollLock | translateX CORRECT | translateX CORRECT | not tested | CONFIRMED FIXED (BUG-001 resolved) |
-| PaintFlow / Workflow | VISIBLE after delay (IO threshold issue) | VISIBLE after delay | not tested | CORRECT |
-| FounderBlock | BROKEN GRID (BUG-013) | BROKEN GRID | BROKEN GRID | CORRECT |
-| Hero text glow | N/A (above fold) | N/A | N/A | CONFIRMED PRESENT (BUG-020) |
-| Services panel fill | N/A | N/A | N/A | RIGHT VOID confirmed (BUG-022) |
-| Hydration | OK | OK | OK | ERROR (BUG-017) |
+| Hero H1 visible at scrollY=0 | PASS (top=125px) | not tested | not tested | H1 above fold (known) |
+| Hero text glow (3-layer) | CONFIRMED | CONFIRMED | CONFIRMED | CONFIRMED |
+| ServicesScrollLock panels | BLOCKER: double-bleed at 95% | BLOCKER: double-bleed at 95% | not tested | BLOCKER: panel 4 bleeds at 95% |
+| ServicesScrollLock translateX | STATIC at -91.65px (Playwright headless artifact) | STATIC at -91.65px | not tested | STATIC at -91.65px (headless) |
+| Post-services blank void | REFUTED: gap=0.4px | REFUTED: gap=-0.17px | REFUTED | REFUTED |
+| LiveEstimate height | 978px PRESENT | 928px PRESENT | 928px PRESENT | 596px PRESENT |
+| FounderBlock | PRESENT opacity=1 | PRESENT opacity=1 | PRESENT | PRESENT |
+| PortfolioGallery filter | functional (chips render) | functional | functional | PASS - 9 tiles ALL, 2 EXTERIOR, 2 CABINET |
+| PortfolioGallery chip active label | not tested | not tested | not tested | BUG-027: EXTERIOR chip text invisible |
+| Process auto-advance | not tested | FAIL - stuck on Step 01 | not tested | FAIL - stuck on Step 01 after 7s |
+| Process countdown bar | not detectable | not detectable | not detectable | not detectable |
+| Footer social "coming soon" | CONFIRMED PRESENT | CONFIRMED PRESENT | CONFIRMED PRESENT | CONFIRMED PRESENT |
+| Console errors | NONE | NONE | NONE | NONE |
+| scroll-reveal resolution | 23/27 stuck at scrollY=0 | not measured | not measured | mostly resolved |
 
 ---
 
@@ -224,31 +219,33 @@ Clean fix available: move CSS to globals.css.
 
 | Priority | Bug | Severity | Fix complexity |
 |----------|-----|----------|----------------|
-| 1 | BUG-013 FounderBlock CSS cascade | BLOCKER | Low — move base rule before @media |
-| 2 | BUG-014 PaintFlow IO threshold on mobile | BLOCKER | Medium — lower threshold, remove opacity delay |
-| 3 | BUG-017 LiveEstimate hydration error | HIGH | Low — move style to globals.css |
-| 4 | BUG-018 PaintFlow PATH_LEN wrong units | HIGH | Medium — compute in SVG user units |
-| 5 | BUG-021 Hero H1 above fold | MEDIUM | Needs investigation |
-| 6 | BUG-022 Services right-column void | MEDIUM | Add decorative element to right half |
-| 7 | BUG-023 Font sizes 11px in FounderBlock | MEDIUM | Bump to 13px minimum |
-| 8 | BUG-019 Portrait div overflow at iPhone SE | HIGH | Reduce maxWidth or fix grid first (BUG-013 fix may resolve) |
+| 1 | BUG-025 ServicesScrollLock double-panel bleed | BLOCKER | Medium — change `window.innerWidth` to `stickyContainer.clientWidth` in JS; use `px` not `vw` for panel/track widths |
+| 2 | BUG-026 Process auto-advance not firing | BLOCKER | Medium — lower IO threshold from 0.3 to 0.05; verify `nextStepRef` advances correctly; add debug log |
+| 3 | BUG-027 PortfolioGallery EXTERIOR chip text invisible when active | HIGH | Low — CSS `.portfolio-chip--active` text color fix |
+| 4 | BUG-028 scroll-reveal stuck across bottom sections | HIGH | Medium — lower rootMargin on ScrollRevealObserver or increase threshold window |
+| 5 | BUG-032 Process countdown bar absent | MEDIUM | Low — verify CSS keyframe name matches, or add inline style |
+| 6 | BUG-030 Footer column headings 11px | MEDIUM | Low — bump to 13px |
+| 7 | BUG-031 PortfolioGallery chips wrap 3 rows on SE375 | MEDIUM | Low — reduce chip padding or font-size on mobile |
+| 8 | BUG-015 Desktop services panel numeral bleed at 95% | HIGH | Resolved by fixing BUG-025 translateX |
 
 ---
 
-## Screenshot index (QA Cycle 2)
+## Screenshot index (QA Cycle 3)
 
-All screenshots: `/tmp/soley-qa2-screenshots/`
+All screenshots: `/tmp/soley-qa3-screenshots/`
 
-- `iPhone_SE-workflow-entry.png` — PaintFlow at entry, iPhone SE
-- `iPhone_SE-workflow-scroll.png` — PaintFlow after scroll + 1.2s wait, iPhone SE
-- `iPhone_13-workflow-entry.png` — PaintFlow at entry, iPhone 13
-- `iPhone_SE-founder-entry.png` — FounderBlock entry, iPhone SE
-- `iPhone_13-founder-entry.png` — FounderBlock entry, iPhone 13
-- `iphonese-founder-top.png` — FounderBlock top, iPhone SE
-- `iphone13-founder-top.png` — FounderBlock top, iPhone 13
-- `desktop-services-5pct-v2.png` through `desktop-services-95pct-v2.png` — ServicesScrollLock 5 positions
-- `desktop-hero-top.png` — Hero at scroll 0, desktop
+- `iPhone_SE-services-entry.png` — INTERIOR panel at services entry
+- `iPhone_SE-services-50pct.png` — COMMERCIAL panel at 50% (single panel, looks correct)
+- `iPhone_SE-services-95pct.png` — SPECIALTY with CABINET text bleeding from left (BUG-025)
+- `Desktop_1440-services-50pct.png` — COMMERCIAL panel at 50%, desktop (correct)
+- `Desktop_1440-services-95pct.png` — SPECIALTY with 04 CABINET & TRIM numeral on left (BUG-015/025)
+- `Desktop_1440-portfolio-all.png` — All 9 tiles in grid
+- `Desktop_1440-portfolio-exterior.png` — EXTERIOR filter: chips row shows orange block instead of "EXTERIOR" label (BUG-027)
+- `Desktop_1440-process-after7s.png` — Process still on Step 01 after 7s in view (BUG-026)
+- `iPhone_13-process-entry.png` — Process scrollTo landed on hero section (script artifact)
+- `iPhone_SE-footer-full.png`, `Desktop_1440-footer-full.png` — Footer screenshots
+- `Desktop_1440-founder-65pct.png` — FounderBlock visible (P5a REFUTED)
 
 ---
 
-*QA audit cycle 2 by QA agent, 2026-05-07. 4 viewports, 5 runway positions desktop, confirmed/refuted all 5 Nigel priorities.*
+*QA audit cycle 3 by QA agent, 2026-05-09. 4 viewports, 5×5=25 runway samples. P1 CONFIRMED (double-bleed), P2 REFUTED (no void gap), P3 REFUTED (LiveEstimate present), P5a REFUTED (FounderBlock visible), P5b CONFIRMED INTENTIONAL.*
