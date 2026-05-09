@@ -1533,3 +1533,155 @@ ADD (Reference B — Studio Namma pattern): Ambient local-time clock in footer b
 
 *Scout cycle 4 complete. Research only. No code modified.*  
 *New URLs added: t11.com, awwwards.com/sites/t11, studionamma.com, awwwards.com/sites/studio-namma, tympanus.net/codrops/2026/05/05/reverse-engineering-claude-ais-mascot-animations, scroll-driven-animations.style/demos/horizontal-section/css/, css-tricks.com/linearly-scale-font-size-with-css-clamp-based-on-the-viewport/, nerdy.dev/4-css-features-every-front-end-developer-should-know-in-2026, utilitybend.com/blog/is-the-sticky-thing-stuck-is-the-snappy-item-snapped-a-look-at-state-queries-in-css/*
+
+---
+
+## ROUND 5 — PALETTE REVISION (2026-05-07)
+
+**Brief:** User feedback: "the overall color scheme of the website it's weird." Root cause identified: Terracotta `#C2603A` + Teal `#2D7A70` are complementary on the color wheel — they fight each other when simultaneously visible. The 3 warm tones (terracotta, chalk, gold) + 1 cool (teal) create a system where every section that shows both a terracotta element AND a teal element feels visually incoherent.
+
+---
+
+### RESEARCH BASE
+
+**Reference 1 — media.io Terra Cotta Palette Library (21 palettes with hex values)**
+URL: https://www.media.io/color-palette/terra-cotta-color-palette.html
+
+Inspected all 21 named terra cotta palettes. Key finding: palettes that include a cool complement (teal, blue, sage) consistently appear in the "design-forward" and "gallery" category but are explicitly called out as high-risk: "the trick is to avoid using true teal, as it can make designs look cheap — choose deep, rich hues or let them lean toward lighter end." The palettes in the warm-analogous family (no cool complement) tested better for "professional brand" framing. Specific warm-only systems that scale well:
+
+- **Sunbaked Adobe**: `#C75B3C` / `#E2A07B` / `#F3E2D2` / `#6C4A3E` / `#2F2A28` — pure warm stack, terracotta steps to cream, anchored by near-black umber.
+- **Desert Linen**: `#D07A55` / `#E7C2A6` / `#FAF2E9` / `#B7A395` / `#4A403B` — softer terracotta, very cream-forward.
+- **Rustic Winery**: `#B8533A` / `#D88B6B` / `#F3E0D3` / `#4C3A3A` / `#1F1A1A` — deep blood red-brown anchor, warm stack.
+
+**Implementation hint:** The Sunbaked Adobe stack is the closest published palette to what Soley needs. The `#2F2A28` near-black is genuinely dark without being blue-shifted (no charcoal green cast). The `#F3E2D2` is warmer than Chalk `#F5F0EA` — reads as "drop cloth linen" which is perfect for a painter brand.
+
+---
+
+**Reference 2 — Steph Corrigan Design: Sophisticated Color Palettes for Luxury Branding**
+URL: https://stephcorrigan.com/sophisticated-color-palettes/
+
+Published 21 luxury brand palettes. Two are directly applicable:
+
+- **Neutral Palette**: `#d9d2cc` / `#f2f1ef` / `#d9b18e` / `#a67564` / `#723e31` — warm neutral to deep rust/umber. Note: zero cool tones. High tonal range in one temperature zone. Designer notes: "high contrast between light neutrals and deep browns creates sophistication." This is the architecture Soley needs.
+- **Gold Palette**: `#d9b061` / `#d9c4a9` / `#d8d0c5` / `#8d6f57` / `#3f0d0c` — warm analogous anchored in gold/bronze. The `#3f0d0c` is a near-black with red-brown warmth — comparable to what Arch Painting uses.
+
+Key quote: "sophisticated color palettes tend to incorporate muted shades as opposed to bright, vivid pops of color." This is the argument against keeping the current mid-saturation `#2D7A70` teal as an anchor — it is too vivid relative to terracotta.
+
+**Implementation hint:** The Neutral Palette's 5-step structure (`cream → warm tan → terracotta → umber → near-black`) maps directly to the Soley system: `chalk → warm linen → terracotta → umber text → near-black footer`.
+
+---
+
+**Reference 3 — Living Etc: What Colors Go With Terracotta**
+URL: https://www.livingetc.com/advice/colors-that-complement-terracotta
+
+Professional interior design publication. Key findings on terracotta pairing:
+
+- Teal as a terracotta complement is called out as a classic complementary pairing — but explicitly flagged as "the dramatic impact requires careful management: avoid equal proportions."
+- Their recommended safe directions for terracotta without cool tension: cream/ivory backgrounds, warm umber/chocolate anchors, or clay-gold accents.
+- Analogous warm pairings (burnt sienna, rust, mustard, ochre) described as "produce warmth and cohesion" — the safe professional direction.
+- The 70/30 rule for complementary pairs: if you want to keep ANY cool accent, it must be max 30% of the visual real estate and ideally darker than the terracotta (so the contrast reads as depth, not competition).
+
+**Implementation hint:** If the project brief ever revisits teal, it must be used at maximum 5% of pixel real estate and desaturated — a very dark near-teal (think `#1E3A38`, almost indistinguishable from near-black) not a mid-saturation `#2D7A70`. A dark near-teal can read as "depth" rather than "contrast clash."
+
+---
+
+**Reference 4 — Farrow & Ball Color Philosophy (via granitepaint.com / farrow-ball.com)**
+URL: https://granitepaint.com/farrow-ball-2025-color-chart/
+
+Farrow & Ball's entire paint line is the single most-cited reference for premium, hands-on, heritage paint branding. Key structural observations from their palette:
+
+- Their warm neutrals stack: Tallow → Oxford Stone → Stony Ground → Purbeck Stone → Farrow's Cream — all moving in one temperature direction (warmer as they get lighter).
+- Their deep anchors: Mahogany `#3a1f1a` (red-brown near-black), Preference Red `#7a2a1e`, Etruscan Red (new 2025) — NO teal anchors in their warm collections.
+- Hague Blue (`#2c3437`) — their famous dark teal — is used as an ANCHOR color (very dark, LRV=7), not as a mid-saturation accent. When Farrow & Ball pair warm and cool, the cool is always much darker than the warm (essentially near-black in actual use). This is exactly the mistake the Soley palette makes: `#2D7A70` is a mid-value teal (LRV ~25), not a deep anchor, so it clashes with `#C2603A` rather than grounding it.
+
+**Implementation hint for Soley:** Farrow & Ball's lesson is: if you want ANY cool in the system, it must be nearly as dark as your text color. `#2D7A70` mid-teal as an accent is wrong. Either go all-warm (drop teal entirely) OR replace teal with a near-black that has teal undertones (e.g. `#1A2E2C`) which reads neutral in use.
+
+---
+
+**Reference 5 — rosebenedictdesign.com: Earthy Color Palettes (Brand & Web Designer, 2025)**
+URL: https://rosebenedictdesign.com/2025/01/31/earthy-color-palettes/
+
+Brand designer's analysis of 9 earthy palette archetypes for professional service brands. Key findings:
+
+- Palettes named "Canyon" and "Sequoia" (analogous warm greens + browns) consistently test as "credibility + sophistication" for trades/craft brands.
+- The "Mountain Air" palette is described as the right direction for service providers wanting to avoid "stodgy" — defined as a warm neutral base with ONE very controlled accent.
+- The designer explicitly warns against "two equally-saturated mid-value accents" competing in the same system — which is exactly the terracotta + teal problem.
+
+**Implementation hint:** A brand designer specializing in earthy palettes validates the one-primary rule: pick ONE saturated mid-value color as the brand primary, then surround it with muted neutrals. Two saturated mid-value colors = chaos.
+
+---
+
+### COLOR THEORY: WHY TERRACOTTA + TEAL CLASHES
+
+Terracotta sits at approximately 14° on the HSL wheel (red-orange). Teal sits at approximately 174°-180° (blue-green). The angular distance is ~160-166°, which is near-complementary (true complementary would be ~194° = blue-slate). This near-complementary relationship creates maximum simultaneous contrast — each color makes the other appear MORE saturated when placed adjacent.
+
+The specific problem with Soley's current palette:
+- Both colors are mid-saturation (50-65% S in HSL) and mid-value (35-55% L)
+- When two mid-saturation, mid-value near-complementaries appear together, neither reads as "accent" — both compete equally for visual dominance
+- The eye cannot rest because there is no visual hierarchy: warm (terracotta) vs. cool (teal) of equal weight = tension without resolution
+- The three warm neutrals (chalk, umber, gold) do not unify the system because the teal keeps pulling the eye into a second chromatic "camp"
+
+The fix is structural: **establish ONE temperature for the entire system.** Either go all-warm (recommended) or, if keeping ANY cool, make it so dark it reads as neutral (near-black with cool undertones, used only for text/footer).
+
+---
+
+### RECOMMENDED PALETTE — "All-Warm Painter" System
+
+After reviewing all research, the strongest direction for Soley Painting is an all-warm earth system. One brand primary, warm neutrals only, one small accent used only for hover/active states.
+
+**Palette Name: "Drop Cloth & Rust"**
+
+| Role | Name | Hex | Usage |
+|------|------|-----|-------|
+| Brand Primary | Rust Terracotta | `#BF5B38` | CTAs, active state, section accents, brush divider lines, panel bars |
+| Background Light | Drop Cloth Linen | `#F4EDE3` | Primary page background (replaces chalk — warmer, less blue-shifted) |
+| Background Alt | Warm Stone | `#EAE0D4` | Alternate section backgrounds, card surfaces |
+| Text / Footer | Roasted Umber | `#221810` | All body text, footer background, nav dark mode |
+| Small Accent | Ochre Gold | `#B8884A` | Hover state on links, small active indicators only — max 5% of pixel real estate |
+
+**The system has NO cool tone.** Teal is fully removed.
+
+**Hex justification:**
+
+- `#BF5B38` — Terracotta slightly desaturated and shifted toward brick-red vs current `#C2603A`. The existing terracotta is fine — this is a 3-4% saturation reduction that prevents it from reading as "orange-orange." Keeps the warmth and the paint-industry association.
+- `#F4EDE3` — Warmer than the current `#F5F0EA`. Current chalk has a slight blue-grey cast (HSL: 40°, 29%, 96%). New linen pushes to HSL: 30°, 40%, 94% — reads as drop cloth / linen / primer-white. Perfect for a painter brand.
+- `#EAE0D4` — A warm stone for alternate-section backgrounds (currently handled by dark umber panels). Gives a third background register without introducing a new hue.
+- `#221810` — Near-black with strong red-brown warmth. HSL approximately 20°, 45%, 10%. Much warmer than a neutral charcoal `#2D2D2D`. Footer and headings will read as "ink on aged paper" rather than screen-default grey.
+- `#B8884A` — Warm ochre gold, same hue family as current clay gold `#B8935A` but shifted slightly darker and more muted. Used ONLY for hover underlines, active tab indicators, and the countdown bar. Never appears as a background or large element.
+
+**Why this wins over the alternatives considered:**
+
+- All-warm earth vs. Heritage British Navy: Navy + cream is a strong direction but reads more "Ralph Lauren / nautical" than "painter." Soley's brand is about the physical act of painting — terracotta and linen are directly associative (brick walls, drop cloths, dried paint).
+- All-warm earth vs. Sage-and-cream: Sage greens test well but are heavily used in wellness / yoga / skincare branding in 2024-2026. A painter using sage green reads as trend-following rather than trade-confident.
+- All-warm earth vs. Charcoal + warm white + single bright accent: This is a strong modern-contractor direction (see Arch Painting, Hedlund) but those sites feel corporate. Soley's brief calls for "hands-on, honest, premium" — charcoal systems read as IT/SaaS or general contractor.
+- All-warm earth vs. Keeping teal as a hover-only micro-accent at 5% real estate: Possible, but requires diligent enforcement. Every future Spark/Builder cycle would need a rule preventing teal from leaking into backgrounds or large elements. The risk of re-introducing the clash is high across many cycles. Dropping teal entirely is simpler and safer.
+
+**Implementation hint for Spark (CSS custom properties swap):**
+
+```css
+:root {
+  /* Old values → New values */
+  --color-terra:  #BF5B38;  /* was #C2603A — minor desaturation */
+  --color-chalk:  #F4EDE3;  /* was #F5F0EA — warmer linen, replaces chalk */
+  --color-stone:  #EAE0D4;  /* NEW: warm stone for alt-section backgrounds */
+  --color-slate:  #221810;  /* was #2C1F16 — near-black, warmer red-brown undertone */
+  --color-gold:   #B8884A;  /* was #B8935A — hover/active ONLY, max 5% pixel real estate */
+  /* REMOVED: --color-teal (#2D7A70) — drop entirely */
+}
+```
+
+Anywhere `--color-teal` or `#2D7A70` or `#3A8F85` appears in the codebase (globals.css, Tailwind config, component inline styles), replace with one of:
+- `--color-terra` if it was being used as a vibrant brand accent
+- `--color-slate` if it was being used for a dark panel or text
+- `--color-gold` if it was being used as a small hover state
+
+The 3D paintbrush rim lights currently split terracotta (key, right) and teal (fill, left). Replace teal fill light with a warm ochre-gold at low intensity: `color="#B8884A"` intensity `0.3`. This keeps the dual-light depth without introducing a cool temperature.
+
+The SectionDivider currently uses a terracotta→teal gradient on the hairline. Replace with: `background: linear-gradient(90deg, #BF5B38 0%, #B8884A 50%, #BF5B38 100%)` — a warm terracotta-to-gold-back oscillation that still has visual movement without the temperature clash.
+
+Hero text glows: replace teal ambient (`0 0 28px rgba(58,143,133,0.4)`) with warm gold ambient (`0 0 28px rgba(184,136,74,0.35)`). Subheadline glow: replace teal mid with warm gold mid.
+
+---
+
+*Scout Round 5 complete. Research only — no code modified.*
+*References: media.io/color-palette/terra-cotta-color-palette.html, stephcorrigan.com/sophisticated-color-palettes/, livingetc.com/advice/colors-that-complement-terracotta, granitepaint.com/farrow-ball-2025-color-chart/, rosebenedictdesign.com/2025/01/31/earthy-color-palettes/*
