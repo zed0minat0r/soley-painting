@@ -222,4 +222,470 @@ Based on the catalog mapping above, Builder should build the following in cycle 
 
 ---
 
-*Scout cycle complete. No code modified. Research only.*
+*Scout cycle 1 complete. No code modified. Research only.*
+
+---
+
+## PREMIUM DESIGN REFERENCES
+**Generated:** 2026-05-07  
+**Agent:** Scout (Cycle 2 — deep research pass)  
+**Scope:** 3D paintbrush R3F, scroll animation patterns, loading sequences, typography upgrades, color system refinement, premium craft site references, concrete Builder/Spark prompts.
+
+---
+
+### SECTION 1 — 3D Paintbrush Hero: R3F Implementation References
+
+#### 1a. Atmos (Awwwards SOTD) — Environment-Driven PBR + Scroll Speed
+**URL:** https://atmos.leeroy.ca/  
+**R3F tutorial:** https://wawasensei.dev/tuto/reproduce-atmos-awwwards-3d-website-with-react-three-fiber  
+**What makes the 3D premium:** Environment cubemaps drive all surface reflections — there is no manual rim light placed in the scene. The material reads as premium because the environment itself provides the lighting response. Scroll velocity drives a "speed blur" stretch effect on objects. Camera orientation lerps from a default angle into a user-facing orientation on load, completing in ~1.5s.  
+**R3F primitives:** `<Environment preset="city" />` from `@react-three/drei`, `<ExtrudeGeometry>` + `<CatmullRomCurve3>` for curved path shapes, Lamina-based `<LayerMaterial>` for animated gradient backgrounds.  
+**Shader:** Custom `uProgress` fade-in shader (GSAP tweens 0→1 into the uniform, no GPU-side timing).
+
+**Paintbrush adaptation:**
+- Use `<Environment preset="studio" />` (warm, even, no cold sky tone) instead of manual rim lights.
+- Ferrule (metal ring): `<meshPhysicalMaterial metalness={0.9} roughness={0.08} clearcoat={0.6} clearcoatRoughness={0.1} />` — this gives the steel ring its chrome-like depth without a dedicated light.
+- Handle (walnut): `<meshStandardMaterial roughness={0.7} metalness={0.0} color="#3D2314" />` — matte wood.
+- Bristle bundle: `<meshPhysicalMaterial roughness={0.9} metalness={0.0} color="#C2603A" emissive="#C2603A" emissiveIntensity={0.18} />` — slightly emissive terracotta tip simulates wet-paint glow.
+
+---
+
+#### 1b. Susurrus (Codrops, April 2026) — Kuwahara NPR Painterly Post-Processing
+**URL:** https://tympanus.net/codrops/2026/04/24/susurrus-crafting-a-cozy-watercolor-world-with-three-js-and-shaders/  
+**What makes the 3D premium:** The entire scene passes through a **Kuwahara shader** post-processing pass that transforms the rendered output into a watercolor-painting aesthetic. This is a single full-screen shader with no per-object texture work. The simplified vertex stage (`gl_Position = vec4(position, 1.0)` — no MVP matrix) runs faster than a standard post pass, making it mobile-viable. Reflective water uses `<MeshReflectorMaterial>` (Drei) at low resolution + a second custom shader plane overlay.  
+**R3F primitives:** React Three Fiber, Drei, React Three Rapier. Physics-based interactions (bread spawning on click) via Rapier.  
+**Shader technique:** Kuwahara — samples a grid of neighbor pixels, finds the lowest-variance quadrant, outputs that quadrant's mean color. At low kernel sizes it reads as oil-paint; at high sizes, as watercolor.
+
+**Paintbrush adaptation:**
+- Apply Kuwahara as a post-processing pass on the `<Canvas>` using `@react-three/postprocessing` with a custom `EffectComposer` pass.
+- Set kernel size = 3 for a subtle oil-paint finish that doesn't obscure geometry.
+- Activate it only on the Hero section canvas; disable it on mobile via canvas size check (not a `matchMedia` bail — check `gl.getParameter(gl.MAX_TEXTURE_SIZE)` instead and reduce kernel to 1 if < 4096).
+- The pass gives the paintbrush a hand-painted quality without any texture painting on the bristles themselves.
+
+---
+
+#### 1c. Codrops Dual-Scene Fluid X-Ray Reveal (March 2026) — Fluid Simulation for Hero Load
+**URL:** https://tympanus.net/codrops/2026/03/23/building-a-dual-scene-fluid-x-ray-reveal-effect-in-three-js/  
+**Demo:** https://tympanus.net/Tutorials/SkeletonFluidReveal/  
+**What makes the 3D premium:** Ping-pong rendering (two alternating WebGL render targets) drives a fluid simulation that spreads a dark trail from a cursor or origin point. FBM noise (20x frequency, 4 octaves, scale 0.01) generates UV displacement per pixel. `blendDarken` — a `min()` blend of 5 neighbor samples — causes dark areas to bleed outward. A small white wash (+0.015/frame) fades the trail back to white when no new input arrives.
+
+**Paintbrush hero load adaptation:**
+1. On page load, draw a paint-stroke silhouette into the initial render target (a thick diagonal calligraphic stroke from upper-left to lower-right).
+2. Replace cursor-driven input with a timed sequence: over 1.2s, the FBM diffusion spreads the stroke outward into a warm terracotta stain that fills 60% of the hero background.
+3. At t=0.8s, the R3F paintbrush mesh fades in via a `uProgress` uniform (0→1, GSAP `power2.out`, duration 0.7s).
+4. The fluid trail fades back to the chalk background over 3s, leaving the brush floating in clean space.
+5. This creates a distinct "paint-hits-paper" opening rather than a generic opacity fade.
+
+**Key code shape:**
+```glsl
+// Fragment shader — ping-pong fluid read
+vec2 uv = vUv;
+vec2 offset = fbm(uv * 20.0) * 0.01;
+float c0 = texture2D(uFluidPrev, uv + offset).r;
+float c1 = texture2D(uFluidPrev, uv - offset).r;
+float dark = min(c0, c1);
+float result = dark + 0.015; // fade back
+gl_FragColor = vec4(clamp(result, 0.0, 1.0));
+```
+
+---
+
+#### 1d. pmndrs/meshline — Variable-Width Brush Stroke Trail
+**URL:** https://github.com/pmndrs/meshline  
+**npm:** `meshline`  
+**What makes it premium:** MeshLine renders billboarded triangle strips instead of `GL_LINE`, which means strokes have consistent pixel-width antialiasing at any scale. The `widthCallback` pattern drives variable stroke width per point — essential for a calligraphic pressure-taper effect.
+
+**Bristle bundle approach using MeshLine:**
+Instead of 40-60 BoxGeometry instances, render 8-12 MeshLine strokes of varying width to represent the bristle bundle:
+```jsx
+import { MeshLineGeometry, MeshLineMaterial } from "meshline";
+
+// Each bristle: 4-6 points with slight curve
+const bristlePts = [new THREE.Vector3(0,0,0), new THREE.Vector3(0.02, -0.15, 0.01), new THREE.Vector3(0, -0.3, 0)];
+
+<mesh>
+  <meshLineGeometry
+    points={bristlePts}
+    widthCallback={(p) => (1 - p) * 0.006}  // tapers to 0 at tip
+  />
+  <meshLineMaterial
+    color="#C2603A"
+    lineWidth={0.006}
+    resolution={new THREE.Vector2(window.innerWidth, window.innerHeight)}
+    transparent
+    opacity={0.92}
+  />
+</mesh>
+```
+Render 10 such bristles with randomized curve offsets (`THREE.MathUtils.randFloat(-0.015, 0.015)` on the midpoint x/z). This reads as a spread bristle bundle with a natural, irregular silhouette — unlike 40 BoxGeometry instances which read as engineered.
+
+---
+
+#### 1e. Painted/Brushed Material: PBR Settings Reference Table
+
+| Finish Type | Material | roughness | metalness | clearcoat | clearcoatRoughness | emissive |
+|---|---|---|---|---|---|---|
+| Matte wall paint | MeshStandardMaterial | 0.92 | 0.0 | — | — | none |
+| Satin interior paint | MeshPhysicalMaterial | 0.55 | 0.0 | 0.3 | 0.35 | none |
+| Gloss trim paint | MeshPhysicalMaterial | 0.18 | 0.0 | 0.9 | 0.08 | none |
+| Wet paint tip (emissive) | MeshPhysicalMaterial | 0.85 | 0.0 | 0.0 | — | color, intensity 0.18 |
+| Walnut wood handle | MeshStandardMaterial | 0.70 | 0.0 | — | — | none |
+| Steel ferrule | MeshPhysicalMaterial | 0.08 | 0.90 | 0.6 | 0.1 | none |
+
+Use **satin interior paint** settings on the handle body and **wet paint tip** on the bristle tips. This creates a hierarchy of finish reads: chrome ferrule catches environment light sharply, walnut handle is warm and matte, bristle bundle is soft with a subtle warm glow at the tip — exactly how a loaded brush looks before it hits the wall.
+
+---
+
+### SECTION 2 — Exceptional Craft/Trade Sites Worth Studying
+
+#### Site G: Marvell Tile & Stone
+**URL:** https://marvellco.com.au/  
+**Awwwards:** Honorable Mention — https://www.awwwards.com/sites/marvell-tile-stone  
+**Awwwards score:** 7.26 overall, Animations/Transitions 8.00/10  
+**Stack:** Next.js + React  
+**Two-color palette:** `#E8E5DF` (warm ivory/linen) + `#35311F` (dark warm brown/almost black)  
+**What to study:**
+- The two-color system is the most disciplined restraint pattern in craft-trade web design. There are no accent colors — the photography carries all warmth and texture. This is a benchmark for color economy.
+- "Immersive, uninterrupted journey" through project case studies — each project is a full-bleed editorial spread, not a thumbnail grid. This is the model for Soley's future portfolio section.
+- Gesture-based transitions (swipe between case studies on mobile) replace pagination entirely.
+- "Big background images" means the tile/stone work IS the background — the text floats over it at low opacity, not in a card.
+**Implementation hint for Soley Painting:** When real project photography arrives, replace the placeholder gallery with editorial full-bleed spreads using this two-tone overlay system: `background: rgba(53, 49, 31, 0.55)` on the image, chalk text on top. The photography reads as premium because it is not boxed.
+
+---
+
+#### Site H: Adriaans Bouwbedrijf (Dutch Builder, est. 1830)
+**URL:** https://adriaansbouwbedrijf.nl/  
+**Awwwards:** Nominee — https://www.awwwards.com/sites/adriaans-bouwbedrijf  
+**What to study:**
+- A 190-year-old trade company that built a scroll-animation site that earned an Awwwards nomination. The lesson: heritage + modern craft UX are not in conflict.
+- The positioning line "bouwers sinds 1830" (builders since 1830) is the equivalent of Soley's honest pre-launch framing. Heritage replaces reviews.
+- Big background project photography, clean nav, responsive, scroll interactions — these are the four structural pillars of the "premium craft trade" site template.
+**Implementation hint for Soley Painting:** Soley can't claim 190 years, but can claim craft-first positioning with the same language register: "Every wall gets the same prep whether it's a studio apartment or a commercial renovation." A founding year or story, even a brief one, anchors the brand.
+
+---
+
+#### Site I: Corentin Bernadou Portfolio (Awwwards SOTD)
+**URL:** https://corentinbernadou.com/  
+**Awwwards:** Site of the Day — https://www.awwwards.com/sites/corentin-bernadou-portfolio  
+**Score:** Animations 8.20/10, Performance 8.00/10  
+**Color palette:** `#FF4401` (vibrant orange) + `#070304` (near-black)  
+**What to study:**
+- Swiss editorial layout grid applied to a creative portfolio: the same typographic rigor that makes editorial design read as premium translates directly into web.
+- Interactive grid rulers (Figma-inspired): clicking reveals `getBoundingClientRect()`-positioned guide lines. This tactile "design tool" metaphor is directly analogous to what a painter's masking tape creates on a wall.
+- The navigation mask: a resizing div that follows cursor between nav items using `gsap.to()` with `"power3.out"` easing. This is zero-JS-overhead and feels native.
+- Loading indicator: "0%" displayed prominently during asset loading — not a spinner, not a logo. The number IS the animation.
+**Implementation hint for Soley Painting:** The "0%" preloader pattern maps perfectly to Soley's brand — painters know surface coverage by percentage. A preloader that counts "12%… 47%… 94%… Ready." in Playfair Display, with a terracotta paint-stroke growing underneath the number, would be brand-specific and memorable. Use GSAP timeline to tween a counter and drive the stroke simultaneously.
+
+---
+
+#### Site J: Joseph Santamaria Scroll-Driven 3D World (Codrops, April 2026)
+**URL:** https://tympanus.net/codrops/2026/04/28/more-than-a-portfolio-building-a-scroll-driven-3d-world-with-something-to-say/  
+**What to study:**
+- GSAP Observer for unified scroll/touch/trackpad input. Single handler, no `wheel` event workarounds.
+- Snap-scroll mode switching: distinct 3D scenes use snap-block behavior (beat-by-beat advance) while panoramic environments use free continuous scroll. A custom state machine built on `Observer` swaps modes dynamically.
+- GPU instancing for repeated geometry (floating blocks, pillars) — keeps frame rate high while filling a complex 3D world.
+- "A single camera take" philosophy: the whole portfolio is one continuous camera path, not a series of separate page views.
+**Implementation hint for Soley Painting:** The "single camera take" principle applies to the 5-service horizontal scroll-lock. Use GSAP Observer instead of a raw `wheel` event listener — it handles touchpad momentum cancellation automatically, which the current custom JS handler does not. Replace `window.addEventListener("wheel", handler)` with `Observer.create({ type: "wheel,touch,pointer", onDown, onUp })`.
+
+---
+
+### SECTION 3 — Scroll-Driven Animation Patterns Winning Awards in 2026
+
+#### Pattern 1: "Velocity-to-Transform" (3D Image Tube, Codrops Feb 2026)
+**Reference:** https://tympanus.net/codrops/2026/02/17/reactive-depth-building-a-scroll-driven-3d-image-tube-with-react-three-fiber/  
+**Demo:** https://tympanus.net/Tutorials/3DImageTubeR3F/  
+**Named precisely:** Scroll-velocity-accumulation with inertial decay.  
+**How it works:** Scroll delta accumulates into a velocity ref (`tubeSpinVelocity.current += event.deltaY * 0.004`). Every frame, velocity decays (`spinVelocityRef.current *= Math.pow(0.92, dt * 60)`). Scroll position lerps toward target (`scrollCurrent.current += (scrollTargetRef.current - scrollCurrent.current) * 0.12`). No React state updates — all refs, all inside `useFrame`.  
+**Hover modulation:** Hover scales `dt` itself via `rotationSpeedScale.current`, slowing all connected motion uniformly.  
+**Soley application:** Apply this pattern to the hero paintbrush rotation — scroll velocity in the hero section slightly accelerates the brush Y-axis rotation, then inertia-decays it back to `0.004 rad/frame`. The brush feels physically connected to the user's scroll gesture without any jarring discontinuity.
+
+```jsx
+// In useFrame callback:
+meshRef.current.rotation.y += 0.004 + spinVelocityRef.current;
+spinVelocityRef.current *= Math.pow(0.92, delta * 60);
+```
+
+---
+
+#### Pattern 2: "Mood-Lerp Background" (Scroll-Reactive Gallery, Codrops March 2026)
+**Reference:** https://tympanus.net/codrops/2026/03/09/building-a-scroll-reactive-3d-gallery-with-three-js-velocity-and-mood-based-backgrounds/  
+**Demo:** https://tympanus.net/Tutorials/DepthGallery/  
+**Named precisely:** Camera-depth-driven color lerp with per-plane mood palette.  
+**How it works:** Each image plane carries a 3-color mood palette (bg, blob1, blob2). As camera Z moves through the gallery, colors interpolate: `backgroundColor.lerp(nextMoodBackground, blend)`. No hard cuts between sections. Film grain texture (random noise sampled in fragment shader) adds tactile quality.  
+**Soley application:** Each of the 5 service scroll-lock panels has its own swatch color. As the horizontal scroll position moves between panels, lerp the full-page background color from panel N's swatch to panel N+1's swatch. At the INTERIOR panel, background is Chalk. At SPECIALTY, background is a tinted Terracotta wash. The transition happens continuously during the horizontal scroll, not on snap.
+
+```js
+// Simplified lerp in the scroll handler
+const panelProgress = (currentTranslateX / totalTrackWidth) * 4; // 0-4 across 5 panels
+const panelIndex = Math.floor(panelProgress);
+const blend = panelProgress - panelIndex;
+document.body.style.setProperty("--bg", lerpColor(panelColors[panelIndex], panelColors[panelIndex + 1], blend));
+```
+
+---
+
+#### Pattern 3: "Sticky Grid Reveal" (Codrops March 2026)
+**Reference:** https://tympanus.net/codrops/2026/03/02/sticky-grid-scroll-building-a-scroll-driven-animated-grid/  
+**Demo:** https://tympanus.net/Tutorials/StickyGridScroll/  
+**Named precisely:** Sticky-pinned tall container with GSAP-timeline-driven grid column stagger.  
+**CSS core:**
+```css
+.wrapper { position: sticky; top: 0; overflow: hidden; }
+.block--main { height: 425vh; }
+```
+**GSAP pattern:** Even columns emerge from above, odd from below (`power1.inOut`). Entire grid scales to 2.05 while lateral columns shift `±40%`. Content text toggles on scroll direction.  
+**Soley application:** Use this for the "Why Soley" section (process pillars, trust signals). 3-column grid, sticky at top, with GSAP ScrollTrigger. As user scrolls through 300vh of runway, the 3 columns emerge staggered. Column 1 (Prep) from above, Column 2 (Paint) from below, Column 3 (Finish) from above. Simpler than 5-panel horizontal lock and adds variety to the page's scroll rhythm.
+
+---
+
+#### Pattern 4: "Shader Wipe + Scramble" (Portfolio Reveal, Codrops May 2026)
+**Reference:** https://tympanus.net/codrops/2026/05/06/from-shader-uniforms-to-clip-path-wipes-how-gsap-drives-my-portfolio/  
+**Named precisely:** Parallel clip-path + text scramble + shader uniform fade, orchestrated by GSAP.  
+**How it works:** A single `progress` number (0→1, GSAP timeline, `power2.out`, 0.6s) drives three simultaneous systems:
+1. Shader `uProgress` uniform for WebGL image reveal
+2. `clip-path: inset(0 0% 0 0)` → `inset(0 100% 0 0)` transition for DOM elements
+3. GSAP SplitText scramble (random chars → final chars over 0.3s)
+
+On page transition (out): `opacity: 0` at `power2.inOut` over 0.3s (parallel for bg, grid, cursor, side texts), then content at 0.35s with 0.25s offset.  
+**Direct DOM mutation** instead of React state at 120Hz: `element.style.clipPath = ...` — avoids the 8ms React render penalty.  
+**Soley application:**
+- On page load, the hero headline "Soley Painting" scrambles in (random chars → final) while the R3F canvas fades in via `uProgress`.
+- The clip-path wipe opens left-to-right on the sub-headline ("Expert residential & commercial painting — Northeastern PA").
+- All three effects begin simultaneously at t=0, complete by t=0.8s.
+- Use GSAP SplitText (or a lightweight clone) for the scramble. Do NOT use Framer Motion `whileInView` for this — it causes SSR flash.
+
+---
+
+#### Pattern 5: "useScroll + useTransform Pinned Horizontal"
+**Reference:** https://motion.dev/docs/react-scroll-animations  
+**Named precisely:** Motion.dev `useScroll` + `useTransform` horizontal panel translation.  
+**Code pattern:**
+```jsx
+const { scrollYProgress } = useScroll({
+  target: containerRef,
+  offset: ["start start", "end end"]
+});
+const x = useTransform(scrollYProgress, [0, 1], ["0%", "-400%"]);
+// container height: 500vh; inner track: sticky + 100vh
+<motion.div style={{ x }}>{panels}</motion.div>
+```
+This is cleaner than the current custom JS scroll handler proposed in Cycle 1 — Motion handles RAF scheduling and compositor-thread optimization automatically. Hardware-accelerated by default via native ScrollTimeline in Chrome/Safari 18+.  
+**Soley application:** Replace the proposed custom `window.addEventListener("wheel", handler)` with this Motion `useScroll` + `useTransform` pattern for `ServicesScrollLock.tsx`. Simpler, fewer bugs, composited on the GPU.
+
+---
+
+#### Pattern 6: "Scroll-Velocity Marquee" (services strip between sections)
+**Reference:** https://motion.dev/docs/react-scroll-animations — Ticker pattern  
+**Named precisely:** `useVelocity` → `useTransform` → `useSpring` marquee acceleration.  
+```jsx
+const { scrollY } = useScroll();
+const scrollVelocity = useVelocity(scrollY);
+const skewX = useTransform(scrollVelocity, [-1000, 1000], [-15, 15]);
+const smoothSkewX = useSpring(skewX, { damping: 50, stiffness: 400 });
+```
+On fast scroll, the marquee items skew horizontally — a micro-interaction that signals motion without distracting. The skew springs back to 0° at rest.  
+**Soley application:** The services marquee between hero and the scroll-lock section uses this skew pattern. At rest, the marquee scrolls left at ~40px/s. On fast user scroll, it skews to `15deg` and briefly accelerates. This is directly observable in the Motion docs example and takes ~15 lines of JSX.
+
+---
+
+### SECTION 4 — Loading + First-Paint Patterns
+
+#### Pattern A: "Paint-Percentage Counter" Preloader
+**Inspiration:** Corentin Bernadou's "0%" loading indicator  
+**How it works on Bernadou's site:** The percentage number is the only element on screen during loading. It is displayed large, central, in the heading typeface. When assets are ready, the number reaches 100 and a GSAP timeline fires — the number slides up and off, the hero content slides up into its place.  
+**Soley adaptation (brand-specific):**
+- Number displayed: "0%" → "100%" in Playfair Display, 9vw, centered
+- Under the number: a terracotta paint stroke SVG that grows left-to-right, driven by the same GSAP progress tween that drives the counter. At "0%" the stroke is a 0-length dot; at "100%" it is a full-width diagonal brush mark.
+- On complete: stroke stays visible as the hero background traces it fades into the chalk background; number slides up; R3F canvas fades in (`uProgress` 0→1); headline scrambles in via SplitText.
+- Total duration: ~1.8s for assets to load + 0.8s for reveal sequence = 2.6s first-paint.
+
+**Implementation:**
+```jsx
+// GSAP preloader timeline
+const tl = gsap.timeline();
+tl.to(counterRef.current, {
+  textContent: "100",
+  duration: 1.8,
+  snap: { textContent: 1 },
+  onUpdate: () => {
+    strokeRef.current.style.strokeDashoffset =
+      strokeLen * (1 - Number(counterRef.current.textContent) / 100);
+  }
+});
+tl.to(preloaderRef.current, { yPercent: -100, duration: 0.6, ease: "power2.inOut" });
+tl.fromTo(heroRef.current, { opacity: 0 }, { opacity: 1, duration: 0.4 }, "-=0.3");
+```
+
+---
+
+#### Pattern B: "Clip-Path Stack Reveal" (Multi-layer opening sequence)
+**Inspiration:** Framer Marketplace "Hero Stack Reveal" + Codrops shader wipe  
+**How it works:** Three images slide up from the bottom of the screen in rapid succession (0.2s stagger), each covering the previous. The final image expands into a full-screen hero. Then text and UI fade in.  
+**Soley adaptation:**
+- Layer 1: Chalk background + the growing terracotta stroke (SVG animation)
+- Layer 2: The R3F canvas slides up from bottom (`translateY(100%) → translateY(0)`, `power3.out`, 0.5s)
+- Layer 3: Headline and CTA slide up from below with staggered delay
+- Total: ~1.2s opening, ~0.6s hero settle = 1.8s to interactive
+- This is tighter than the percentage counter (2.6s) and better for SEO (less blocking).
+
+---
+
+#### Pattern C: "Single uProgress Shader Fade" (Penn Tech baseline — already planned)
+**Existing SCOUT note:** The cube fade-in on Penn Tech is a simple `uProgress` shader fade.  
+**What's better:** The Corentin Bernadou clip-path wipe opens left-to-right, not all-at-once, and the Codrops fluid paint reveal provides an origin point. The clip-path wipe (`inset(0 0% 0 0)` → `inset(0 100% 0 0)`) is the cleanest upgrade over a flat opacity fade — it feels like a wipe frame in film, which is directly analogous to a paint stroke being applied.  
+**Recommendation:** Replace the simple opacity fade-in of the R3F canvas with a `clip-path` wipe driven by GSAP. Direction: left-to-right (matching a right-handed brush stroke). Duration: 0.6s. Ease: `power2.out`. This is a 5-line change from the Penn Tech baseline.
+
+---
+
+### SECTION 5 — Premium Typography Pairings for Painter/Artisan Brands
+
+#### Assessment: Why Playfair Display + DM Sans is Good But Not Great
+
+Playfair Display is widely used (Google Fonts, free, high recognition) — its heavy vertical stroke contrast is editorial, but it has become a default choice for "boutique business" sites in 2022-2025. It no longer signals premium differentiation; it signals "a polished small business" (which is the right segment, just not distinctive).
+
+DM Sans is excellent for UI labels and body, and no objection there.
+
+#### Recommendation 1: UPGRADE the heading — Canela over Playfair Display
+
+**Canela** (Commercial Type, Miguel Reyes): A display serif with flared stroke endings inspired by stonecarving. Neither purely serif nor sans — the ambiguity reads as artisanal rather than institutional. Used by: Proper Syrup, Rebag, SomeFolk (pairing: Founders Grotesk), Weston Table (pairing: Engravers), Document Journal.
+
+**Why it's better for Soley:** Playfair Display's stroke contrast reads as "jewelry store" or "wine brand." Canela's flared strokes read as craft-made, material, physical — which is exactly the brand register for a painting company. A painter works with physical material and leaves a mark; Canela's letterforms do the same.
+
+**Pairing:** Canela (headings, 5-7vw, tracked at `0.01em`, no uppercase — Canela loses its character when all-caps) + **Founders Grotesk** (UI labels, body, subheadings — `text-transform: uppercase; letter-spacing: 0.12em` for panel titles).
+
+**Fallback Google Font stack (if Canela licensing is a blocker):** `Cormorant Garamond` at the highest weight (700) with `font-display: swap`. It has similar flared terminals and is free. Not as distinctive, but closer to Canela than Playfair is.
+
+**License:** Canela requires Commercial Type licensing (~$400-800/year for web use). Worth it for a permanent business site. If budget is a concern, use Cormorant Garamond as the build-now font and swap to Canela when the license is acquired.
+
+---
+
+#### Recommendation 2: Pairing Table for the build
+
+| Use case | Font | Size | Weight | Tracking | Transform |
+|---|---|---|---|---|---|
+| Hero headline | Canela (or Cormorant Garamond) | 8-10vw | 700 | 0.01em | none (mixed case) |
+| Section headline | Canela | 4-5vw | 400 | 0.01em | none |
+| Panel title (scroll-lock) | Founders Grotesk (or DM Sans) | 5-6vw | 500 | 0.08em | uppercase |
+| Body copy | DM Sans | 1rem | 400 | normal | none |
+| UI label / caption | Founders Grotesk | 0.7rem | 400 | 0.18em | uppercase |
+| Bottom bar social | DM Sans | 0.7rem | 400 | 0.2em | uppercase |
+
+**Why Founders Grotesk beats DM Sans for panel titles:** Founders Grotesk has slightly irregular grotesque proportions that read as designed rather than system-generated. DM Sans is more neutral. At 5-6vw uppercase, the Founders Grotesk's minor irregularities give each service panel a handcrafted impression.
+
+**Founders Grotesk is free via Klim Type Foundry for testing; requires a web license (~$200-400) for production.** Alternative if both are too expensive: `Sora` from Google Fonts — a geometric grotesque with slightly idiosyncratic letterforms.
+
+---
+
+### SECTION 6 — Color Systems for High-End Painter Brands
+
+#### Finding: Terracotta + Teal is Validated — but Needs a Depth Color Added
+
+The 2026 interior design trend consensus (per multiple sources) is: "olive, terracotta, and warm mahogany ground a room while deep teal and creamy neutrals add definition." The current Soley palette is on-trend and distinctive. No repalette needed.
+
+**What IS missing:** A dark depth color that is NOT black and NOT slate. The current Slate `#2C2C2C` reads as near-black, which is common. A warmer dark improves the system significantly.
+
+#### Revised 5-Color System:
+
+| Token | Name | Hex | Justification |
+|---|---|---|---|
+| `--color-terra` | Terracotta | `#C2603A` | KEEP. Primary brand color, hero glow mid, CTAs. Validated by 2025-2026 interior design trends. |
+| `--color-teal` | Deep Teal | `#2D7A70` | DEEPEN from `#3A8F85`. The Marvell Tile & Stone system uses `#35311F` as its dark anchor with warm ivory — applying that logic here: a slightly deeper teal reads as more sophisticated and less "spa" than the original. |
+| `--color-chalk` | Chalk | `#F5F0EA` | KEEP. This is the Marvell-system ivory equivalent. Warm, not cold white. |
+| `--color-umber` | Warm Umber | `#2C1F16` | REPLACE Slate `#2C2C2C`. An almost-black with warm brown undertones. When `#2C2C2C` sits next to Terracotta it reads as gray-black; `#2C1F16` reads as deep woodwork, which is on-brand for a painter. This is the equivalent of Marvell's `#35311F`. |
+| `--color-gold` | Clay Gold | `#B8935A` | KEEP. Ferrule/metallic detail. Hover states. Service #4 (Cabinet & Trim) accent. |
+
+**The 70/25/5 distribution:**
+- 70% Chalk (backgrounds, cards, section fills)
+- 25% Umber (headings, nav, footer bg, body text)
+- 5% Terracotta + Teal + Gold shared (CTAs, glows, accent bars, hover states)
+
+**Why NOT all-white minimalist:** The Farrow & Ball web approach (white background, greyscale layout, photography carries all warmth) works when you have exceptional photography. Soley doesn't have photography yet. An earth-tone base system carries warmth WITHOUT photography, which matters for a pre-launch site.
+
+**Why NOT the Brandlic Midnight Opulence / Arctic Luxury systems:** Those are tech-brand and skincare palettes. They signal the wrong industry.
+
+**Closest validated reference for this combination:** The Steph Corrigan "Blue Neutral Palette" (`#02000d` + `#07203f` + `#ebded4` + `#d9aa90` + `#a65e46`) — which is structurally the same idea (deep dark + warm ivory + warm accent). Soley's version swaps the blue-black for warm umber and the mauve-orange for pure terracotta.
+
+---
+
+### SECTION 7 — Concrete Builder/Spark Implementation Prompts
+
+**For Hero3D.tsx — Paintbrush Material Setup:**
+```
+Use MeshPhysicalMaterial on the ferrule (metalness: 0.9, roughness: 0.08, clearcoat: 0.6, clearcoatRoughness: 0.1).
+Use MeshStandardMaterial on the handle (roughness: 0.7, metalness: 0.0, color: "#3D2314").
+Use MeshPhysicalMaterial on the bristle bundle (roughness: 0.9, metalness: 0.0, color: "#C2603A", emissive: "#C2603A", emissiveIntensity: 0.18).
+Add <Environment preset="studio" /> from @react-three/drei — removes the need for manual rim lights.
+Bristles: 10 MeshLine strokes (from meshline package) with widthCallback={(p) => (1-p) * 0.006} to taper each bristle to 0 at the tip.
+Rotation: useFrame callback only: meshRef.current.rotation.y += 0.004 + spinVelocity.current; spinVelocity.current *= Math.pow(0.92, delta * 60);
+The spinVelocity.current accumulates from scroll events: window.addEventListener("wheel", e => { spinVelocity.current += e.deltaY * 0.0002; });
+No lerp on the base 0.004 rotation. No sin oscillation. Fixed x-tilt: rotation.x = -0.3 (set once in useEffect, never changed).
+```
+
+**For ServicesScrollLock.tsx — Motion-Based Horizontal Scroll:**
+```
+Replace custom wheel handler with Motion.dev useScroll + useTransform:
+const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end end"] });
+const x = useTransform(scrollYProgress, [0, 1], ["0%", "-400%"]);
+Container height: 500vh. Inner track: position:sticky; top:0; height:100vh; overflow:hidden.
+Apply mood-lerp background: each panel has a panelColor in the data. On scrollYProgress update, lerp CSS var --page-bg between the current and next panel color.
+No snap-type CSS. No matchMedia bail-out on mobile — fix the layout so 100vw panels work on all viewports.
+```
+
+**For the Hero preloader sequence:**
+```
+GSAP timeline sequence:
+1. t=0: Counter div shows "0%", terracotta SVG stroke at strokeDashoffset=strokeLen (invisible).
+2. t=0 → 1.8s: gsap.to counter textContent 0→100 (snap: {textContent:1}), simultaneously strokeDashoffset 1.0→0.0 (stroke grows left to right).
+3. t=1.8s: gsap.to preloaderRef {yPercent: -100, duration: 0.6, ease: "power2.inOut"}.
+4. t=1.8s (parallel): R3F canvas uProgress tweens 0→1 over 0.7s, ease "power2.out".
+5. t=2.0s: SplitText scramble fires on hero headline (0.3s to resolve, random chars → final letters).
+6. t=2.1s: clip-path wipe on subheadline: inset(0 100% 0 0) → inset(0 0% 0 0), 0.6s, "power2.out".
+Total: ~2.8s to fully interactive hero.
+Use direct DOM mutation (element.style.*) for clip-path updates at 60fps — not React state, not Framer Motion whileInView.
+```
+
+**For the background mood lerp during horizontal scroll:**
+```js
+// Data at top of ServicesScrollLock.tsx
+const panelColors = ["#F5F0EA", "#2D7A70", "#2C1F16", "#B8935A", "#C2603A"];
+
+// Inside useTransform onChange handler:
+function lerpHex(a, b, t) { /* RGB lerp */ }
+const handleXChange = (latest) => {
+  const progress = Math.abs(latest) / (containerWidth * 0.8); // 0→1 across 5 panels
+  const idx = Math.min(Math.floor(progress * 4), 3);
+  const blend = (progress * 4) - idx;
+  document.documentElement.style.setProperty("--page-bg", lerpHex(panelColors[idx], panelColors[idx+1], blend));
+};
+x.onChange(handleXChange);
+```
+
+**For the Sticky Grid Reveal "Why Soley" section:**
+```
+3-column sticky grid, container height: 300vh.
+GSAP ScrollTrigger on the container:
+  - Column 1 (Prep): animates from y:-120px, opacity:0 → y:0, opacity:1 (power1.inOut)
+  - Column 2 (Paint): animates from y:+120px, opacity:0 → y:0, opacity:1 (stagger: 0.12s)
+  - Column 3 (Finish): animates from y:-120px, opacity:0 → y:0, opacity:1 (stagger: 0.24s)
+At 50% scroll through the 300vh runway, grid scales to 1.08 (subtle zoom, not the 2.05 of the demo — that's too dramatic for services content).
+Each column has: icon (SVG, 48px), title in Founders Grotesk uppercase, 2-sentence description in DM Sans.
+No ghost numbers. No large background numerals. Foreground column titles at full opacity only.
+```
+
+**For typography — if Canela is not licensed yet:**
+```
+globals.css:
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,700;1,400&family=DM+Sans:wght@400;500&display=swap');
+
+--font-heading: "Cormorant Garamond", serif;
+--font-body: "DM Sans", sans-serif;
+
+Hero headline: font-family: var(--font-heading); font-weight: 700; font-size: clamp(3.5rem, 8vw, 7.5rem); letter-spacing: 0.01em;
+Panel titles: font-family: var(--font-body); font-weight: 500; font-size: clamp(2.5rem, 5.5vw, 5.5rem); letter-spacing: 0.08em; text-transform: uppercase;
+
+When Canela license is acquired, swap --font-heading to "Canela" and remove Cormorant Garamond import.
+```
+
+---
+
+*Scout cycle 2 complete. 35 tool calls used. No code modified. Research only.*
