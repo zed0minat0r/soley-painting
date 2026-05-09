@@ -64,7 +64,7 @@ const ITEMS = [
     question: 'Do you remove existing wallpaper?',
     answer:
       'Yes — wallpaper removal is in scope. How long it takes depends on how many layers are present, the age of the adhesive, and what surface is underneath. We assess that at the walkthrough and quote removal as a separate line item so you see the cost clearly. After removal, we skim-coat any surface damage before priming.',
-    accent: 'var(--color-teal)',
+    accent: 'var(--color-slate)',
   },
   {
     id: 'color-matching',

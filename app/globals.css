@@ -282,7 +282,7 @@
 
 /* ── Page-wide :focus-visible a11y sweep (Spark cycle 7, Frame B)
    Every keyboard-focusable element gets a 2px brand-color ring.
-   Terracotta on dark-panel sections, teal on light-panel sections.
+   Terracotta on dark-panel sections, ochre on light-panel sections.
    Hand-tuned offsets per element type — NOT browser default blue.
    Applies to: buttons, links, inputs, textareas, accordions, chips, tabs.
    Focus ring must be visible against umber + chalk panel backgrounds.    */
