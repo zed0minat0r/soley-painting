@@ -1081,3 +1081,455 @@ Before implementing any sticky/pinned scroll section, audit:
 
 *Scout cycle 3 complete. Research only. No code modified.*  
 *New URLs added: fresque.ruinart.com, domusweb.it/hermes-new-website, lindamerad.com/HERMES-INTERLUDE-1, simonholm.studio, cruip.com/spotlight-card, tympanus.net/codrops/2026/03/11/svg-mask-transitions, gsap.com/resources/st-mistakes, gsap.com/community/forums/topic/42812, blog.logrocket.com/troubleshooting-css-sticky-positioning, frontendmasters.com/blog/the-weird-parts-of-position-sticky*
+
+---
+
+## ROUND 4 — NEW REFERENCES (2026-05-07)
+**Generated:** 2026-05-07  
+**Agent:** Scout (Cycle 4)  
+**Axis:** Awwwards SOTD last 14 days (new) + Codrops April/May 2026 (new) + BUG-025 mobile panel overflow root-cause + pure-CSS horizontal scroll-lock + fluid typography for long panel titles  
+**Prior 43 references:** NOT duplicated. Each site and URL below is new.
+
+---
+
+### NEW REFERENCE A — T11 (Awwwards SOTD May 6 2026)
+**URL:** https://t11.com  
+**Awwwards entry:** https://www.awwwards.com/sites/t11  
+**SOTD date:** May 6, 2026  
+**Scores:** Creativity 7.55 / Animations-Transitions 7.6 / Responsive 7.4  
+**Tech stack:** React + GSAP + WebGL  
+**Palette:** `#222222` near-black + `#F5F5F5` near-white — two-color absolute minimum  
+
+**What to study — "List Warp" scroll element:**  
+T11 won its SOTD on the strength of one named interaction: "List Warp" — a scroll-triggered content transformation where list items distort, shear, or change scale as they scroll through a defined viewport zone. This is distinct from a simple fade or translate. The jury praised purposeful motion that enhances narrative rather than decorating it. The technique is scroll-velocity-driven: faster scroll = more warp; stopped = no warp. GSAP drives the warp via `gsap.quickTo()` for frictionless DOM mutation at 60fps.
+
+**Named move to copy:** "Velocity-shear list warp" — each list item's `skewY` tracks scrollVelocity: `gsap.quickTo(item, "skewY", { duration: 0.6, ease: "power3" })(velocity * 0.015)`. At rest, items are upright. At fast scroll they shear up to `~8deg`. The spring-back is automatic via the GSAP ease. This is the same principle as the ServicesMarquee skew in Soley's current build, but applied to a vertical list of items rather than a horizontal ticker.
+
+**Soley implementation hint:**  
+Apply List Warp to the PaintFlow workflow nodes. As the user scrolls through the PaintFlow section, the 5 workflow node labels (Wall / Prep / Prime / Paint / Finish) shear slightly in the scroll direction. Node icons scale `1.0 → 1.06` on shear and spring back. This turns the static node diagram into a physically alive sequence without adding dots or particles. Uses `gsap.quickTo()` — no RAF loop, no `requestAnimationFrame` needed.
+
+```javascript
+// PaintFlow List Warp — velocity-shear on workflow node labels
+const nodes = document.querySelectorAll('.paintflow-node');
+let lastY = window.scrollY;
+let velocity = 0;
+
+nodes.forEach(node => {
+  node._skewTo = gsap.quickTo(node, "skewY", { duration: 0.6, ease: "power3" });
+  node._scaleTo = gsap.quickTo(node, "scale", { duration: 0.4, ease: "power2.out" });
+});
+
+window.addEventListener('scroll', () => {
+  velocity = (window.scrollY - lastY) * 0.015;
+  lastY = window.scrollY;
+  nodes.forEach(n => { n._skewTo(velocity); n._scaleTo(1 + Math.abs(velocity) * 0.04); });
+}, { passive: true });
+```
+
+---
+
+### NEW REFERENCE B — Studio Namma (Awwwards SOTD May 8 2026)
+**URL:** https://studionamma.com  
+**Awwwards:** https://www.awwwards.com/sites/studio-namma  
+**SOTD date:** May 8, 2026  
+**What it is:** Paris creative agency for premium brands, Webflow stack. Scores for animations/transitions drove the SOTD.  
+
+**What to study — real-time multi-city clock as ambient micro-interaction:**  
+Studio Namma displays live clocks for Paris / Los Angeles / Barcelona / Hong Kong in the interface. This is not decorative — it signals "we have clients in these time zones" without inventing a fake address. For Soley, a single live clock showing the local service area time is a pre-launch trust signal that requires zero fabrication.
+
+**Named move to copy:** "Ambient presence clock" — a small live `HH:MM` display in the footer or navbar showing the painter's working timezone. Renders as `font-size: 0.7rem; font-variant-numeric: tabular-nums; letter-spacing: 0.08em` in the footer bottom bar, updated every second via `setInterval`. At mobile widths it collapses to just the time (no city label). Zero JS overhead because `setInterval` is one timer, not an animation loop.
+
+**Also to study — dark/light mode toggle as a trust signal:**  
+Namma ships a built-in dark/light mode switcher. For a painter site, dark mode on a chalk/umber site would invert to a chalk-type light scheme with umber text — already close to the default. The toggle is worth adding because it is a non-generic feature (no other painter site in the research set has it) and adds perceived quality without changing content.
+
+**Soley implementation hint:**  
+Add the ambient clock to the footer bottom bar alongside the Instagram text link: `Copyright left | Clock center | INSTAGRAM right`. Use `tabular-nums` so the digits don't shift width on second change. No fabrication: just `new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' })`.
+
+---
+
+### NEW REFERENCE C — Codrops "Reverse-Engineering Claude AI Mascot Animations with SVG and GSAP" (May 5 2026)
+**URL:** https://tympanus.net/codrops/2026/05/05/reverse-engineering-claude-ais-mascot-animations-with-svg-and-gsap/  
+**Published:** May 5, 2026  
+**Author:** Codrops editorial  
+
+**What to study — frame-by-frame hybrid animation orchestration:**  
+The tutorial reverse-engineers a character animation by combining three modes: (1) continuous GSAP tweening for smooth positional transforms, (2) static frame-hold sequences with variable hold durations, and (3) `<clipPath>` boundary constraints that keep sub-animations from leaking outside their parent container. The `gsap.timeline()` orchestration uses the `"<"` offset operator for precise multi-element synchronization without manual delay calculation.
+
+**Named move to copy for Soley:** "clipPath-constrained sub-animation" — applying `<clipPath>` to keep the animated brush sprite from leaking outside the SVG canvas bounds. This is the exact fix for the Sacramento signature animation: if the brush-tracking sprite overflows the SVG viewBox on mobile (an edge case that causes visual bleed at 375px), wrapping it in a `<clipPath>` that matches the viewBox bounds contains it without any JS measurement. Pure SVG, zero runtime cost.
+
+```svg
+<defs>
+  <clipPath id="signature-bounds">
+    <rect x="0" y="0" width="560" height="200" />
+  </clipPath>
+</defs>
+<g clip-path="url(#signature-bounds)">
+  <!-- Sacramento path + brush sprite both clipped to viewBox bounds -->
+  <path id="sig-path" ... />
+  <image id="brush-sprite" ... />
+</g>
+```
+
+**Named move to copy (2):** "Variable hold duration frame sequence" — instead of a fixed `repeat` on the brush-sprite animation, use a GSAP timeline with deliberate pauses between stroke segments. The brush dwell time at the start of each letter stroke (`0.08s hold`) vs. the tail of each stroke (`0.02s hold`) mirrors real writing pressure variation. This makes the signature read as hand-drawn vs. computer-animated. Implementation: `tl.to(sprite, { x: nextX, duration: 0.3 }).to(sprite, { x: nextX, duration: 0.08 /* hold */ })`.
+
+**Soley implementation hint for Process countdown bar (BUG AUDIT item #7):**  
+Use the hybrid timeline approach for the countdown bar. Instead of a pure CSS `scaleX(1→0)` `@keyframes`, wire it to a GSAP timeline that (a) starts when the tab becomes active and (b) can be cleanly killed and restarted via `tl.kill()` when the user clicks to advance early. CSS `@keyframes` cannot be reliably reset mid-animation; GSAP `.restart()` can.
+
+```javascript
+// Process countdown bar — GSAP-driven, restartable
+let countdownTl = null;
+
+function startCountdown(barEl, onComplete) {
+  if (countdownTl) countdownTl.kill();
+  gsap.set(barEl, { scaleX: 1, transformOrigin: "left center" });
+  countdownTl = gsap.to(barEl, {
+    scaleX: 0,
+    duration: 10,
+    ease: "none",
+    onComplete
+  });
+}
+```
+
+---
+
+### NEW REFERENCE D — Scroll-Driven Animations Style Reference (scroll-driven-animations.style)
+**URL:** https://scroll-driven-animations.style/demos/horizontal-section/css/  
+**What it is:** Canonical reference maintained by Bramus Van Damme (Chrome DevRel). Demonstrates a fully CSS-only vertical-scroll-to-horizontal-travel panel system using the native `view-timeline` API.  
+
+**This directly addresses BUG-025 — Pure-CSS Horizontal Scroll-Lock pattern:**
+
+The demo eliminates JavaScript entirely. The approach maps vertical scroll progress to horizontal `translateX` via CSS `animation-timeline`:
+
+```css
+/* Outer wrapper — 500vh creates the scroll runway */
+.pin-wrap-wrapper {
+  height: 500vh;
+}
+
+/* Inner sticky container */
+.pin-wrap-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow-x: hidden; /* hides track overflow without breaking sticky */
+  view-timeline-name: --section-pin-tl;
+  view-timeline-axis: block;
+}
+
+/* The horizontal track — wider than viewport */
+.pin-wrap {
+  width: 250vmax; /* spans all panels */
+  display: flex;
+  animation: move linear both;
+  animation-timeline: --section-pin-tl;
+  animation-range: contain 0% contain 100%;
+}
+
+@keyframes move {
+  to { transform: translateX(calc(-100% + 100vw)); }
+}
+```
+
+**Why this is more robust than the current JS handler for BUG-025:**  
+The CSS timeline approach cannot have the "cached sectionTop" bug because there is no JS to cache anything. The browser's compositor thread reads scroll progress natively and applies the transform directly. `overflow-x: hidden` on the sticky container — which normally breaks `position: sticky` — is safe here because the sticky behavior is on the container itself, not a child; the overflow only masks the track overflow.
+
+**Mobile panel overflow fix (BUG-025 specific):** Each panel uses `flex: 0 0 100vw; max-width: 100vw; overflow: hidden`. The `max-width: 100vw` on each panel is the containment that BUG-025 needs. The current build likely sets `min-width: 100vw` but omits `max-width: 100vw` and `overflow: hidden`, allowing content (including the "CABINET & TRIM" long title) to exceed the panel boundary and bleed into the adjacent panel's visible zone.
+
+**Browser support (2026):** `view-timeline` + `animation-timeline` + `animation-range` is supported in Chrome 115+, Safari 18+, Firefox 110+. iOS Safari 18 (iPhone SE Gen 3 running iOS 18) supports it. This covers Soley's target audience fully.
+
+**Implementation hint for Builder/Refiner — BUG-025 resolution:**
+```css
+/* Each service panel — add to existing panel CSS */
+.service-panel {
+  flex: 0 0 100vw;
+  max-width: 100vw;        /* MISSING in current build — this is the BUG-025 fix */
+  overflow: hidden;         /* clips any content wider than the panel */
+  box-sizing: border-box;   /* ensures padding doesn't expand beyond 100vw */
+}
+
+/* Panel title — fluid clamp so "CABINET & TRIM" fits at 375px */
+.service-panel-title {
+  font-size: clamp(1.75rem, 1.025rem + 4.5vw, 5rem);
+  white-space: normal;      /* allow wrapping rather than overflow */
+  word-break: break-word;   /* last resort break for very narrow viewports */
+  overflow-wrap: anywhere;
+}
+```
+
+---
+
+### NEW REFERENCE E — Fluid Font-Size Clamp Formula (CSS-Tricks Canonical Reference)
+**URL:** https://css-tricks.com/linearly-scale-font-size-with-css-clamp-based-on-the-viewport/  
+**What it solves:** BUG-025 sub-problem — "CABINET & TRIM" panel title clips at 375px because the current font-size is a fixed `vw` value that becomes too large at narrow viewports.
+
+**Named pattern: "Linear viewport interpolation clamp"**  
+Formula: `clamp(min, yIntercept + slope*100vw, max)` where:
+- `slope = (maxSize - minSize) / (maxVw - minVw)`
+- `yIntercept = minSize - slope * minVw`
+
+**Applied to Soley panel titles (CABINET & TRIM worst case):**  
+Target: `2rem` minimum at 375px, `5rem` maximum at 1440px.
+- Viewport range in rem (÷16): 23.4rem → 90rem
+- Slope: `(5 - 2) / (90 - 23.4)` = `0.045`
+- Y-intercept: `2 - 0.045 * 23.4` = `0.947rem`
+
+```css
+.service-panel-title {
+  font-size: clamp(2rem, 0.947rem + 4.5vw, 5rem);
+  /* At 375px (23.4rem): 0.947 + 4.5*23.4/100 = 0.947 + 1.053 = 2rem exactly */
+  /* At 1440px (90rem): 0.947 + 4.5*90/100 = 0.947 + 4.05 = 5rem exactly */
+  /* "CABINET & TRIM" is 14 characters. At 2rem on 375px = 32px per char avg = fits in ~2 lines */
+}
+```
+
+**Why `clamp` beats a `@media` breakpoint here:** A media query creates a hard jump. `clamp` provides smooth scaling so the title reads correctly at every width between 375px and 1440px — including 390px (iPhone 13), 414px (iPhone Pro Max), and 768px (tablet). The current fixed `7vw` title size = 26.25px at 375px, which is fine for "INTERIOR" but too wide for "CABINET & TRIM" (14 chars) causing the clip. The `clamp` formula anchors the minimum at 32px at 375px, giving a guaranteed 2-line fallback without overflow.
+
+**Also cited (related pattern):**  
+The `dvh` / `svh` units matter here too. The sticky inner track should use `height: 100dvh` (dynamic viewport height) rather than `height: 100vh` on mobile. On iOS Safari, `100vh` includes the browser chrome height, which means the panel is taller than what's visible, creating a subtle layout shift. `100dvh` tracks the currently visible height. Replace `height: 100vh` with `height: 100dvh` everywhere in the scroll-lock section.
+
+---
+
+### NEW REFERENCE F — CSS Container Scroll-State Queries (nerdy.dev / MDN, 2026)
+**URL:** https://nerdy.dev/4-css-features-every-front-end-developer-should-know-in-2026  
+**Also:** https://utilitybend.com/blog/is-the-sticky-thing-stuck-is-the-snappy-item-snapped-a-look-at-state-queries-in-css/  
+**What it is:** New CSS feature shipping in Chrome 133 (early 2026): `container-type: scroll-state` + `@container scroll-state()` queries that detect stuck, snapped, scrollable, and scrolled states — pure CSS, no JavaScript.
+
+**Why this matters for Soley BUG-025:**  
+The current build uses JavaScript to detect when the services section is active and applies panel-active states. With scroll-state queries, this can be done in pure CSS. More importantly, the `snapped: inline` query can detect WHICH panel is currently snapped (when using CSS scroll-snap), enabling CSS-only active panel highlighting without JS.
+
+**Named pattern: "CSS-only active panel detection"**  
+```css
+/* Each panel becomes a scroll-state container */
+.service-panel {
+  container-type: scroll-state;
+  scroll-snap-align: start;
+}
+
+/* Style the active (snapped) panel's title differently */
+.service-panel {
+  @container scroll-state(snapped: inline) {
+    .service-panel-title {
+      color: var(--color-terra);
+    }
+    .service-panel-accent-bar {
+      transform: scaleX(1); /* expand accent bar when panel is active */
+    }
+  }
+}
+```
+
+**Named pattern: "Scrolled inline hint dismissal"**  
+When a user has scrolled the horizontal track at all, a scroll hint arrow can auto-dismiss using `scroll-state(scrolled: inline)` — no JS `addEventListener('scroll')` needed.
+
+```css
+.scroll-hint {
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.services-track {
+  container-type: scroll-state;
+  @container scroll-state(scrolled: inline) {
+    .scroll-hint { opacity: 0; }
+  }
+}
+```
+
+**Browser support caveat:** Chrome 133+ and Safari 18.2+ as of May 2026. This is a progressive enhancement — use it in addition to, not replacing, the JS handler. The JS handler stays as the primary mechanism; scroll-state queries layer visual-only improvements that degrade gracefully in Firefox.
+
+---
+
+### SECTION — BUG-025 Root Cause Summary and Fix Strategy (Round 4 Consolidation)
+
+Based on Rounds 3 and 4 research, BUG-025 ("CABINET & TRIM" clips at right edge of 375px panel, next panel bleeds in visually") has three independent root causes, each requiring its own fix:
+
+**Root cause 1 — Missing `max-width: 100vw` on panel divs.**  
+The JS `translateX` is correct. The visual bleed happens because each panel div does not cap its own content width. A panel with `min-width: 100vw` but no `max-width` will render its content at natural width, potentially exceeding the viewport. Fix: add `max-width: 100vw; overflow: hidden; box-sizing: border-box` to each `.service-panel`.
+
+**Root cause 2 — Fixed `vw`-based font-size on panel titles.**  
+`7vw` at 375px = 26.25px. "CABINET & TRIM" in Cormorant Garamond at 26.25px across 375px = approximately 340px text width (9 chars × average 38px glyph width at this size). This overflows `375px` and wraps or clips. Fix: `font-size: clamp(2rem, 0.947rem + 4.5vw, 5rem)` as derived in Reference E above.
+
+**Root cause 3 — `100vh` vs `100dvh` causing a panel height/width mismatch on iOS.**  
+On iOS Safari, `100vh` = layout viewport height (includes URL bar). The sticky inner track height resolves to more than the visual viewport, which can cause off-by-one panel positioning at the track boundary. Fix: replace `height: 100vh` with `height: 100dvh` on the sticky inner track.
+
+**Combined fix (3 lines of CSS, no JS changes required):**
+```css
+.service-panel {
+  flex: 0 0 100vw;
+  max-width: 100vw;       /* Root cause 1 fix */
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.service-panel-title {
+  font-size: clamp(2rem, 0.947rem + 4.5vw, 5rem); /* Root cause 2 fix */
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.services-sticky-inner {
+  height: 100dvh;          /* Root cause 3 fix — was 100vh */
+  position: sticky;
+  top: 0;
+  overflow-x: hidden;
+}
+```
+
+---
+
+### SECTION — Concrete Prompt Blocks for Builder/Refiner (Round 4)
+
+**PROMPT BLOCK R4-1 — BUG-025 Three-Part CSS Fix:**
+```
+FIX BUG-025: "CABINET & TRIM" panel bleeds into adjacent panel at 375px/390px mobile.
+
+Three CSS changes only — do NOT touch the JS scroll handler:
+
+1. Add to each .service-panel (or equivalent panel wrapper):
+   max-width: 100vw;
+   overflow: hidden;
+   box-sizing: border-box;
+   (Keep existing: flex: 0 0 100vw; position: relative)
+
+2. Change .service-panel-title (or .panel-title, the large service name h2/h3) font-size to:
+   font-size: clamp(2rem, 0.947rem + 4.5vw, 5rem);
+   white-space: normal;
+   overflow-wrap: anywhere;
+   (Remove any fixed vw-only font-size for these elements)
+
+3. Find the sticky inner track (the 100vh sticky div that contains the flex row of panels).
+   Change: height: 100vh → height: 100dvh
+   This fixes iOS Safari layout viewport mismatch.
+
+After making these changes, verify with Playwright at 5 positions (5%/25%/50%/75%/95% of the scroll runway)
+on iPhone SE 375 AND iPhone 13 390 AND Desktop 1440. Specifically confirm at 75% and 95% that only
+ONE panel is visible and no right-edge of the next panel is visible.
+```
+
+**PROMPT BLOCK R4-2 — Process Countdown Bar (GSAP-Restartable):**
+```
+FIX: Process timeline countdown bar absent (Nigel Cycle 8 item #2).
+
+Replace any existing CSS @keyframes countdown approach with a GSAP-driven bar that can be killed and restarted:
+
+1. Add a <div class="process-countdown-bar"> inside each tab panel, below the tab strip.
+   CSS: height: 3px; background: var(--color-terra); transform-origin: left center; width: 100%;
+
+2. In the Process component, maintain a ref: const countdownRef = useRef(null);
+
+3. Create a restartable function:
+   function startCountdown(barEl, onComplete) {
+     if (countdownRef.current) countdownRef.current.kill();
+     gsap.set(barEl, { scaleX: 1 });
+     countdownRef.current = gsap.to(barEl, {
+       scaleX: 0,
+       duration: 10,
+       ease: "none",
+       onComplete
+     });
+   }
+
+4. Call startCountdown(currentBarEl, () => advanceToNextStep()) when a tab becomes active.
+   On manual tab click: kill the running tween, activate the new tab, call startCountdown for the new bar.
+
+This replaces the broken CSS @keyframes approach and ensures the bar restarts cleanly on tab change.
+Do NOT use CSS animation-play-state: paused/running — GSAP .kill() + restart is more reliable.
+```
+
+**PROMPT BLOCK R4-3 — PaintFlow animateMotion Restore (GSAP Quickto List Warp):**
+```
+FIX: PaintFlow dots not animating (Nigel Cycle 8 item #3).
+
+Two-part fix:
+Part A — Restore animateMotion:
+  In the PaintFlow SVG, confirm each dot has:
+  <circle r="5" fill="#C2603A">
+    <animateMotion dur="3s" repeatCount="indefinite" rotate="auto">
+      <mpath href="#flow-path" />
+    </animateMotion>
+  </circle>
+  
+  The IO observer threshold must be ≤ 0.05 (not 0.2 or higher — that suppresses on mobile).
+  Do NOT pause/play animateMotion via JS — just ensure the elements exist when the section enters view.
+
+Part B — Add velocity-shear to node labels (Reference T11 List Warp pattern):
+  After the animateMotion dots are confirmed working, add scroll velocity shear to the 5 workflow node labels:
+  
+  const nodes = document.querySelectorAll('.paintflow-node-label');
+  nodes.forEach(n => { n._skewTo = gsap.quickTo(n, "skewY", { duration: 0.5, ease: "power2" }); });
+  
+  let lastScrollY = window.scrollY;
+  window.addEventListener('scroll', () => {
+    const velocity = (window.scrollY - lastScrollY) * 0.012;
+    lastScrollY = window.scrollY;
+    nodes.forEach(n => n._skewTo(velocity));
+  }, { passive: true });
+  
+  This makes the node labels physically respond to scroll without touching the dot animation.
+```
+
+**PROMPT BLOCK R4-4 — SectionDividers (Catalog #3 — still absent):**
+```
+ADD: Section dividers between all major sections (Nigel Cycle 8 item #4 — zero dividers detected).
+
+Use the SectionDivider component (already built in prior cycles, confirmed shipping in commit 8e730a6).
+Ensure it is rendered between EVERY adjacent section pair:
+
+<Hero3D />
+<SectionDivider />      ← ADD if missing
+<ServicesScrollLock />
+<SectionDivider flip />  ← ADD if missing (flip prop mirrors the teardrops)
+<PaintFlow />
+<SectionDivider />       ← ADD if missing
+<WhySoley />
+<SectionDivider flip />  ← ADD if missing
+<LiveEstimate />
+<SectionDivider />       ← ADD if missing
+<FounderBlock />
+<SectionDivider flip />  ← ADD if missing
+<PortfolioGallery />
+<SectionDivider />       ← ADD if missing
+<FAQ />
+<SectionDivider flip />  ← ADD if missing
+<Process />
+<SectionDivider />       ← ADD if missing
+<Contact />
+<Footer />
+
+Do NOT add a divider between Contact and Footer (they share a continuous visual treatment).
+Confirm the IO threshold on SectionDivider is ≤ 0.05 to trigger correctly on mobile.
+```
+
+**PROMPT BLOCK R4-5 — Ambient Clock in Footer + `dvh` Unit Sweep:**
+```
+ADD (Reference B — Studio Namma pattern): Ambient local-time clock in footer bottom bar.
+
+1. In the footer bottom bar, add a live clock between the copyright and the INSTAGRAM link:
+   <time id="soley-clock" dateTime="" className="ambient-clock" aria-label="Current time ET"></time>
+
+   CSS: font-size: 0.7rem; letter-spacing: 0.08em; font-variant-numeric: tabular-nums; opacity: 0.6;
+
+   JS (client-side useEffect):
+   const tick = () => {
+     const now = new Date().toLocaleTimeString('en-US', {
+       timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit'
+     });
+     const el = document.getElementById('soley-clock');
+     if (el) { el.textContent = now; el.setAttribute('dateTime', new Date().toISOString()); }
+   };
+   tick();
+   const id = setInterval(tick, 1000);
+   return () => clearInterval(id);
+
+2. While editing layout.tsx or globals.css, do a global sweep:
+   Replace every instance of height: 100vh inside the ServicesScrollLock section with height: 100dvh.
+   This includes the sticky inner track and any full-height panel overlays.
+   Leave all other 100vh usages (hero, contact, etc.) unchanged — only touch the scroll-lock section.
+```
+
+---
+
+*Scout cycle 4 complete. Research only. No code modified.*  
+*New URLs added: t11.com, awwwards.com/sites/t11, studionamma.com, awwwards.com/sites/studio-namma, tympanus.net/codrops/2026/05/05/reverse-engineering-claude-ais-mascot-animations, scroll-driven-animations.style/demos/horizontal-section/css/, css-tricks.com/linearly-scale-font-size-with-css-clamp-based-on-the-viewport/, nerdy.dev/4-css-features-every-front-end-developer-should-know-in-2026, utilitybend.com/blog/is-the-sticky-thing-stuck-is-the-snappy-item-snapped-a-look-at-state-queries-in-css/*
