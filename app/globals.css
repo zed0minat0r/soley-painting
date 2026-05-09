@@ -43,12 +43,6 @@
 }
 
 @layer components {
-  .gradient-text {
-    background: linear-gradient(135deg, var(--color-terra), var(--color-gold));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
   .btn-primary {
     display: inline-flex;
     align-items: center;
@@ -89,10 +83,6 @@
     border-color: var(--color-chalk);
     transform: translateY(-1px);
   }
-  .section-padding {
-    padding-top: 5rem;
-    padding-bottom: 5rem;
-  }
   .container-width {
     max-width: 80rem;
     margin-left: auto;
@@ -116,13 +106,6 @@
     0 0 8px rgba(45, 122, 112, 0.6),
     0 0 20px rgba(184, 147, 90, 0.35);
 }
-.glow-terra {
-  text-shadow:
-    0 0 2px #fff,
-    0 0 12px rgba(194, 96, 58, 0.8),
-    0 0 32px rgba(194, 96, 58, 0.4);
-}
-
 /* ── SSR-safe scroll reveal (catalog item #9) ─────────────────────────
    Hidden state ships in SSR HTML — no hydration flash                    */
 .scroll-reveal {
