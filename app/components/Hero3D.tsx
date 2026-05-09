@@ -649,7 +649,7 @@ export default function Hero3D() {
             bottom: '0.625rem',
             right: '0.75rem',
             fontFamily: 'var(--font-body)',
-            fontSize: '0.6875rem',
+            fontSize: '0.8125rem',
             letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: 'rgba(34, 24, 16, 0.35)',

@@ -200,7 +200,7 @@ export default function ServicesScrollLock() {
         style={{
           position: 'sticky',
           top: 0,
-          height: '100vh',
+          height: '100dvh',
           overflow: 'hidden',
         }}
       >
@@ -248,7 +248,7 @@ export default function ServicesScrollLock() {
             willChange: 'transform',
             display: 'flex',
             width: trackWidth,
-            height: '100vh',
+            height: '100dvh',
           }}
         >
           {PANELS.map((panel, i) => (
@@ -256,7 +256,7 @@ export default function ServicesScrollLock() {
               key={panel.id}
               style={{
                 width: panelPx,
-                height: '100vh',
+                height: '100dvh',
                 background: panel.bg,
                 display: 'flex',
                 alignItems: 'center',

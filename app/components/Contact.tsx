@@ -204,7 +204,7 @@ export default function Contact() {
           </div>
 
           {/* Right — Live estimate preview + form */}
-          <div className="scroll-reveal" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
             {/* Live auto-typing estimate demo (catalog item #6) */}
             <div
