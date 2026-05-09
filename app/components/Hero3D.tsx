@@ -508,7 +508,7 @@ export default function Hero3D() {
           maxWidth: '36ch',
         }}
       >
-        One crew. One contact. Every wall done right.
+        Owner-operated. Same crew start to finish. Free walkthrough, written quote in 24 hours.
       </p>
 
       {/* ── ICON DRAW CENTERPIECE ── */}

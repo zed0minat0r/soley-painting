@@ -95,3 +95,4 @@
 2026-05-07 15:55 nigel — focus axis: photography/content-honesty, top issue: PortfolioGallery 1681px tall with zero real work samples is the site's largest pre-launch trust deficit; body font measured 13px below 14px floor
 2026-05-07 16:01 qa — SE375+IP13+IP14PM+Desktop 1440, 5 Nigel-12 findings verified, 3 new bugs (BUG-059 cursor absent 23%, BUG-060 H1 sub-copy dupe, BUG-061 portfolio 3744px mobile), all 5 Nigel findings CONFIRMED
 2026-05-07 17:15 pixel — font-size floor: bumped all 0.8125rem (13px) → 0.875rem (14px) + 0.6875rem (11px) → 0.875rem across globals.css (7 selectors) + 11 components (27 inline styles), 34 total, build clean, commit e7d8e36
+2026-05-07 17:45 refiner — BUG-060 hero sub-copy rewritten (no longer repeats H1 phrase); BUG-059 LiveEstimate cursor always-mounted (opacity toggle, .le-cursor class, 3 spans always in DOM); BUG-061 portfolio mobile 2-col grid + 3:2 aspect ratio (SE375=1717px, IP13=1722px, both ≤2200px target)

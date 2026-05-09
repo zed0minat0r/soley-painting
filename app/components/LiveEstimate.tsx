@@ -140,8 +140,10 @@ export default function LiveEstimate() {
     wordBreak: 'break-word' as const,
   })
 
-  const blinkCursor = (
+  /* cursor is ALWAYS mounted; visibility toggled so it transitions cleanly */
+  const blinkCursor = (cursorVisible: boolean) => (
     <span
+      className="le-cursor"
       style={{
         display: 'inline-block',
         width: '2px',
@@ -150,6 +152,8 @@ export default function LiveEstimate() {
         marginLeft: '2px',
         verticalAlign: 'middle',
         animation: 'blink-cursor 0.8s step-end infinite',
+        opacity: cursorVisible ? 1 : 0,
+        transition: 'opacity 0.15s ease',
       }}
     />
   )
@@ -337,7 +341,7 @@ export default function LiveEstimate() {
                 <label style={labelStyle}>Project type</label>
                 <div style={fieldBox(cursorField === 'type')}>
                   {typeValue || (phase === 'idle' && <span style={{ color: 'rgba(245,240,234,0.28)' }}>Interior, exterior, commercial…</span>)}
-                  {cursorField === 'type' && blinkCursor}
+                  {blinkCursor(cursorField === 'type')}
                 </div>
               </div>
 
@@ -346,7 +350,7 @@ export default function LiveEstimate() {
                 <label style={labelStyle}>Property address</label>
                 <div style={fieldBox(cursorField === 'address')}>
                   {addressValue || (phase === 'idle' && <span style={{ color: 'rgba(245,240,234,0.28)' }}>Street address…</span>)}
-                  {cursorField === 'address' && blinkCursor}
+                  {blinkCursor(cursorField === 'address')}
                 </div>
               </div>
 
@@ -360,7 +364,7 @@ export default function LiveEstimate() {
                   }}
                 >
                   {messageValue || (phase === 'idle' && <span style={{ color: 'rgba(245,240,234,0.28)' }}>Tell us about your project…</span>)}
-                  {cursorField === 'message' && blinkCursor}
+                  {blinkCursor(cursorField === 'message')}
                 </div>
               </div>
             </div>
