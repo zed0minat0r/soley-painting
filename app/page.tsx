@@ -23,11 +23,17 @@ export default function Home() {
       <SectionDivider />
       <ServicesMarquee />
       <ServicesScrollLock />
+      <SectionDivider />
       <PaintFlow />
+      <SectionDivider />
       <WhySoley />
+      <SectionDivider />
       <FounderBlock />
+      <SectionDivider />
       <PortfolioGallery />
+      <SectionDivider />
       <FAQ />
+      <SectionDivider />
       <Process />
       <LiveEstimate />
       <SectionDivider />
