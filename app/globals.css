@@ -355,3 +355,220 @@
     gap: 2rem;
   }
 }
+
+/* ── Portfolio Gallery (catalog gap-fill — Builder cycle 3) ─────────────
+   Section, filter chips, tile grid, painted-swatch placeholders          */
+.portfolio-section {
+  padding: 7rem 2rem 7rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.portfolio-header {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.portfolio-eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-terra);
+  margin-bottom: 0.75rem;
+}
+
+.portfolio-headline {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  color: var(--color-slate);
+  line-height: 1.1;
+  margin-bottom: 1.1rem;
+}
+
+.portfolio-sub {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: rgba(44, 44, 44, 0.65);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.65;
+}
+
+/* ── Filter chips row ───────────────────────────────────────────────────── */
+.portfolio-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+
+.portfolio-chip {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.625rem 1.25rem;
+  min-height: 44px;
+  min-width: 44px;
+  border: 1.5px solid var(--color-slate);
+  color: var(--color-slate);
+  background: transparent;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.portfolio-chip:hover {
+  border-color: var(--color-terra);
+  color: var(--color-terra);
+}
+
+.portfolio-chip--active {
+  background: var(--color-terra);
+  border-color: var(--color-terra);
+  color: var(--color-chalk);
+}
+
+/* ── Tile grid ──────────────────────────────────────────────────────────── */
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+}
+
+/* ── Individual tile ────────────────────────────────────────────────────── */
+.portfolio-tile {
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--color-chalk);
+  box-shadow: 0 2px 14px rgba(44, 44, 44, 0.08);
+  transition: box-shadow 0.25s ease, transform 0.25s ease,
+              opacity 0.2s ease;
+}
+
+.portfolio-tile:hover {
+  box-shadow: 0 6px 32px rgba(44, 44, 44, 0.14);
+  transform: translateY(-3px);
+}
+
+/* 4:3 aspect ratio image zone */
+.portfolio-tile-img {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+/* CSS painted swatch — fills the tile image zone */
+.portfolio-swatch {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Accent stripe at top of tile */
+.portfolio-tile-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+/* "Photography forthcoming" overlay */
+.portfolio-tile-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(61, 43, 31, 0.38);
+}
+
+.portfolio-forthcoming {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.875rem;
+  color: rgba(245, 240, 234, 0.88);
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+/* Category badge top-left */
+.portfolio-tile-badge {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-chalk);
+  padding: 0.25rem 0.5rem;
+  border-radius: 2px;
+  line-height: 1;
+}
+
+/* Tile metadata below the image */
+.portfolio-tile-meta {
+  padding: 1rem 1.25rem 1.125rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: var(--color-chalk);
+}
+
+.portfolio-tile-line1 {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-slate);
+  line-height: 1.3;
+}
+
+.portfolio-tile-line2 {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  color: rgba(44, 44, 44, 0.55);
+  line-height: 1.4;
+}
+
+/* ── Empty state card ───────────────────────────────────────────────────── */
+.portfolio-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 2rem;
+  border: 1.5px dashed rgba(44, 44, 44, 0.2);
+  border-radius: 3px;
+  color: rgba(44, 44, 44, 0.5);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-style: italic;
+}
+
+/* ── Responsive overrides ───────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .portfolio-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 639px) {
+  .portfolio-section {
+    padding: 5rem 1.25rem 5rem;
+  }
+  .portfolio-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .portfolio-chips {
+    gap: 0.5rem;
+  }
+  .portfolio-chip {
+    font-size: 0.75rem;
+    padding: 0.625rem 0.875rem;
+  }
+}
