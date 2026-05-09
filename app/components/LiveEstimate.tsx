@@ -440,6 +440,32 @@ export default function LiveEstimate() {
             </div>
           </div>
         </div>
+
+        {/* P3 — Bridge to Contact: CTA anchor below the two-col layout */}
+        <div
+          style={{
+            marginTop: '3rem',
+            textAlign: 'center',
+          }}
+        >
+          <p
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '1rem',
+              color: 'rgba(44,31,22,0.6)',
+              marginBottom: '1.25rem',
+            }}
+          >
+            Ready to send your own request?
+          </p>
+          <a
+            href="#contact"
+            className="btn-primary"
+            style={{ padding: '0.75rem 2rem', fontSize: '0.9375rem' }}
+          >
+            Get a Free Estimate
+          </a>
+        </div>
       </div>
 
     </section>

@@ -1,33 +1,20 @@
 import { ImageResponse } from 'next/og'
+import fs from 'node:fs'
+import path from 'node:path'
 
-export const runtime = 'edge'
+export const runtime = 'nodejs'
 export const alt = 'Soley Painting — Every wall done right.'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-// Fetch a font from Google Fonts and return its ArrayBuffer
-async function fetchFont(family: string, weight: number): Promise<ArrayBuffer> {
-  const url = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@${weight}&display=swap`
-  const css = await fetch(url, {
-    headers: {
-      // Request woff2 compatible subset
-      'User-Agent':
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    },
-  }).then((r) => r.text())
-
-  const fontUrl = css.match(/src: url\((.+?)\) format\('(opentype|truetype|woff2?)'\)/)?.[1]
-  if (!fontUrl) throw new Error(`Could not parse font URL from Google Fonts CSS for ${family}:${weight}`)
-
-  return fetch(fontUrl).then((r) => r.arrayBuffer())
-}
-
 export default async function OgImage() {
-  // Load fonts — Cormorant Garamond 700 for wordmark, DM Sans 600 for eyebrow
-  const [cormorantData, dmSansData] = await Promise.all([
-    fetchFont('Cormorant Garamond', 700),
-    fetchFont('DM Sans', 600),
-  ])
+  // Load fonts from local files — avoids Google Fonts fetch failures at edge runtime
+  const cormorantData = fs.readFileSync(
+    path.join(process.cwd(), 'app/_fonts/CormorantGaramond-Bold.ttf')
+  )
+  const dmSansData = fs.readFileSync(
+    path.join(process.cwd(), 'app/_fonts/DMSans-SemiBold.ttf')
+  )
 
   // Brand tokens
   const UMBER = '#221810'

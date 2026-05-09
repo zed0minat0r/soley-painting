@@ -6,6 +6,96 @@ import { useRef, useEffect, useState } from 'react'
 // Rotation: rust / stone / ochre / linen / rust (teal removed)
 const PANEL_BAR_COLORS = ['#BF5B38', '#EAE0D4', '#B8884A', '#F4EDE3', '#BF5B38']
 
+/* ── Service SVG icons — painter-trade visual language, matches SectionDivider/PaintFlow ── */
+// Each returns a 28x28 SVG with stroke in the panel accent color
+function IconInterior({ color }: { color: string }) {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      {/* House outline: walls + roof */}
+      <path d="M4 14 L14 5 L24 14" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d="M6 13 L6 24 L22 24 L22 13" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      {/* Door — centered at base */}
+      <rect x="11" y="17" width="6" height="7" rx="0.5" stroke={color} strokeWidth="1.4" fill="none" />
+      {/* Paintbrush stroke inside wall — signals painting */}
+      <path d="M9 10 Q9 9.5 9.5 9.5" stroke={color} strokeWidth="1.2" strokeLinecap="round" opacity="0.5" />
+    </svg>
+  )
+}
+function IconExterior({ color }: { color: string }) {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      {/* House with chimney — exterior signal */}
+      <path d="M4 14 L14 4 L24 14" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d="M6 13 L6 24 L22 24 L22 13" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      {/* Chimney */}
+      <rect x="17" y="5" width="4" height="6" rx="0.5" stroke={color} strokeWidth="1.4" fill="none" />
+      {/* Siding lines — exterior clapboard signal */}
+      <line x1="6" y1="17" x2="22" y2="17" stroke={color} strokeWidth="1" opacity="0.5" />
+      <line x1="6" y1="20" x2="22" y2="20" stroke={color} strokeWidth="1" opacity="0.5" />
+    </svg>
+  )
+}
+function IconCommercial({ color }: { color: string }) {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      {/* Office building — flat top, uniform windows */}
+      <rect x="5" y="8" width="18" height="16" rx="0.5" stroke={color} strokeWidth="1.6" fill="none" />
+      {/* Roof line */}
+      <line x1="5" y1="8" x2="23" y2="8" stroke={color} strokeWidth="1.6" strokeLinecap="round" />
+      {/* Window grid 2x3 */}
+      <rect x="8" y="11" width="4" height="3" rx="0.3" stroke={color} strokeWidth="1.1" fill="none" opacity="0.7" />
+      <rect x="16" y="11" width="4" height="3" rx="0.3" stroke={color} strokeWidth="1.1" fill="none" opacity="0.7" />
+      <rect x="8" y="16" width="4" height="3" rx="0.3" stroke={color} strokeWidth="1.1" fill="none" opacity="0.7" />
+      <rect x="16" y="16" width="4" height="3" rx="0.3" stroke={color} strokeWidth="1.1" fill="none" opacity="0.7" />
+      {/* Entry door */}
+      <rect x="11.5" y="19" width="5" height="5" rx="0.3" stroke={color} strokeWidth="1.2" fill="none" />
+    </svg>
+  )
+}
+function IconCabinet({ color }: { color: string }) {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      {/* Cabinet face — two upper doors + two lower drawers */}
+      <rect x="4" y="5" width="20" height="11" rx="0.5" stroke={color} strokeWidth="1.5" fill="none" />
+      {/* Center divider (upper) */}
+      <line x1="14" y1="5" x2="14" y2="16" stroke={color} strokeWidth="1" opacity="0.6" />
+      {/* Upper door handles */}
+      <circle cx="11" cy="11" r="1.2" stroke={color} strokeWidth="1.1" fill="none" opacity="0.7" />
+      <circle cx="17" cy="11" r="1.2" stroke={color} strokeWidth="1.1" fill="none" opacity="0.7" />
+      {/* Lower drawers */}
+      <rect x="4" y="18" width="20" height="5" rx="0.5" stroke={color} strokeWidth="1.5" fill="none" />
+      {/* Drawer handle */}
+      <line x1="12" y1="20.5" x2="16" y2="20.5" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  )
+}
+function IconSpecialty({ color }: { color: string }) {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      {/* Paint roller — specialty coatings signal */}
+      {/* Roller handle */}
+      <line x1="20" y1="5" x2="20" y2="13" stroke={color} strokeWidth="1.6" strokeLinecap="round" />
+      {/* Horizontal bar */}
+      <line x1="10" y1="13" x2="20" y2="13" stroke={color} strokeWidth="1.6" strokeLinecap="round" />
+      {/* Roller drum */}
+      <rect x="6" y="13" width="10" height="6" rx="3" stroke={color} strokeWidth="1.5" fill="none" />
+      {/* Texture drips beneath — specialty finish signal */}
+      <path d="M8 19 Q8 22 8 23" stroke={color} strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+      <path d="M11 19 Q11 23 11 24" stroke={color} strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+      <path d="M14 19 Q14 22 14 23" stroke={color} strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+    </svg>
+  )
+}
+
+/* Map panel id → SVG component */
+const PANEL_ICONS: Record<string, React.ComponentType<{ color: string }>> = {
+  interior: IconInterior,
+  exterior: IconExterior,
+  commercial: IconCommercial,
+  cabinet: IconCabinet,
+  specialty: IconSpecialty,
+}
+
 /* ── Panel data (Scout catalog item #4 + #2 palette) ─────────────────── */
 const PANELS = [
   {
@@ -22,7 +112,6 @@ const PANELS = [
       'Low-VOC & zero-VOC formulations on request',
       'Same-day cleanup — every room left move-in ready',
     ],
-    icon: '🏠',
   },
   {
     id: 'exterior',
@@ -38,7 +127,6 @@ const PANELS = [
       'Prep includes power washing + scraping + sanding',
       'Finish guaranteed against peeling and flaking',
     ],
-    icon: '🏡',
   },
   {
     id: 'commercial',
@@ -54,7 +142,6 @@ const PANELS = [
       'Commercial-grade coatings with extended warranties',
       'Single site supervisor — one call, one contact',
     ],
-    icon: '🏢',
   },
   {
     id: 'cabinet',
@@ -70,7 +157,6 @@ const PANELS = [
       'Hardware removal and reinstallation included',
       'Color consultation at no extra charge',
     ],
-    icon: '🪵',
   },
   {
     id: 'specialty',
@@ -86,7 +172,6 @@ const PANELS = [
       'Deck and fence staining + sealant',
       'Decorative venetian plaster on request',
     ],
-    icon: '✨',
   },
 ]
 
@@ -364,35 +449,45 @@ export default function ServicesScrollLock() {
                   width: '100%',
                 }}
               >
-                {/* Swatch accent tile */}
-                <div
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    marginBottom: '1.5rem',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      background: panel.accent,
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-body)',
-                      fontSize: '0.875rem',
-                      letterSpacing: '0.18em',
-                      textTransform: 'uppercase',
-                      color: 'rgba(245,240,234,0.45)',
-                    }}
-                  >
-                    Soley Painting
-                  </span>
-                </div>
+                {/* Service icon + eyebrow — SVG icon replaces plain accent swatch (P4) */}
+                {(() => {
+                  const PanelIcon = PANEL_ICONS[panel.id]
+                  return (
+                    <div
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.875rem',
+                        marginBottom: '1.5rem',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: '44px',
+                          height: '44px',
+                          border: `1px solid ${panel.accent}55`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {PanelIcon && <PanelIcon color={panel.accent} />}
+                      </div>
+                      <span
+                        style={{
+                          fontFamily: 'var(--font-body)',
+                          fontSize: '0.875rem',
+                          letterSpacing: '0.18em',
+                          textTransform: 'uppercase',
+                          color: 'rgba(245,240,234,0.45)',
+                        }}
+                      >
+                        Soley Painting
+                      </span>
+                    </div>
+                  )
+                })()}
 
                 {/* Panel title — top-anchored with min-h reservation */}
                 <div style={{ minHeight: '120px' }}>

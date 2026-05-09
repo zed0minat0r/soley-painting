@@ -177,6 +177,22 @@ export default function PortfolioGallery() {
         ))}
       </div>
 
+      {/* ── Pre-launch framing strip — P5 ─────────────────────────────── */}
+      <p
+        style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '0.875rem',
+          color: 'rgba(245,240,234,0.45)',
+          textAlign: 'center',
+          letterSpacing: '0.06em',
+          marginBottom: '2rem',
+          paddingLeft: '1.5rem',
+          paddingRight: '1.5rem',
+        }}
+      >
+        Photography fills in as first projects complete — checking back this season.
+      </p>
+
       {/* ── Tile grid or empty state ────────────────────────────────────── */}
       {visible.length === 0 ? (
         <div className="portfolio-empty scroll-reveal">

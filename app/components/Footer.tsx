@@ -35,6 +35,7 @@ export default function Footer() {
       heading: 'Contact',
       links: [
         { label: 'Request a Free Estimate', href: '#contact' },
+        { label: 'Phone available at launch', href: '#contact' },
         { label: 'Service area coming soon', href: '#contact' },
       ],
     },
