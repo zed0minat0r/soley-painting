@@ -30,3 +30,4 @@
 2026-05-09 02:44 nigel — focus axis: brand-cohesion, top issue: ServicesScrollLock mobile double-panel bleed still active (track resolves to 183px not 1875px on SE375) — panels cut at edges, two services simultaneously visible
 
 2026-05-09 03:45 qa — iPhone SE 375 + iPhone 13 390 + iPhone Pro Max 414 + Desktop 1440, 5 runway positions, Nigel P1 CONFIRMED (double-panel bleed at 95% all viewports), P2 REFUTED (gap=0px), P3 REFUTED (LiveEstimate height=978px present), P5a REFUTED (FounderBlock visible opacity=1), P5b CONFIRMED INTENTIONAL; 2 new BLOCKERS (BUG-025 services panel bleed, BUG-026 Process auto-advance dead) + 2 HIGH + 4 MEDIUM found
+2026-05-07 03:22 pixel — BUG-030 footer headings 11px→14px; BUG-031 PortfolioGallery chips SE375 3-rows→2-rows (gap+padding+font-size mobile)
