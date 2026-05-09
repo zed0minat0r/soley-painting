@@ -240,6 +240,13 @@
   display: none;
 }
 
+/* ── Footer responsive grid ──────────────────────────────────────────── */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr;
+  gap: 3rem;
+}
+
 /* ── Mobile breakpoint (≤640px) ──────────────────────────────────────── */
 @media (max-width: 640px) {
   /* Hero: canvas already single-column, just ensure full width */
@@ -253,6 +260,13 @@
   }
   .nav-mobile-cta {
     display: inline-flex !important;
+  }
+
+  /* BUG-004: Navbar logo — ensure min 44px tap target */
+  .nav-logo {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
   }
 
   /* Process: single column, tab row */
@@ -276,5 +290,20 @@
   .contact-grid {
     grid-template-columns: 1fr;
     gap: 3rem;
+  }
+
+  /* BUG-002: Footer — single column on mobile */
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* ── Small tablet breakpoint (641–900px) ─────────────────────────────── */
+@media (min-width: 641px) and (max-width: 900px) {
+  /* BUG-002: Footer — 2 columns on small tablets */
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
   }
 }

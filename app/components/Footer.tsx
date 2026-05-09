@@ -55,14 +55,8 @@ export default function Footer() {
           paddingBottom: '4rem',
         }}
       >
-        {/* Brand block + columns */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1.6fr 1fr 1fr 1fr 1fr',
-            gap: '3rem',
-          }}
-        >
+        {/* Brand block + columns — BUG-002: responsive via .footer-grid */}
+        <div className="footer-grid">
           {/* Brand block */}
           <div>
             <p
@@ -127,6 +121,9 @@ export default function Footer() {
                         color: 'rgba(245,240,234,0.58)',
                         textDecoration: 'none',
                         transition: 'color 0.2s ease',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        minHeight: '44px',
                       }}
                       onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = 'var(--color-terra)')}
                       onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(245,240,234,0.58)')}

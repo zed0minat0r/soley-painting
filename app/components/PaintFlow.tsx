@@ -195,7 +195,7 @@ export default function PaintFlow() {
             <p
               style={{
                 fontFamily: 'var(--font-body)',
-                fontSize: '0.7rem',
+                fontSize: '0.875rem',
                 letterSpacing: '0.22em',
                 textTransform: 'uppercase',
                 color: 'var(--color-terra)',
@@ -391,7 +391,7 @@ export default function PaintFlow() {
                     style={{
                       fontFamily: 'var(--font-body)',
                       fontWeight: 600,
-                      fontSize: '0.8125rem',
+                      fontSize: '0.875rem',
                       letterSpacing: '0.08em',
                       textTransform: 'uppercase',
                       color: isPulsing ? 'var(--color-terra)' : 'var(--color-umber)',
@@ -403,7 +403,7 @@ export default function PaintFlow() {
                   <span
                     style={{
                       fontFamily: 'var(--font-body)',
-                      fontSize: '0.7rem',
+                      fontSize: '0.875rem',
                       color: 'rgba(44,31,22,0.5)',
                       textAlign: 'center',
                       lineHeight: 1.4,

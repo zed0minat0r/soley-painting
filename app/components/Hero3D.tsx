@@ -197,7 +197,7 @@ export default function Hero3D() {
         paddingBottom: '4rem',
       }}
     >
-      {/* Ambient radial glow */}
+      {/* Ambient radial glow — BUG-005/BUG-011: constrained to viewport width */}
       <div
         aria-hidden
         style={{
@@ -205,8 +205,8 @@ export default function Hero3D() {
           left: '50%',
           top: '52%',
           transform: 'translate(-50%, -50%)',
-          width: '700px',
-          height: '700px',
+          width: 'min(700px, 100vw)',
+          height: 'min(700px, 100vw)',
           borderRadius: '50%',
           background:
             'radial-gradient(circle, rgba(194,96,58,0.10) 0%, rgba(45,122,112,0.05) 55%, transparent 80%)',
@@ -219,7 +219,7 @@ export default function Hero3D() {
         style={{
           fontFamily: 'var(--font-body)',
           fontWeight: 500,
-          fontSize: '0.8rem',
+          fontSize: '0.875rem',
           letterSpacing: '0.28em',
           textTransform: 'uppercase',
           color: 'var(--color-terra)',
@@ -304,6 +304,8 @@ export default function Hero3D() {
             position: 'relative',
             zIndex: 2,
             opacity: svgOpacity,
+            maxWidth: '100%',
+            height: 'auto',
           }}
           aria-label="Soley — painted in script"
         >
@@ -477,7 +479,7 @@ export default function Hero3D() {
         <span
           style={{
             fontFamily: 'var(--font-body)',
-            fontSize: '0.7rem',
+            fontSize: '0.875rem',
             letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: 'rgba(245, 240, 234, 0.35)',

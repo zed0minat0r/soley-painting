@@ -176,7 +176,7 @@ export default function Process() {
                 <span
                   style={{
                     fontFamily: 'var(--font-body)',
-                    fontSize: '0.75rem',
+                    fontSize: '0.875rem',
                     fontWeight: 600,
                     letterSpacing: '0.12em',
                     color: i === activeStep ? 'var(--color-terra)' : 'rgba(245,240,234,0.3)',

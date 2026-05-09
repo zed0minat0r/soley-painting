@@ -39,9 +39,10 @@ export default function Navbar() {
         borderBottom: scrolled ? '1px solid rgba(194, 96, 58, 0.18)' : 'none',
       }}
     >
-      {/* Logo */}
+      {/* Logo — BUG-004: min-height 44px via nav-logo class */}
       <a
         href="#top"
+        className="nav-logo"
         style={{
           fontFamily: 'var(--font-heading)',
           fontWeight: 700,
@@ -49,6 +50,9 @@ export default function Navbar() {
           color: 'var(--color-chalk)',
           textDecoration: 'none',
           letterSpacing: '0.01em',
+          minHeight: '44px',
+          display: 'inline-flex',
+          alignItems: 'center',
         }}
       >
         Soley<span style={{ color: 'var(--color-terra)' }}> Painting</span>
