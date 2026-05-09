@@ -46,3 +46,4 @@
 2026-05-07 04:43 nigel — focus axis: typography-rhythm, top issue: ServicesScrollLock mobile double-panel bleed still active (BUG-025 confirmed open on SE375 + iPhone13, desktop-only fix from d26d04b)
 2026-05-07 razor — uninstalled lucide-react (0 imports, 1 pkg removed); removed redundant Google Fonts @import from globals.css (1 line, fonts already served via next/font/google in layout.tsx); build passes clean 148 kB
 2026-05-07 qa — Desktop 1440 + iPhone SE 375 + iPhone 13 390, 5×2=10 mobile runway samples + 3 desktop panel positions, 2 bugs found (BUG-036 PaintFlow mobile diagram small, BUG-037 portfolio headline wrong font); P1/P2/P4/P5 REFUTED, P3 Razor CONFIRMED
+2026-05-07 05:21 pixel — BUG-037 PortfolioGallery H2 font-family var(--font-display)→var(--font-heading); Cormorant Garamond now computed on Desktop 1440 + iPhone 13 390 + iPhone SE 375 (all PASS)

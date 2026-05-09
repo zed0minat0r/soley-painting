@@ -428,7 +428,7 @@
 }
 
 .portfolio-headline {
-  font-family: var(--font-display);
+  font-family: var(--font-heading);
   font-size: clamp(2rem, 4vw, 3.25rem);
   color: var(--color-slate);
   line-height: 1.1;
