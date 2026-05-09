@@ -2,6 +2,10 @@
 
 import { useRef, useEffect, useState } from 'react'
 
+/* ── Brand accent bar colors (Nigel P4 — one per panel, rotating palette) ─── */
+// Rotation: terracotta / teal / clay-gold / chalk / terracotta
+const PANEL_BAR_COLORS = ['#C2603A', '#2D7A70', '#B8935A', '#F5F0EA', '#C2603A']
+
 /* ── Panel data (Scout catalog item #4 + #2 palette) ─────────────────── */
 const PANELS = [
   {
@@ -140,7 +144,11 @@ export default function ServicesScrollLock() {
       const runway = sectionHeight - window.innerHeight
 
       // -rect.top = how far we've scrolled INTO the section (0 at entry, runway at exit)
-      const raw = Math.max(0, Math.min(1, -rect.top / runway))
+      // Clamp to reach 1.0 at 90% of runway so panel 5 is fully settled before the
+      // section exits. The last 10% of the runway is a stable settled view of panel 5.
+      // BUG-025 fix (Option B): was dividing by full runway → panel 5 only reached ~95%
+      // at the 95% position, causing CABINET & TRIM "04" numeral to bleed into viewport.
+      const raw = Math.max(0, Math.min(1, -rect.top / (runway * 0.9)))
 
       // translateX: 0 (panel 1 in view) → -(PANELS.length-1)*panelWidth (panel 5 in view)
       // Using clientWidth-derived panelWidth ensures panel width === sticky container width
@@ -252,15 +260,18 @@ export default function ServicesScrollLock() {
                 flexShrink: 0,
               }}
             >
-              {/* Accent bar — top */}
+              {/* Accent bar — top (Nigel P4: 4px full-width brand color rotation)
+                  Colors rotate: terracotta → teal → clay-gold → chalk → terracotta
+                  Each panel gets its own distinct brand color per PANEL_BAR_COLORS. */}
               <div
                 style={{
                   position: 'absolute',
                   top: 0,
                   left: 0,
                   right: 0,
-                  height: '5px',
-                  background: panel.accent,
+                  height: '4px',
+                  background: PANEL_BAR_COLORS[i],
+                  zIndex: 3,
                 }}
               />
 

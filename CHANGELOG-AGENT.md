@@ -38,3 +38,5 @@
 
 2026-05-07 nigel — focus axis: conversion-friction, top issue: ServicesScrollLock scroll handler frozen (translateX static across all 5 runway positions on all 3 viewports — horizontal travel completely broken despite Refiner d6c2ccf fix)
 2026-05-07 qa — SE375 + IP13_390 + Desktop1440, 5×3=15 runway samples; ServicesScrollLock translateX CONFIRMED ADVANCING (Nigel wrong — prior QA queried wrong element); PaintFlow CONFIRMED VISIBLE all viewports; Process auto-advance + countdown CONFIRMED FIXED; BUG-027 chip text CONFIRMED FIXED; SectionDivider teardrops + parallax CONFIRMED; 1 HIGH residual (BUG-025 panel bleed at 95% exit), 1 MEDIUM new (BUG-034 chip 11px font), 1 LOW new (BUG-035 IO threshold)
+2026-05-07 pixel — BUG-034 PortfolioGallery chip font 11px→13px on ≤480px; BUG-035 SectionDivider IO threshold 0.4→0.15 for sticky-nav partial visibility — commit e2f0637
+2026-05-07 refiner — BUG-025 ServicesScrollLock panel bleed at 95%: runway divisor changed to runway*0.9 (Option B) so panel 5 reaches maxShift by 90% of runway; Nigel P4 accent bars upgraded to 4px full-width PANEL_BAR_COLORS rotation (terracotta/teal/clay-gold/chalk/terracotta)
