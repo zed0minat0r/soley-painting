@@ -247,6 +247,15 @@
   gap: 3rem;
 }
 
+/* ── FounderBlock layout — 2-col desktop, 1-col mobile ──────────────── */
+/* Base rule MUST appear before the mobile @media block to avoid cascade override */
+.founder-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 5rem;
+  align-items: start;
+}
+
 /* ── WhySoley: desktop tilt vs mobile accordion ─────────────────────── */
 /* On desktop the tilt grid shows and accordion hides */
 .why-soley-desktop { display: flex !important; }
@@ -316,14 +325,6 @@
     grid-template-columns: 1fr;
     gap: 2rem;
   }
-}
-
-/* ── FounderBlock layout — 2-col desktop, 1-col mobile ──────────────── */
-.founder-grid {
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 5rem;
-  align-items: start;
 }
 
 /* ── Small tablet breakpoint (641–900px) ─────────────────────────────── */
