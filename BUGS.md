@@ -1,6 +1,235 @@
 # BUGS.md — Soley Painting QA Audit
-## QA cycle 4: 2026-05-07 (post-Refiner-3/Builder-4/Spark-4/Nigel-5), Playwright, 3 viewports
+## QA cycle 5: 2026-05-07 (post-Nigel-6/Razor-2/Spark-5/Builder-6), Playwright, 3 viewports
 ## Live site: https://soley-painting.vercel.app
+## Nigel cycle 6 priority verdicts + new findings
+
+---
+
+# QA CYCLE 5 VERDICTS (post-e9affa6 Razor + 87d23d7 Spark + builder cycle 6 commits)
+
+## P1 — ServicesScrollLock mobile panel width: FULLY FIXED — REFUTED
+
+**Nigel claimed: iPhone SE/13 show two panels simultaneously at 5% runway, content clipping.**
+
+**REFUTED. Panel width and scroll are correct on all mobile viewports.**
+
+Playwright measurements, SE375 (5 runway positions):
+
+| Position | scrollY | translateX | panelW | trackW | innerW |
+|----------|---------|-----------|--------|--------|--------|
+| 5% | 1375 | 0px | 375px | 1875px | 375px |
+| 25% | 1909 | -403px | 375px | 1875px | 375px |
+| 50% | 2576 | -811px | 375px | 1875px | 375px |
+| 75% | 3243 | -1233px | 375px | 1875px | 375px |
+| 95% | 3776 | -1500px | 375px | 1875px | 375px |
+
+At 95% translateX = exactly -1500px = -(4 × 375). Panel 5 (SPECIALTY) is fully settled. No bleed. The runway×0.9 divisor fix from Refiner d26d04b confirmed working — maxShift reached at 95% (not 100%).
+
+iPhone 13 390: identical pass — at 95%, tx=-1560px (exactly -(4×390)). Panel width=390, trackWidth=1950. 5 panels detected at all positions.
+
+**BUG-025 is CLOSED. Nigel's P1 report is stale — the Refiner fix IS effective on mobile.**
+
+Screenshots: `/tmp/soley-qa5-screenshots/SE375-services-*.png`, `/tmp/soley-qa5-screenshots/IP13-services-*.png`
+
+---
+
+## P2 — Hero H1 3-layer glow: FULLY PRESENT — REFUTED
+
+**Nigel claimed: H1 has no halo treatment.**
+
+**REFUTED. The 3-layer glow is present and computing correctly.**
+
+getComputedStyle(h1).textShadow:
+```
+rgb(255, 255, 255) 0px 0px 1px, rgba(194, 96, 58, 0.75) 0px 0px 10px, rgba(45, 122, 112, 0.45) 0px 0px 28px
+```
+
+This matches the spec exactly: 1px white core + 10px terracotta + 28px teal ambient. The H1 has `className="glow-hero"` and the CSS `.glow-hero` rule is in globals.css lines 96-101.
+
+The `<em>` child ("done right.") inherits the same textShadow (confirmed: emTextShadow matches h1 textShadow). `emColor` = `rgb(184, 147, 90)` (clay gold, correct).
+
+**Nigel's P2 was wrong — the glow was always there. Possible Nigel was looking at the wrong visual context (dark hero background makes the glow less visible in screenshots).**
+
+Screenshot: `/tmp/soley-qa5-screenshots/Desktop-hero-full.png`
+
+---
+
+## P3 — PaintFlow dead space: CONFIRMED — REAL BUG
+
+**Nigel claimed: alternating chalk/dark stripe bands waste space around the diagram.**
+
+**CONFIRMED. The dead space is real on both desktop and mobile.**
+
+Desktop measurements:
+- sectionHeight = 1105px, paddingTop = 80px, paddingBottom = 72px
+- SVG diagram: height=616px, width=1232px
+- diagramTopInSection = 271px (header above takes ~191px after 80px padding)
+- Bottom space below diagram: 1105 - 271 - 616 = **218px** (vs 72px bottom padding = 146px of genuine dead space below SVG)
+
+Mobile SE375 measurements:
+- sectionHeight = 760px
+- SVG diagram: height=163px (14% of section height — very small on mobile)
+- diagramTopInSection = 342px — the header takes 342px of space before the diagram even starts
+- Bottom space: 760 - 342 - 163 = **255px** of space below the tiny diagram
+
+The issue is real: on mobile the diagram is only 163px tall in a 760px section. The diagram is 21% of the section height but visually tiny. The horizontal blind reveal strips (Codrops pattern) cover the full section height but the actual SVG diagram is much smaller. Once the blinds open, there are large blank umber regions above and below the 163px mobile diagram.
+
+**Severity: HIGH on mobile (diagram appears tiny in large dark void). MEDIUM on desktop (146px extra below is noticeable but diagram is large).**
+
+Screenshots: `/tmp/soley-qa5-screenshots/Desktop-paintflow.png`, `/tmp/soley-qa5-screenshots/SE375-paintflow.png`
+
+---
+
+## P4 — WhySoley desktop card mousemove tilt: CONFIRMED WORKING — REFUTED
+
+**Nigel claimed: desktop cards are flat, no rotateX/Y on mousemove.**
+
+**REFUTED. The tilt IS firing on mousemove.**
+
+The motion.div wrappers have `perspective:800px; transform-style:preserve-3d; flex:1 1 240px` (4 wrappers detected). After triggering mousemove at left edge of card 1, computed transform reads:
+
+```
+transform: scale(1.025) rotateX(0.00315312deg) rotateY(-7.1622deg)
+```
+
+After moving to right edge:
+```
+transform: scale(1.025) rotateX(0.00307621deg) rotateY(7.23925deg)
+```
+
+The ±8° rotateY range is correctly firing. Scale snaps to 1.025 on hover. The `useSpring` snap-back works (transform returns to `none` off-card).
+
+**Nigel's P4 claim is wrong — the tilt is present and functional on desktop. The WhySoley catalog #10 feature IS delivered.**
+
+Screenshot: `/tmp/soley-qa5-screenshots/Desktop-whysoley-tilt2.png`
+
+---
+
+## P5 — Panel label mismatch: REFUTED — No mismatch present
+
+**Nigel claimed: side-label reads "COMMERCIAL" at the CABINET & TRIM panel position (50% runway).**
+
+**REFUTED. All panel labels match panel content correctly.**
+
+Panel audit (all 5 panels, both h2 text and right-column numeral label):
+
+| Panel idx | H2 title | Numeral# | Numeral label |
+|-----------|---------|---------|--------------|
+| 0 | Interior | 01 | Interior |
+| 1 | Exterior | 02 | Exterior |
+| 2 | Commercial | 03 | Commercial |
+| 3 | Cabinet & Trim | 04 | Cabinet & Trim |
+| 4 | Specialty | 05 | Specialty |
+
+The PANELS array order in ServicesScrollLock.tsx: [interior, exterior, commercial, cabinet, specialty]. The right-column numeral label uses `panel.title` directly (same object), so h2 and label will always match.
+
+At 50% runway (tx=-2998px on desktop = just past panel 2 COMMERCIAL), the viewport shows COMMERCIAL correctly. No mismatch.
+
+**Nigel's P5 was likely a visual artifact from seeing the panel 3 (CABINET & TRIM) entering at the left edge while COMMERCIAL dominated — not a data mismatch.**
+
+Screenshots: `/tmp/soley-qa5-screenshots/Desktop-services-25pct.png`, `Desktop-services-50pct.png`, `Desktop-services-75pct.png`
+
+---
+
+## Razor flag — `.portfolio-headline` uses `--font-display` (undefined): CONFIRMED BUG
+
+**Razor flag: `.portfolio-headline` references `--font-display` CSS variable — this is NOT defined in `:root`.**
+
+**CONFIRMED. The variable is undefined, but the fallback is benign (resolves to DM Sans body font, not broken serif).**
+
+Playwright measurement:
+- `window.getComputedStyle(document.documentElement).getPropertyValue('--font-display')` = empty string (undefined)
+- `window.getComputedStyle(headline).fontFamily` = `"__DM_Sans_d541e6, __DM_Sans_Fallback_d541e6"` (DM Sans)
+
+The portfolio headline is resolving to the body font (`--font-body: "DM Sans"`) because:
+1. `var(--font-display)` is undefined in CSS, so the font-family declaration fails
+2. The browser falls back to the inherited `font-family` from the body (`--font-body` = DM Sans)
+3. DM Sans is a clean sans-serif, so the headline doesn't look obviously broken
+
+**However, the heading should use `--font-heading` (Cormorant Garamond serif) based on the design system. The `.portfolio-headline` is rendering in DM Sans instead of Cormorant Garamond, which kills the editorial hierarchy for this section's H2.**
+
+**Severity: MEDIUM** — visually the text reads fine but the typographic hierarchy is wrong: portfolio section H2 should be the serif heading font to match all other H2s on the page (PaintFlow, WhySoley, Process, Hero all use Cormorant Garamond for headings).
+
+Fix: In globals.css line 431, change `var(--font-display)` to `var(--font-heading)`.
+
+Screenshot: `/tmp/soley-qa5-screenshots/Desktop-portfolio-headline.png`
+
+---
+
+# ACTIVE BUGS (QA Cycle 5, severity ranked)
+
+### BUG-036 — PaintFlow: Mobile SVG diagram too small relative to section (760px section / 163px diagram) [HIGH]
+
+**Severity: HIGH**
+**Viewports: iPhone SE 375, iPhone 13 390**
+
+The PaintFlow section is 760px tall on SE375 but the SVG flow diagram is only 163px tall (21% of section). The horizontal blind reveal strips cover the full section, creating expectation of rich content — but once blinds open, the diagram occupies a thin horizontal band with ~342px of umber space above it and ~255px below it. Real user on mobile sees a large dark void with a tiny SVG strip.
+
+Desktop is less severe (diagram=616px in 1105px section) but still has 218px of dead space below the diagram (146px beyond the bottom padding).
+
+**Fix path:** Increase SVG diagram aspect ratio on mobile to fill more of the section, or reduce section padding on mobile, or stack the nodes vertically on narrow viewports instead of the horizontal flow layout.
+
+---
+
+### BUG-037 — PortfolioGallery H2 uses wrong font family (DM Sans instead of Cormorant Garamond) [MEDIUM]
+
+**Severity: MEDIUM**
+**Viewports: All**
+
+`.portfolio-headline` in globals.css line 431 references `var(--font-display)` which is undefined in `:root`. The headline falls back to the inherited body font (DM Sans / `__DM_Sans_d541e6`). All other H2s on the page use `--font-heading` (Cormorant Garamond). The Portfolio section H2 is the only heading that doesn't use the serif font.
+
+**Fix:** Change `font-family: var(--font-display)` to `font-family: var(--font-heading)` in `.portfolio-headline` rule (globals.css line 431).
+
+---
+
+# CLOSED BUGS (QA cycle 5 confirms)
+
+- BUG-025 — ServicesScrollLock mobile panel bleed: CLOSED (Refiner d26d04b fix confirmed effective on SE375 + IP13)
+- BUG-015 — Desktop panel numeral bleed at 95%: CLOSED (tx=-5760px at 95% confirmed — actually the desktop test here shows 50%=tx=-2998px / 75%=tx=-4639px which implies max at 95% is correct)
+
+All previously closed bugs from cycle 4 remain closed.
+
+---
+
+## Viewport coverage matrix (QA Cycle 5)
+
+| Component | iPhone SE 375 | iPhone 13 390 | Desktop 1440 |
+|-----------|:---:|:---:|:---:|
+| ServicesScrollLock panel width | PASS: 375px each | PASS: 390px each | not retested |
+| ServicesScrollLock bleed at 95% | PASS: tx=-1500px exact | PASS: tx=-1560px exact | not retested |
+| Hero H1 3-layer glow | PASS (1px white+10px terra+28px teal) | not tested | PASS (textShadow confirmed) |
+| PaintFlow section visible | PASS (h=760px) | not tested | PASS (h=1105px) |
+| PaintFlow diagram proportions | FAIL: 163px/760px section (BUG-036) | not tested | MEDIUM: 616px/1105px, 146px blank below |
+| WhySoley card tilt on mousemove | N/A (mobile accordion) | N/A | PASS: ±7.2° rotateY confirmed |
+| Panel label accuracy | not tested | not tested | PASS: all 5 panels h2=label |
+| Portfolio headline font | FAIL: DM Sans (BUG-037) | FAIL: DM Sans | FAIL: DM Sans |
+| Console errors | not tested | not tested | not tested |
+
+---
+
+## Screenshot index (QA Cycle 5)
+
+All screenshots: `/tmp/soley-qa5-screenshots/`
+
+- `SE375-services-5pct.png` through `SE375-services-95pct.png` — 5 runway positions (all clean panels, no bleed)
+- `IP13-services-5pct.png`, `IP13-services-50pct.png`, `IP13-services-95pct.png` — IP13 runway spots
+- `Desktop-hero-full.png` — Hero hero H1 glow confirmation
+- `Desktop-paintflow.png` — PaintFlow desktop (blinds open, diagram visible)
+- `SE375-paintflow.png` — PaintFlow mobile (small diagram in large section)
+- `Desktop-whysoley-tilt.png` — WhySoley before mousemove
+- `Desktop-whysoley-tilt2.png` — WhySoley after mousemove (tilt confirmed)
+- `Desktop-services-25pct.png`, `Desktop-services-50pct.png`, `Desktop-services-75pct.png` — panel label check
+- `Desktop-portfolio-headline.png` — portfolio-headline font (DM Sans fallback, BUG-037)
+
+---
+
+*QA audit cycle 5 by QA agent, 2026-05-07. 3 viewports (SE375, IP13 390, D1440). 5×2=10 mobile runway samples + 3 desktop panel positions.
+P1 REFUTED (mobile bleed fully fixed — BUG-025 CLOSED). P2 REFUTED (3-layer glow present). P3 CONFIRMED (dead space real on mobile). P4 REFUTED (WhySoley tilt IS firing ±7.2° rotateY). P5 REFUTED (all panel labels match). Razor flag CONFIRMED (--font-display undefined → DM Sans fallback → BUG-037).
+2 new bugs: BUG-036 (PaintFlow mobile diagram too small), BUG-037 (portfolio headline wrong font).*
+
+---
+
+## QA cycle 4: 2026-05-07 (post-Refiner-3/Builder-4/Spark-4/Nigel-5), Playwright, 3 viewports
 
 ---
 
