@@ -689,3 +689,395 @@ When Canela license is acquired, swap --font-heading to "Canela" and remove Corm
 ---
 
 *Scout cycle 2 complete. 35 tool calls used. No code modified. Research only.*
+
+---
+
+## ROUND 3 — NEW REFERENCES (06:11 ET refresh)
+**Generated:** 2026-05-07 — 06:11 ET  
+**Agent:** Scout (Cycle 3)  
+**Axis:** scroll-lock robustness / painter-distinctive centerpiece / WhySoley card depth / fresh award references  
+**Prior 33 references:** NOT duplicated. Each site below is new.
+
+---
+
+### NEW REFERENCE 1 — Ruinart Digital Fresco (Awwwards SOTD, April 21 2026)
+**URL:** https://fresque.ruinart.com/  
+**Awwwards entry:** https://www.awwwards.com/sites/ruinart-digital-fresco  
+**FWA case study:** https://www.makemepulse.com/case-study/maison-ruinart-digital-fresco  
+**Score:** Design 7.51 / Creativity 7.71 / Tech 7.05 — Developer Award  
+**Palette:** `#F8F3EE` cream + `#585852` charcoal — a two-tone restraint system identical to the craft-first approach used by Marvell Tile & Stone (already cited in the report), but applied to a luxury beverage heritage brand.
+
+**What to study — the "handcraft progressive reveal" pattern:**
+The makemepulse team transformed Maison Ruinart's physical wall fresco into a 20+ moment interactive scroll experience where "every detail was designed to feel handcrafted." The technique: high-res raster scans of real pen-and-ink illustration are revealed progressively by scroll, using WebGL + WebAR. The site earned its award specifically because the digital reveal mimics how ink physically spreads on cotton paper — not an opacity fade, not a wipe, but an organic-edge progressive appearance triggered by scroll depth.
+
+**Named move to copy:** "Fresco progressive reveal" — scroll progress drives a mask or shader that expands the visible area of a hand-drawn illustration from a seed point outward with an irregular organic edge (not rectangular, not linear). In WebGL this is a fragment shader comparing UV distance from a seed point to `uProgress`; in DOM+SVG it is a `feMorphology`+`feGaussianBlur` mask on an SVG `<image>` element.
+
+**Soley implementation hint:**
+Soley's Sacramento SVG signature already uses `stroke-dashoffset`. Round 3 opportunity: after the signature fully draws, apply a secondary effect — the completed signature briefly "bleeds" outward into the chalk background by 4px using a feGaussianBlur (`stdDeviation` animated 0→4→0 over 0.4s via GSAP) before settling crisp. This replicates the bleed of ink into paper grain and makes the signature feel physically real rather than digitally constructed. Cost: one SVG `<filter>` element and a 3-line GSAP tween. No shader required.
+
+```svg
+<!-- Add to signature SVG defs -->
+<filter id="ink-bleed">
+  <feGaussianBlur in="SourceGraphic" stdDeviation="0" result="blur">
+    <animate attributeName="stdDeviation"
+      values="0;4;0" dur="0.4s" begin="signatureComplete" fill="freeze"/>
+  </feGaussianBlur>
+</filter>
+```
+
+---
+
+### NEW REFERENCE 2 — Hermès "Venture Beyond" Hand-Illustrated Website (Jan 2026)
+**URL:** https://www.hermes.com/  
+**Coverage:** https://www.domusweb.it/en/news/2026/02/07/herms-new-website.html  
+**Coverage:** https://www.creativemoment.co/herm%C3%A8s-and-the-rise-of-hand-drawn-luxury  
+**Artist portfolio:** https://lindamerad.com/HERMES-INTERLUDE-1
+
+**Context:** Hermès launched a fully hand-illustrated website in January 2026 — the first time the 188-year-old house used illustration on its e-commerce platform. Artist Linda Merad drew 12 illustrations (each nearly a metre long) in black pencil on paper, scanned them, added colour digitally, then worked with animator Quentin Klein to bring them to motion. The colour-blocked style was originally created with pen and India ink.
+
+**Why this matters for Soley:** Hermès chose hand-illustration deliberately as an anti-AI signal — "a human made this" during an era of infinite AI imagery. The strategic lesson is that embracing visible imperfection (wobbles, uneven colour, paper grain, ink spread) signals craft and human labor more powerfully than digital precision. The Soley Sacramento signature already embodies this instinct. The Hermès move validates that for a craft/artisan brand (whether luxury champagne or residential painting), a hand-drawn visual identity is the correct tier-signal in 2026.
+
+**Named move to copy:** "Deliberate imperfection" — the illustration lines are not perfectly smooth; they preserve the pencil pressure variation of the original drawing. Digitally, this is achieved by NOT applying SVG path smoothing (`pathLength` normalization). In Soley's Sacramento signature, if the path is too smooth, add 1-2px of controlled jitter via a GSAP `motionPath` with raw coordinates rather than a smoothed cubic bezier. The signature should feel like a real pen moved across paper, not a logo renderer.
+
+**Named move to copy (2):** "Paper grain as background texture" — the Hermès illustrations sit on a background that carries visible paper grain (`filter: url(#grain)` in SVG, or a CSS `noise.png` overlay at 3-5% opacity with `mix-blend-mode: multiply`). Applied to Soley's chalk background (`#F5F0EA`), a 3% grain overlay would add material depth without changing the colour impression at typical viewing distances.
+
+**Soley implementation hint:**
+```css
+/* Chalk background with paper grain */
+body {
+  background-color: #F5F0EA;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url('/grain.png'); /* 200×200px tileable noise, grayscale */
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 0;
+}
+```
+The `grain.png` can be generated once at 200×200px with any noise generator (e.g., `canvas.getContext('2d').createImageData()` with random grayscale values). Cost: 2KB PNG, zero JS runtime, applies to every section.
+
+---
+
+### NEW REFERENCE 3 — Simonholm.studio (Awwwards SOTD, May 9 2026)
+**URL:** https://simonholm.studio  
+**Awwwards:** https://www.awwwards.com/sites/simonholm-studio  
+**What it does:** A personal portfolio site that earned SOTD May 9 2026 with a numbered editorial grid, horizontal carousel navigation, video-enabled project cards, and dual-view navigation (featured showcase + indexed list). The design is minimal — let the numbered cards carry all hierarchy, with no decorative layer at all.
+
+**What to study — numbered sequential reveal:**
+The "01 / 02 / 03 / 04 / 05" sequential numbering pattern used on Simonholm maps directly to Soley's 5-service horizontal scroll panels. Simonholm uses the numbers as large typographic anchor elements for each card — they are the visual hierarchy before any image loads. Currently Soley's service panels use an "01/05" counter in the top-left corner as small UI text. The Simonholm pattern suggests scaling that counter to be a major typographic element: `font-size: clamp(8rem, 18vw, 20rem)` in `--color-umber` at 8% opacity as a background number within each panel, then the service title in front at full opacity. NOTE: RULE 8 prohibits ghost numbers behind content. The Simonholm approach avoids this by making the number the primary structural element, not a ghost layer — the number IS the anchor, not decorative. Use at full opacity in a dedicated zone of the card (e.g., the bottom-left of the panel, below the body text), not layered behind other content.
+
+**Soley implementation hint:**
+In each service panel, reserve the bottom-left quadrant for the panel number at large size, full opacity (not behind text). The service name and description occupy the top half. The number occupies the bottom-left at `20vw` size in `Cormorant Garamond`, umber color, full opacity. This creates a typographic anchor visible at a distance without violating RULE 8's ghost-number ban, because it is not behind other elements — it is in its own zone.
+
+---
+
+### NEW REFERENCE 4 — Cruip Spotlight Cards (January 2026, open source)
+**URL:** https://cruip.com/how-to-create-a-spotlight-card-hover-effect-with-tailwind-css/  
+**Demo:** https://cruip.com/demos/spotlight/  
+**GitHub:** https://github.com/cruip/cruip-tutorials
+
+**What this solves:** Nigel's Priority 2 — WhySoley cards "lack visual depth." The Cruip spotlight card pattern is the exact solution. It is the same effect used by Linear, Stripe, and Vercel for their feature grids, and it requires zero design work — only CSS custom properties and a 30-line JS class.
+
+**Named move to copy precisely:** "Mouse-position spotlight on card group" — a radial-gradient blob follows the cursor across the entire card group container, lighting up whichever card the cursor is near. The blob is positioned via CSS custom properties (`--mouse-x`, `--mouse-y`) updated by a `mousemove` listener on the container. Each card has `::before` (border enhancement) and `::after` (inner spotlight) pseudo-elements, both using `translate-x-[var(--mouse-x)] translate-y-[var(--mouse-y)]` and heavy blur (`blur-[100px]`). The result: cards appear to have an interior light source that tracks the cursor.
+
+**Implementation hint for WhySoley cards (Soley brand adaptation):**
+Replace the Cruip demo's `bg-indigo-500` spotlight with `rgba(194, 96, 58, 0.08)` (terracotta at 8% — soft, warm, brand-consistent). Replace the border enhancement blur color with `rgba(184, 147, 90, 0.06)` (clay gold at 6%). Cards remain chalk/umber on neutral background between hovers; on hover approach, the card nearest the cursor takes on a warm terracotta interior glow from upper-left, as if a can of warm paint is illuminating the card from within.
+
+```javascript
+// WhySoley card spotlight handler (adapts Cruip pattern)
+const cardGroup = document.querySelector('.why-soley-grid');
+cardGroup.addEventListener('mousemove', (e) => {
+  const rect = cardGroup.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  cardGroup.querySelectorAll('.why-card').forEach(card => {
+    const cardRect = card.getBoundingClientRect();
+    const cardX = -(cardRect.left - rect.left) + x;
+    const cardY = -(cardRect.top - rect.top) + y;
+    card.style.setProperty('--mouse-x', `${cardX}px`);
+    card.style.setProperty('--mouse-y', `${cardY}px`);
+  });
+});
+```
+
+```css
+/* WhySoley card depth — add to globals.css */
+.why-card {
+  position: relative;
+  background: #F5F0EA;
+  border: 1px solid rgba(44, 31, 22, 0.08);
+  overflow: hidden;
+}
+.why-card::before {
+  content: "";
+  position: absolute;
+  width: 320px; height: 320px;
+  left: -160px; top: -160px;
+  background: rgba(184, 147, 90, 0.06);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s;
+  translate: var(--mouse-x, 0) var(--mouse-y, 0);
+  filter: blur(80px);
+  z-index: 1;
+}
+.why-card::after {
+  content: "";
+  position: absolute;
+  width: 400px; height: 400px;
+  left: -200px; top: -200px;
+  background: rgba(194, 96, 58, 0.07);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s;
+  translate: var(--mouse-x, 0) var(--mouse-y, 0);
+  filter: blur(100px);
+  z-index: 0;
+}
+.why-soley-grid:hover .why-card::before,
+.why-soley-grid:hover .why-card::after {
+  opacity: 1;
+}
+.why-card > * { position: relative; z-index: 2; }
+```
+
+---
+
+### NEW REFERENCE 5 — Codrops SVG Mask Transitions on Scroll (March 11 2026)
+**URL:** https://tympanus.net/codrops/2026/03/11/svg-mask-transitions-on-scroll-with-gsap-and-scrolltrigger/  
+**Demo:** https://tympanus.net/Tutorials/SVGMaskTransitions/
+
+**What to study — for the Sacramento signature centerpiece upgrade:**
+The technique uses SVG `<mask>` elements containing dynamically generated white rectangles that reveal content as scroll progresses. The `scrub: 2.0–2.5` setting creates a deliberate lag — even after the user stops scrolling, the reveal animation continues slightly, adding a "trailing ink" quality. This is directly analogous to how wet ink continues to spread after a brush lifts.
+
+**Named move to study:** "Trailing scrub reveal" — using `scrub: 2` instead of `scrub: 1` or `scrub: true` creates a physical-material feel. The content seems to "bleed in" rather than being mechanically revealed. For Soley's hero, when the signature finishes drawing, the hero content below (the tagline, CTAs) could use `scrub: 2` with ScrollTrigger to fade in as the user begins scrolling — trailing slightly behind the scroll position, like content emerging from a wet surface.
+
+**Named move to study (2): "Horizontal blind" reveal pattern** — four geometric reveal styles are available (horizontal blinds / vertical blinds / random grid / column-random grid). For Soley's section transitions, the "horizontal blind" pattern (parallel horizontal strips expanding vertically from center) maps naturally to horizontal paint strokes being applied. When the user scrolls into the PaintFlow workflow section, the section could reveal via horizontal blind strips rather than a simple opacity fade.
+
+**Soley implementation hint:**
+```javascript
+// SVG blind reveal for PaintFlow section entry
+// scrub: 2.2 gives the "trailing ink" feel
+gsap.timeline({
+  scrollTrigger: {
+    trigger: '.paint-flow-section',
+    start: 'top 80%',
+    end: 'top 20%',
+    scrub: 2.2
+  }
+}).to('.paint-flow-mask-rect', {
+  attr: { height: '110%' },
+  stagger: { each: 0.08, from: 'random' }
+});
+```
+
+---
+
+### NEW REFERENCE 6 — GSAP ScrollTrigger Horizontal Scroll Robustness (Canonical Documentation)
+**URL:** https://gsap.com/docs/v3/Plugins/ScrollTrigger/  
+**GSAP mistakes guide:** https://gsap.com/resources/st-mistakes/  
+**Community thread on pinned horizontal scroll:** https://gsap.com/community/forums/topic/42812-how-to-fix-a-horizontal-scroll-section-with-scrolltrigger/
+
+**This directly addresses AUDIT Issue A — ServicesScrollLock blank mid-scroll.**
+
+**Root cause analysis from canonical docs:**
+
+The Framer Motion `useScroll` + `useTransform` pattern (used in the current build per Cycle 1 Scout report) has a known failure mode when the hero section's layout changes: the `containerRef` offset is calculated once at mount time. When the hero's document height changes (e.g., from a 2-col grid to a 1-col layout), the pre-calculated start/end scroll positions for the sticky section become wrong. This causes `scrollYProgress` to read `0` or `1` at positions where it should read `~0.5` — manifesting as a blank or stuck panel.
+
+**Five specific pitfalls from research:**
+
+1. **Missing `top: 0` on the sticky inner track.** If the inner `position: sticky` element lacks an explicit `top: 0`, browsers un-stick it silently. Fix: `position: sticky; top: 0; height: 100vh;` — never omit `top`.
+
+2. **`overflow: hidden` on an ancestor of the sticky container.** Any ancestor with `overflow: hidden` or `overflow: auto` creates a new scroll context, trapping the sticky element inside that ancestor's bounds instead of the viewport. Fix: audit every ancestor div from the sticky element to `<body>` for overflow properties. If Tailwind's `overflow-hidden` is on any wrapper, remove it.
+
+3. **Flex/grid `align-self: stretch` on the sticky element's parent.** If the 500vh section is inside a flex or grid container, its height expands to fill the container rather than being set by `height: 500vh`. Fix: add `align-self: flex-start` (or `align-items: start` on the parent grid) so the 500vh section is the real height boundary.
+
+4. **`content-visibility: auto` on any section.** GSAP explicitly warns this makes position calculation impossible. Some Next.js 14 builds add this automatically for performance. Fix: override with `content-visibility: visible` on the services section.
+
+5. **Framer Motion `useScroll` offset miscalculation after hero layout change.** `useScroll({ target: containerRef, offset: ["start start", "end end"] })` recalculates on mount and on resize events, but NOT when upstream layout changes the document scroll height at a point other than a resize event (e.g., a font loading late, or an R3F canvas completing initialization that shifts the hero height). Fix: call `motionValue.set()` or force a `window.dispatchEvent(new Event('resize'))` after any dynamic layout shift above the scroll section.
+
+**Robust horizontal scroll-lock pattern that survives layout changes:**
+
+The most robust approach (from the GSAP community thread and the Codrops horizontal parallax tutorial) avoids `useScroll` entirely and instead uses:
+1. A 500vh `<section>` wrapper with `position: relative` — no sticky on this element.
+2. An inner `<div>` with `position: sticky; top: 0; height: 100vh; overflow: hidden`.
+3. A JS `IntersectionObserver` that detects when the section enters/exits and enables/disables a `scroll` event listener — avoiding continuous listener overhead.
+4. The scroll handler reads `window.scrollY - sectionTop` where `sectionTop` is recalculated on every `scroll` event via `sectionRef.getBoundingClientRect().top + window.scrollY` (NOT cached at mount). This is the key: never cache `sectionTop`; always recompute it from the current `getBoundingClientRect`. Then `translateX = -((scrollY - sectionTop) / (sectionHeight - viewportHeight)) * totalTrackWidth`.
+
+```javascript
+// Robust horizontal scroll handler — sectionTop recalculated every frame
+const section = document.querySelector('.services-scroll-section');
+const track = document.querySelector('.services-track');
+const PANEL_WIDTH = window.innerWidth;
+const PANEL_COUNT = 5;
+const totalShift = PANEL_WIDTH * (PANEL_COUNT - 1);
+
+function updateHScroll() {
+  // Never cache this — always recompute from live DOM
+  const sectionRect = section.getBoundingClientRect();
+  const sectionTop = sectionRect.top + window.scrollY;
+  const sectionH = section.offsetHeight; // 500vh
+  const progress = Math.max(0, Math.min(1,
+    (window.scrollY - sectionTop) / (sectionH - window.innerHeight)
+  ));
+  track.style.transform = `translateX(${-progress * totalShift}px)`;
+  // Also lerp background color per panel
+  const panelIdx = Math.min(Math.floor(progress * (PANEL_COUNT - 1)), PANEL_COUNT - 2);
+  const blend = (progress * (PANEL_COUNT - 1)) - panelIdx;
+  // ... lerpColor(panelColors[panelIdx], panelColors[panelIdx+1], blend) ...
+}
+
+window.addEventListener('scroll', updateHScroll, { passive: true });
+```
+
+**Why this is more robust than Framer Motion `useScroll`:** `getBoundingClientRect()` always returns the current live position relative to the viewport — it is not a cached value from mount. So even if the hero section's height changes after a font load or R3F initialization, the horizontal scroll calculation remains accurate because it reads from the current DOM state on every scroll event.
+
+**Implementation hint for Spark/Builder — fix AUDIT Issue A:**
+Replace the current `useScroll({ target: containerRef })` Framer Motion implementation with the pure-JS handler above. Keep the Framer Motion `x` motionValue for the track translation if desired (call `xMotionValue.set(-progress * totalShift)` inside the scroll handler), but source the `progress` from the live-DOM `getBoundingClientRect` calculation rather than the `scrollYProgress` motionValue.
+
+---
+
+### SECTION 8 — Concrete Prompt Blocks for Next Builder/Spark Cycles (Round 3)
+
+**For Builder/Spark — Fix AUDIT Issue A (ServicesScrollLock blank mid-scroll):**
+```
+BLOCKER FIX — ServicesScrollLock blank mid-scroll.
+
+Root cause: scrollYProgress from useScroll({ target: containerRef }) caches the section's top offset at mount time. When the hero layout changed (2-col → 1-col), the cached offset became wrong, causing scrollYProgress to read 0 or 1 at mid-scroll.
+
+Replace the Framer Motion useScroll approach with a pure-JS scroll handler that recalculates sectionTop on every scroll event via getBoundingClientRect (never cached):
+
+const section = sectionRef.current;
+const track = trackRef.current;
+const TOTAL_SHIFT = window.innerWidth * 4; // 4 gaps between 5 panels
+
+function handleScroll() {
+  const sectionRect = section.getBoundingClientRect();
+  const sectionTop = sectionRect.top + window.scrollY;
+  const sectionH = section.offsetHeight;
+  const progress = Math.max(0, Math.min(1,
+    (window.scrollY - sectionTop) / (sectionH - window.innerHeight)
+  ));
+  track.style.transform = `translateX(${-progress * TOTAL_SHIFT}px)`;
+}
+
+window.addEventListener('scroll', handleScroll, { passive: true });
+// Remove listener on component unmount
+
+Also audit every ancestor div of the sticky inner container for: overflow:hidden, overflow:auto, align-self:stretch. Any of these silently breaks sticky positioning.
+
+For the sticky inner track: ensure it has position:sticky; top:0; height:100vh; — never omit top:0.
+
+After fixing, verify with at least 5 scroll samples across the 500vh range (5%, 25%, 50%, 75%, 95%) on both desktop 1440 and iPhone 13 per RULE 3.
+```
+
+**For Spark — WhySoley card depth (AUDIT Priority 2):**
+```
+Add spotlight hover effect to WhySoley cards.
+
+1. Add a data-spotlight attribute to the .why-soley-grid container.
+2. Add the following mousemove handler (plain JS, no React state — direct DOM mutation):
+
+const grid = document.querySelector('[data-spotlight]');
+if (grid) {
+  grid.addEventListener('mousemove', (e) => {
+    const rect = grid.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    grid.querySelectorAll('.why-card').forEach(card => {
+      const cRect = card.getBoundingClientRect();
+      card.style.setProperty('--mouse-x', `${x - (cRect.left - rect.left)}px`);
+      card.style.setProperty('--mouse-y', `${y - (cRect.top - rect.top)}px`);
+    });
+  });
+}
+
+3. Add to globals.css (the .why-card CSS block from REFERENCE 4 above — terracotta ::after at 7% opacity, clay-gold ::before at 6% opacity, both blur-100px).
+
+4. Each card also needs a base radial-gradient background for pre-hover depth (replace the flat chalk card):
+   background: radial-gradient(ellipse at top left, rgba(194,96,58,0.04) 0%, #F5F0EA 60%);
+   This gives the card a very subtle warm flush from the top-left corner at rest, making it visibly non-flat before any hover.
+
+5. Give each icon container a filled background tile: background: rgba(var(--card-accent-rgb), 0.10); border-radius: 8px; padding: 12px;
+   where --card-accent-rgb is set inline per card (e.g., 194,96,58 for terracotta; 45,122,112 for teal).
+```
+
+**For Spark — Sacramento signature ink-bleed effect (signature centerpiece upgrade):**
+```
+After the Sacramento SVG signature stroke-dashoffset completes (at the end of the draw animation),
+add a brief ink-bleed blur effect:
+
+const signatureEl = document.querySelector('.sacramento-path');
+signatureEl.style.filter = 'none';
+
+// When draw animation fires onComplete callback:
+gsap.timeline({ onComplete: () => { signatureEl.style.filter = 'none'; } })
+  .to(signatureEl, {
+    filter: 'blur(3px)',
+    duration: 0.18,
+    ease: 'power1.in',
+    onStart: () => { /* paint bleed begins */ }
+  })
+  .to(signatureEl, {
+    filter: 'blur(0px)',
+    duration: 0.32,
+    ease: 'power2.out'
+  });
+
+This blur-in/blur-out sequence (0.18s in, 0.32s out, total 0.5s) mimics ink bleeding into paper at the moment the brush lifts. The signature briefly softens, then resolves to crisp.
+Do NOT use SVG filter animation — use direct CSS filter via GSAP for reliable cross-browser timing.
+```
+
+**For Builder — paper grain background texture (global upgrade):**
+```
+Add paper grain texture to the chalk background:
+
+1. Generate grain.png: a 256×256 grayscale noise PNG. Can use the following canvas snippet run once at build time:
+   const c = document.createElement('canvas'); c.width = c.height = 256;
+   const d = c.getContext('2d').createImageData(256,256);
+   for(let i=0;i<d.data.length;i+=4){const v=Math.random()*255|0;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255;}
+   c.getContext('2d').putImageData(d,0,0);
+   // Save as /public/grain.png
+
+2. Add to globals.css:
+   body::before {
+     content: "";
+     position: fixed;
+     inset: 0;
+     background-image: url('/grain.png');
+     background-repeat: repeat;
+     background-size: 256px 256px;
+     opacity: 0.032;
+     mix-blend-mode: multiply;
+     pointer-events: none;
+     z-index: 0;
+   }
+   
+   Confirm all interactive elements have z-index >= 1 so they sit above the grain layer. The grain layer should be imperceptible at a glance and visible only when the user looks for surface texture — at 3.2% opacity it reads as material warmth, not a visible pattern.
+```
+
+**For Builder/Spark — GSAP ScrollTrigger sticky pitfall checklist (use before every scroll-lock implementation):**
+```
+Before implementing any sticky/pinned scroll section, audit:
+
+□ Sticky inner element has: position:sticky; top:0; height:100vh; — never omit top value
+□ No ancestor div has: overflow:hidden OR overflow:auto OR overflow:scroll  
+□ If section is inside a flex/grid container: parent has align-items:start (NOT stretch)
+□ No ancestor or section has: content-visibility:auto (Next.js may add this automatically)
+□ Section height is set explicitly (height:500vh on the outer wrapper — NOT min-height)
+□ ScrollTrigger.refresh() is called after any dynamic layout change (font load, R3F init, image load)
+□ sectionTop is recalculated from getBoundingClientRect() on every scroll event — NOT cached at mount
+□ All ScrollTriggers created in top-to-bottom scroll order (or refreshPriority set)
+□ Tested at 5%, 25%, 50%, 75%, 95% scroll positions per RULE 3 — not just at entry
+```
+
+---
+
+*Scout cycle 3 complete. Research only. No code modified.*  
+*New URLs added: fresque.ruinart.com, domusweb.it/hermes-new-website, lindamerad.com/HERMES-INTERLUDE-1, simonholm.studio, cruip.com/spotlight-card, tympanus.net/codrops/2026/03/11/svg-mask-transitions, gsap.com/resources/st-mistakes, gsap.com/community/forums/topic/42812, blog.logrocket.com/troubleshooting-css-sticky-positioning, frontendmasters.com/blog/the-weird-parts-of-position-sticky*
