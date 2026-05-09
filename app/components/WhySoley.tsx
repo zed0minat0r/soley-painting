@@ -1,14 +1,15 @@
 'use client'
 
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useState } from 'react'
 import { motion, useSpring } from 'framer-motion'
 
 /* ── Catalog item #10 — 3D tilt cards with framer-motion useSpring ──────
-   Mousemove → rotateX/Y (max ±8°), useSpring for smooth snap-back.
-   Mobile: accordion expand on tap.
-   Ref: Scout catalog row #10 + Scout Section 3 Pattern 3 (Sticky Grid).
-   Replaces: the duplicate <SectionDivider flip /> + gap filler between
-   ServicesScrollLock and Process.                                         */
+   Desktop: Mousemove → rotateX/Y (max ±8°), useSpring for smooth snap-back.
+   Mobile (≤640px): accordion expand on tap — each card header always visible,
+   description body expands/collapses via CSS max-height transition.
+   aria-expanded + aria-controls for accessibility.
+   All 4 cards, all content preserved (Frame B richness rule).
+   Ref: Scout catalog row #10 + Scout Section 3 Pattern 3 (Sticky Grid).   */
 
 const CARDS = [
   {
@@ -77,7 +78,7 @@ const CARDS = [
   },
 ]
 
-/* Individual tilt card */
+/* ── Desktop tilt card (unchanged from prior cycle) ─────────────────── */
 function TiltCard({ card, index }: { card: typeof CARDS[0]; index: number }) {
   const cardRef = useRef<HTMLDivElement>(null)
 
@@ -207,8 +208,140 @@ function TiltCard({ card, index }: { card: typeof CARDS[0]; index: number }) {
   )
 }
 
+/* ── Mobile accordion card (≤640px) ────────────────────────────────── */
+function AccordionCard({
+  card,
+  isOpen,
+  onToggle,
+}: {
+  card: typeof CARDS[0]
+  isOpen: boolean
+  onToggle: () => void
+}) {
+  const descId = `why-desc-${card.id}`
+
+  return (
+    <div
+      className="scroll-reveal"
+      style={{
+        background: 'var(--color-chalk)',
+        border: '1px solid rgba(44,31,22,0.1)',
+        borderLeft: `3px solid ${card.accent}`,
+        overflow: 'hidden',
+      }}
+    >
+      {/* Header — always visible, acts as tap target */}
+      <button
+        aria-expanded={isOpen}
+        aria-controls={descId}
+        onClick={onToggle}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.875rem',
+          padding: '1.25rem 1.25rem',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          textAlign: 'left',
+          minHeight: '44px',
+        }}
+      >
+        {/* Icon tile */}
+        <div
+          style={{
+            width: '40px',
+            height: '40px',
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(44,31,22,0.04)',
+            borderRadius: '4px',
+            color: 'var(--color-umber)',
+          }}
+        >
+          {card.icon}
+        </div>
+
+        {/* Title + number */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <span
+            style={{
+              display: 'block',
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.65rem',
+              fontWeight: 600,
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
+              color: card.accent,
+              marginBottom: '0.2rem',
+            }}
+          >
+            {card.number}
+          </span>
+          <h3
+            style={{
+              fontFamily: 'var(--font-heading)',
+              fontWeight: 700,
+              fontSize: '1.125rem',
+              color: 'var(--color-umber)',
+              lineHeight: 1.2,
+              margin: 0,
+            }}
+          >
+            {card.title}
+          </h3>
+        </div>
+
+        {/* Chevron */}
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
+          style={{
+            flexShrink: 0,
+            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.3s ease',
+            color: card.accent,
+          }}
+        >
+          <path d="M4 6.5L9 11.5L14 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
+      {/* Body — collapses/expands via max-height */}
+      <div
+        id={descId}
+        role="region"
+        style={{
+          maxHeight: isOpen ? '200px' : '0px',
+          overflow: 'hidden',
+          transition: 'max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
+      >
+        <p
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '0.9rem',
+            lineHeight: 1.7,
+            color: 'rgba(44,31,22,0.65)',
+            padding: '0 1.25rem 1.25rem',
+            margin: 0,
+          }}
+        >
+          {card.description}
+        </p>
+      </div>
+    </div>
+  )
+}
+
 export default function WhySoley() {
   const gridRef = useRef<HTMLDivElement>(null)
+  const [openId, setOpenId] = useState<string | null>('prep') // first card open by default
 
   const handleGridMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const grid = gridRef.current
@@ -286,12 +419,12 @@ export default function WhySoley() {
           </h2>
         </div>
 
-        {/* 4-card grid with tilt + Cruip spotlight pattern */}
+        {/* Desktop: 4-card grid with tilt + spotlight (hidden on ≤640px) */}
         <div
           ref={gridRef}
           onMouseMove={handleGridMouseMove}
           onMouseLeave={handleGridMouseLeave}
-          className="why-soley-grid"
+          className="why-soley-grid why-soley-desktop"
           style={{
             display: 'flex',
             flexWrap: 'wrap',
@@ -328,6 +461,21 @@ export default function WhySoley() {
           </div>
           {CARDS.map((card, i) => (
             <TiltCard key={card.id} card={card} index={i} />
+          ))}
+        </div>
+
+        {/* Mobile: accordion stack (shown only on ≤640px) */}
+        <div
+          className="why-soley-accordion"
+          style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}
+        >
+          {CARDS.map((card) => (
+            <AccordionCard
+              key={card.id}
+              card={card}
+              isOpen={openId === card.id}
+              onToggle={() => setOpenId(openId === card.id ? null : card.id)}
+            />
           ))}
         </div>
       </div>

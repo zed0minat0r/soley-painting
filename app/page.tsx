@@ -5,6 +5,7 @@ import SectionDivider from './components/SectionDivider'
 import ServicesScrollLock from './components/ServicesScrollLock'
 import PaintFlow from './components/PaintFlow'
 import WhySoley from './components/WhySoley'
+import FounderBlock from './components/FounderBlock'
 import Process from './components/Process'
 import LiveEstimate from './components/LiveEstimate'
 import Contact from './components/Contact'
@@ -22,6 +23,7 @@ export default function Home() {
       <ServicesScrollLock />
       <PaintFlow />
       <WhySoley />
+      <FounderBlock />
       <Process />
       <LiveEstimate />
       <SectionDivider />

@@ -247,8 +247,22 @@
   gap: 3rem;
 }
 
+/* ── WhySoley: desktop tilt vs mobile accordion ─────────────────────── */
+/* On desktop the tilt grid shows and accordion hides */
+.why-soley-desktop { display: flex !important; }
+.why-soley-accordion { display: none !important; }
+
 /* ── Mobile breakpoint (≤640px) ──────────────────────────────────────── */
 @media (max-width: 640px) {
+  /* FounderBlock: single column on mobile */
+  .founder-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  .founder-portrait-col {
+    align-items: center !important;
+  }
+
   /* Hero: canvas already single-column, just ensure full width */
   .hero-canvas-wrap {
     width: min(340px, 92vw) !important;
@@ -262,11 +276,16 @@
     display: inline-flex !important;
   }
 
-  /* BUG-004: Navbar logo — ensure min 44px tap target */
+  /* WhySoley: swap to accordion on mobile */
+  .why-soley-desktop { display: none !important; }
+  .why-soley-accordion { display: flex !important; }
+
+  /* BUG-004 + Priority #5a: Navbar logo — min 44px tap target + no line wrap */
   .nav-logo {
     min-height: 44px;
     display: inline-flex;
     align-items: center;
+    white-space: nowrap;
   }
 
   /* Process: single column, tab row */
@@ -297,6 +316,14 @@
     grid-template-columns: 1fr;
     gap: 2rem;
   }
+}
+
+/* ── FounderBlock layout — 2-col desktop, 1-col mobile ──────────────── */
+.founder-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 5rem;
+  align-items: start;
 }
 
 /* ── Small tablet breakpoint (641–900px) ─────────────────────────────── */

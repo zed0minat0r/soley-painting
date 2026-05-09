@@ -20,12 +20,12 @@ export default function Contact() {
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          el.querySelectorAll('.scroll-reveal').forEach(node => {
+          el.querySelectorAll('.scroll-reveal, .scroll-reveal-left').forEach(node => {
             node.classList.add('in-view')
           })
         }
       },
-      { threshold: 0.15 }
+      { threshold: 0.05 }
     )
     obs.observe(el)
     return () => obs.disconnect()
@@ -57,7 +57,7 @@ export default function Contact() {
           {/* Left — info */}
           <div>
             <p
-              className="scroll-reveal"
+              className="scroll-reveal-left"
               style={{
                 fontFamily: 'var(--font-body)',
                 fontSize: '0.875rem',
@@ -65,12 +65,13 @@ export default function Contact() {
                 textTransform: 'uppercase',
                 color: 'var(--color-terra)',
                 marginBottom: '1rem',
+                transitionDelay: '0s',
               }}
             >
               Get a free estimate
             </p>
             <h2
-              className="scroll-reveal"
+              className="scroll-reveal-left"
               style={{
                 fontFamily: 'var(--font-heading)',
                 fontWeight: 700,
@@ -78,6 +79,7 @@ export default function Contact() {
                 color: 'var(--color-umber)',
                 lineHeight: 1.1,
                 marginBottom: '1.75rem',
+                transitionDelay: '0.1s',
               }}
             >
               Start with a<br />
@@ -85,7 +87,7 @@ export default function Contact() {
             </h2>
 
             <p
-              className="scroll-reveal"
+              className="scroll-reveal-left"
               style={{
                 fontFamily: 'var(--font-body)',
                 fontSize: '1rem',
@@ -93,6 +95,7 @@ export default function Contact() {
                 color: 'rgba(44, 31, 22, 0.7)',
                 maxWidth: '38ch',
                 marginBottom: '2.5rem',
+                transitionDelay: '0.2s',
               }}
             >
               We measure, assess surfaces, and deliver a written quote — no ballpark
@@ -100,9 +103,62 @@ export default function Contact() {
               every time.
             </p>
 
+            {/* Honest commitments list */}
             <div
-              className="scroll-reveal"
-              style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
+              className="scroll-reveal-left"
+              style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', marginBottom: '2rem', transitionDelay: '0.3s' }}
+            >
+              {[
+                'We answer every call — no voicemail runaround',
+                'We show up inside our confirmed window, every time',
+                'Written estimates, line by line — no ballpark ranges',
+                'We protect your floors, furniture, and trim daily',
+                'Low-VOC formulations on every interior, by default',
+                'Written warranty terms provided when scope is finalized',
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '0.75rem',
+                  }}
+                >
+                  <span
+                    style={{
+                      flexShrink: 0,
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
+                      background: 'rgba(194,96,58,0.12)',
+                      border: '1px solid rgba(194,96,58,0.35)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginTop: '2px',
+                    }}
+                  >
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                      <path d="M1 4L3.5 6.5L9 1" stroke="var(--color-terra)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
+                  <p
+                    style={{
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '0.9rem',
+                      lineHeight: 1.55,
+                      color: 'rgba(44, 31, 22, 0.72)',
+                    }}
+                  >
+                    {item}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div
+              className="scroll-reveal-left"
+              style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', transitionDelay: '0.4s' }}
             >
               {[
                 {
