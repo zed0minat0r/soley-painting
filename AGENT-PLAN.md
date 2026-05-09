@@ -1,34 +1,41 @@
-# AGENT-PLAN.md — Soley Painting (Cycle 9, BUG-025 CSS containment + content honesty micro-add)
+# AGENT-PLAN.md — Soley Painting (Cycle 10, SEO foundation + targeted Pixel verification)
 
-**Date:** 2026-05-09 06:52 ET
+**Date:** 2026-05-07 :03 ET
 **Live:** https://soley-painting.vercel.app
-**Latest score:** 6.2 (conversion-friction axis, Nigel cycle 8 / commit df6e01d) — under the 7.5 pre-launch cap
-**Latest commits:** d079eea (Scout Round 4 — BUG-025 root cause + clamp/dvh recipes) ← df6e01d (Nigel cycle 8 audit) ← 0316c52 (Refiner BUG-039/038/042) ← 594201e (Pixel BUG-040 fonts) ← f3cc3fb (Builder cycle 6 FAQ)
+**Latest score:** 6.2 (Nigel cycle 8, axis: conversion-friction, commit df6e01d) — under the 7.5 pre-launch cap
+**Latest commits:** 388cbae (refiner CHANGELOG) ← a200114 (BUG-043 SectionDivider 6 missing placements) ← d9582a0 (QA cycle 7 — BUG-025/038/039/040 confirmed CLOSED) ← a7d96ab (builder cycle 9 CHANGELOG) ← e037aae (FAQ +3 scope-clarity items)
 **Cap:** 7.5 pre-launch — score CAN'T rise until real photography + real reviews + real address all land (`feedback_nigel_stricter.md`).
 
 ---
 
 ## Decision rule fired
 
-**Default rotation, NOT polish-mode (score 6.2 < 8.5 polish gate).** No convergence stall — last 4 entries each landed real changes (Refiner ARIA + entry dead zone, Pixel font fix, Nigel cycle 8 audit, Scout Round 4 concrete recipes). All BLOCKERs cleared except the visual residual of BUG-025 (Scout Round 4 has the exact CSS recipe — implement it).
+**Cap-mode polish + one HIGH-LEVERAGE foundation gap.** Score 6.2 is below the 8.5 polish gate, but the active BLOCKER list is empty and recent cycles have been incremental. Wake-up summary cron fires at 8:07 ET — this is the last :03 before user check-in, so prioritize ONE substantive, non-fabricating improvement over generic polish.
 
-**Reality check on Nigel cycle 8 (re-confirmed via prior QA cycles):** Several "absent" items in the AUDIT were Playwright SSR-snapshot artifacts:
+**State of the site (verified, not relying on cycle-8 Nigel SSR-snapshot misreads):**
 
-- PaintFlow `animateMotion` — Spark cycle 4 commit 451cca8 added burst-on-arrival + ghost trail + draw-in border. QA cycle 5 CONFIRMED VISIBLE all viewports. Almost certainly a static-snapshot read on Nigel's part.
-- Process countdown bar — Refiner d6c2ccf BUG-032 explicitly fixed the countdown bar key. QA cycle 5 CONFIRMED auto-advance + countdown both fixed.
-- LiveEstimate typing — known to be client-rendered and intentionally absent from SSR snapshot (per Builder cycle 6 framing as "Example — how your request looks" demo card).
-- Section dividers — Spark cycle 5 commit 451cca8 added gloss teardrops + dual-hairline parallax + traveling pulses. QA confirmed visible. Pixel e2f0637 set IO threshold 0.4→0.15 for partial-visibility reveal.
+- BUG-025 (mobile panel overflow) — **CONFIRMED CLOSED** by QA cycle 7 (d9582a0). Spark cycle 9 CSS containment fix (37c5f5f) holds at all 15 positions across SE375/IP13/D1440.
+- BUG-038 (Process tablist ARIA) — **CONFIRMED CLOSED** by QA cycle 7. Refiner 0316c52 added role=tablist/tab/tabpanel + aria-controls + arrow-key handler.
+- BUG-039 (ServicesScrollLock entry dead zone) — **CONFIRMED CLOSED** by QA cycle 7. Refiner 0316c52 fix verified.
+- BUG-040 (12px eyebrow/label fonts) — **CONFIRMED CLOSED** by QA cycle 7. Pixel 594201e bumped 10 elements to 13px.
+- BUG-043 (SectionDivider only 2/8 placements) — **CONFIRMED CLOSED** by Refiner a200114 — added 6 missing dividers; page now has 8 total.
+- PaintFlow `animateMotion` — QA cycle 7 confirmed dots advancing via RAF. Nigel cycle 8 "absent" claim was a Playwright SSR-snapshot artifact.
+- LiveEstimate typing — client-rendered only, framed honestly as "Example — how your request looks" demo card (Builder cycle 6 commit 934d25a).
+- Process countdown bar — Refiner d6c2ccf (BUG-032) keyed countdown to visible state. QA cycle 5+7 confirmed 10s countdown firing.
 
-**Real, untouched issues with concrete recipes:**
+**Open items in BUGS.md:** Nothing actionable — all real BLOCKERs cleared. Nigel cycle 8 priorities P2/P3/P4 were SSR-snapshot artifacts; P5 (mobile font violations) needs a quick re-verification on the two specific elements he named (`.portfolio-tile-badge`, LiveEstimate label) — but Pixel 594201e covered LiveEstimate eyebrow + label per the commit message, so this is most likely already fixed and just needs confirmation.
 
-- **BUG-025 mobile panel overflow** — Scout Round 4 has a CONCRETE three-part CSS fix (panel `max-width: 100vw; overflow: hidden`, title `font-size: clamp(2rem, 0.947rem + 4.5vw, 5rem)`, sticky inner track `height: 100dvh` not `100vh`). This is the exact remaining BLOCKER the audit calls out and the only one with an unimplemented recipe.
-- **BUG-041 mobile DOM bloat** — WhySoley desktop perspective elements present on mobile. Logged but unaddressed.
-- **Mobile font violations Nigel re-flagged** — portfolio tile badge at 9.6px, LiveEstimate label at 11px on iPhone 13. Pixel cycle 8 (commit 594201e) bumped 10 elements to 13px but apparently missed `.portfolio-tile-badge` and the LiveEstimate label specifically. Verify; bump if real.
+**HIGH-LEVERAGE untouched gap: SEO + crawler foundation.**
 
-**Schedule: Spark → Builder in that order.**
+The site has zero JSON-LD structured data, no `robots.txt`, no `sitemap.xml`, no Open Graph image, and Next.js metadata limited to the bare title + description. For a local-business website, **LocalBusiness + Service + FAQ JSON-LD** is the single highest-leverage non-fabricating improvement the agents can ship. It does not require photography, reviews, or any client testimonials. It uses honest pre-launch values (service area "Coming soon", phone unset = `null`, no fake `aggregateRating`). It directly improves Google rich-result eligibility — which for a painter means showing up in local-pack searches the moment Adam adds his real address.
 
-- **Spark** implements Scout Round 4's BUG-025 three-part CSS fix (clamp + max-width + 100dvh + overflow). This is a CSS containment fix on `app/globals.css` only — NOT a structural ServicesScrollLock change. Refiner's recent work touched the JS runway math; this fix touches CSS containment of panels and titles. Different concern, no conflict. Spark also verifies the two remaining font violations Nigel called out (portfolio badge 9.6px, LiveEstimate label 11px) and bumps both to 13px floor if confirmed.
-- **Builder** ships a small content-honesty addition: a "What we don't do" / scope-clarity micro-section (or paragraph block within Contact, depending on Builder's read of where it fits cleanest). This is genuine new buyer information — painters routinely face "do you also do roof?" / "do you do drywall repair?" — and a 3-4 line scope-clarity block prevents wasted estimate-request time. HONEST framing only — list what they DO NOT do without inventing partner referrals. NO new section structure if Builder reads it as fitting under Contact or FAQ — additive copy preferred.
+This is also the ONLY remaining catalog-adjacent improvement that has not been touched in 70 commits over 6 hours. Every section structurally has been fortified; the SEO/discovery layer is untouched.
+
+**No convergence stall.** Last 4 entries each shipped real distinct work (Refiner BUG-043, QA cycle 7, Builder FAQ extension, Spark BUG-025 CSS containment). Continue.
+
+**Why NOT auto-pause:** auto-pause rule fires after 2 no-change cycles. The last 4 cycles all produced commits with verified diffs. We are not idle.
+
+**Why NOT generic Builder + Spark polish:** Builder copy + Spark visual depth have already had 9 passes. Diminishing returns. One concrete foundation move > another decorative pass.
 
 ---
 
@@ -36,236 +43,136 @@
 
 | Section | Recent touches | Status this cycle |
 |---|---|---|
-| Hero3D | Refiner 0316c52 (BUG-042 mobile canvas min-height) | **HARD FORBID** structurally — Refiner just touched |
-| ServicesScrollLock | Refiner 0316c52 (BUG-039 entry dead zone) + d6c2ccf | **STRUCTURAL FORBID** for Spark — but **CSS-only BUG-025 containment fix** is OPEN target (different surface, Scout Round 4 recipe) |
-| Process | Refiner 0316c52 (BUG-038 ARIA tablist) | **HARD FORBID** structurally |
-| PortfolioGallery | Pixel e2f0637/65f37b4 + Builder copy | **STRUCTURAL FORBID** — but `.portfolio-tile-badge` font-size fix is OPEN if 9.6px confirmed |
+| Hero3D | Refiner 0316c52 (BUG-042 mobile canvas) | **HARD FORBID** structurally |
+| ServicesScrollLock | Spark 37c5f5f (BUG-025 CSS containment) + Refiner 0316c52 | **HARD FORBID** — just-shipped, confirmed closed |
+| Process | Refiner 0316c52 (BUG-038 ARIA) | **HARD FORBID** |
+| PortfolioGallery | Pixel e2f0637 + Builder copy | **HARD FORBID** |
 | ScrollRevealObserver | Refiner d6c2ccf | **HARD FORBID** |
-| SectionDivider | Spark 451cca8 + Pixel e2f0637 | **HARD FORBID** structurally |
-| PaintFlow | Spark 451cca8 + Refiner e81b122 | **HARD FORBID** — just-refit |
-| Footer | Pixel 6e88be7 | **HARD FORBID** structurally |
-| Navbar | Spark cycle 6 + cycle 7 c6f7093 | **HARD FORBID** structurally |
-| LiveEstimate | Builder cycle 6 copy + Pixel cycle 8 font sweep | **STRUCTURAL FORBID** — but eyebrow/label font-size confirm/bump is OPEN if 11px confirmed |
+| SectionDivider | Refiner a200114 (just added 6 placements) | **HARD FORBID** |
+| PaintFlow | Refiner e81b122 (mobile dead space) + Spark 451cca8 | **HARD FORBID** |
+| Footer | Pixel 6e88be7 | **HARD FORBID** |
+| Navbar | Spark c6f7093 (CTA hover + focus rings) | **HARD FORBID** |
+| LiveEstimate | Builder cycle 6 + Pixel 594201e | **HARD FORBID** structurally |
 | WhySoley | Builder cycle 6 copy | Soft-cool |
 | FounderBlock | Builder cycle 6 copy | Soft-cool |
-| FAQ | Builder cycle 7 (just shipped f3cc3fb) | **HARD FORBID** — just-shipped |
-| Contact | Last copy touch cycle 4 | **OPEN for Builder content-honesty addition** |
-| **CTA hover** | Spark cycle 7 c6f7093 | Soft-cool |
+| FAQ | Builder cycle 9 (e037aae +3 items) | **HARD FORBID** — just-shipped |
+| Contact | Last copy touch cycle 4 | Soft-cool |
+| **CTA hover** | Spark c6f7093 | **HARD FORBID** |
+| **`app/layout.tsx` metadata + `app/` SEO files** | NEVER TOUCHED | **OPEN — primary target this cycle** |
 
-**Convergence guard:** Last 4 changelog entries — Pixel (commit 594201e), Refiner (0316c52), Nigel (df6e01d), Scout (d079eea). All landed real commits. NOT a stuck loop. Continue.
+**Convergence guard:** Last 4 entries — Refiner (a200114), QA (d9582a0), Builder (e037aae/a7d96ab), Spark (37c5f5f). All distinct, all landed real changes. NOT a stuck loop.
 
-**Score gate:** 6.2 < 8.5 polish gate → Builder + Spark stay in rotation. NOT polish-only mode.
+**Score gate:** 6.2 < 8.5 polish gate → Builder stays in rotation. Polish-only mode does NOT apply.
 
-**Spark frequency:** Spark last ran cycle 7 (c6f7093). Within window. Schedule Spark normally.
+**Spark frequency:** Spark ran cycle 9 (37c5f5f). One cycle ago. NOT due. Skip Spark this cycle to avoid piling visual effects on top of just-shipped CSS containment work (`feedback_simplicity_over_polish.md`).
 
-**Memory drift check:** Scanned MEMORY.md. RULE 4 (`feedback_disabling_isnt_fixing.md`) and RULE 2 (`feedback_no_self_throttle.md`) explicitly relevant — Spark's BUG-025 fix MUST keep the horizontal scroll-lock feature working, not bail it via matchMedia or compress to single-panel-mobile fallback. The Scout Round 4 fix is a CSS containment fix, not a feature disable.
+**Memory drift check:** `feedback_no_self_throttle.md` (RULE 2) and `feedback_disabling_isnt_fixing.md` (RULE 4) remain relevant guardrails for any future scroll-lock work but are not in scope this cycle. `feedback_no_invented_fight_data.md` and `feedback_no_dev_content.md` are CRITICAL this cycle — schema markup is high-risk for fabrication if Builder invents address/phone/rating values. Schema must reflect honest pre-launch state ONLY.
 
-**Audit priority match:** Nigel cycle 8 priorities — P1 BUG-025 panel overflow → Spark this cycle. P2 Process countdown → already fixed (Playwright artifact). P3 PaintFlow animateMotion → already fixed (Playwright artifact). P4 Section dividers absent → already fixed (Playwright artifact). P5 mobile font violations → Spark verifies + fixes the two specific elements (`.portfolio-tile-badge` + LiveEstimate label) Pixel may have missed.
+**Audit priority match:** Nigel cycle 8 P5 (`.portfolio-tile-badge` 9.6px, LiveEstimate label 11px) is the only Nigel-cycle-8 priority that hasn't been triple-confirmed-closed. Pixel verification + targeted bump is the second piece of work this cycle.
 
 ---
 
 ## Scheduled agents (in order)
 
-### 1. Spark — BUG-025 three-part CSS fix (Scout Round 4 recipe) + targeted font violation cleanup
+### 1. Builder — SEO foundation: JSON-LD LocalBusiness + Service + FAQPage schema, robots.txt, sitemap.xml, Open Graph metadata polish
 
-**Brief:** Spark implements the exact CSS recipe Scout researched in Round 4 (lines 1382–1535 of `SCOUT-REPORT.md`) for BUG-025 panel overflow on mobile. This is a CSS containment fix on `app/globals.css` only — Spark does NOT touch `ServicesScrollLock.tsx` JS or restructure the section. Spark also verifies and bumps the two remaining font violations Nigel cycle 8 called out (`.portfolio-tile-badge` at 9.6px and LiveEstimate label at 11px on iPhone 13).
+**Brief:** Builder ships the discovery / SEO foundation layer. This is the single highest-leverage non-fabricating improvement available — it adds real value for the moment Adam connects his real address and phone, and it costs nothing in honest framing. NO new visible UI sections. NO copy changes to existing components. Only `app/layout.tsx` metadata, a new `app/robots.ts`, `app/sitemap.ts`, and JSON-LD `<script>` tags rendered into `app/layout.tsx` or `app/page.tsx`.
 
-**File targets (all under `/Users/modica/projects/soley-painting`):**
+**Memory entries Builder MUST respect this run:**
 
-- **`app/globals.css`** — Primary work surface. Three additions per Scout Round 4 PROMPT BLOCK R4-1:
-
-  1. **Panel containment** — On the panel selector that the scroll-lock track holds (likely `.services-panel` or equivalent in the existing CSS):
-     ```css
-     flex: 0 0 100vw;
-     max-width: 100vw;       /* the missing containment */
-     overflow: hidden;       /* clip any title/content overflow at the edge */
-     ```
-     Confirm this rule does NOT conflict with existing `min-width: 100vw` already declared.
-
-  2. **Panel title fluid clamp** — On the panel title selector (likely `.services-panel h2` or `.panel-title`):
-     ```css
-     font-size: clamp(2rem, 0.947rem + 4.5vw, 5rem);
-     line-height: 1.05;
-     letter-spacing: 0.02em;
-     ```
-     This replaces any fixed `vw` font-size that causes "CABINET & TRIM" to clip at 375px. The clamp formula anchors min 32px at 375px and scales smoothly to 80px at 1440px.
-
-  3. **Sticky inner track height swap** — Replace EVERY `height: 100vh` inside the ServicesScrollLock CSS scope with `height: 100dvh`. This addresses the iOS Safari URL-bar layout-viewport mismatch.
-
-- **Font violation verification + fix** — In the same CSS file:
-  - Audit `.portfolio-tile-badge` (or the actual selector for the "Photography forthcoming" badge overlay). If computed font-size on iPhone 13 (390px) is < 13px, bump to `font-size: 0.8125rem` (13px).
-  - Audit the LiveEstimate eyebrow / form-label selector. If computed font-size on iPhone 13 is < 13px, bump to `0.8125rem` (13px).
-  - Pixel cycle 8 (594201e) already bumped 10 eyebrow/label elements. Spark verifies these two were NOT included; if they were, no-op the font work and note in commit.
-
-**What "BUG-025 fixed at full quality" looks like:**
-
-- "CABINET & TRIM" panel renders fully within the 375px viewport — no right-edge clip, no next-panel bleed.
-- All five panels render single-at-a-time at every position from 5% to 95% on iPhone SE (375), iPhone 13 (390), iPhone Pro Max (414), and desktop 1440.
-- iOS Safari panel height matches visual viewport (no extra scroll past panel bottom).
-- Horizontal scroll-lock JS handler still firing identically (Refiner's runway math is untouched).
-- Font violations Nigel called out (badge 9.6px, label 11px) computed at >= 13px on iPhone 13.
-
-**Verification (RULE 3 — non-negotiable):**
-
-- Open `https://soley-painting.vercel.app` (or `npm run dev`) in Playwright.
-- For ServicesScrollLock: scroll to 5%, 25%, 50%, 75%, 95% of the runway on **desktop 1440x900**, **iPhone SE 375x667**, **iPhone 13 390x664**, AND **iPhone Pro Max 414x896**.
-- At each position, capture a screenshot AND read computed `getBoundingClientRect()` of the active panel + the panel title's `font-size` + the sticky track's computed `height`.
-- Confirm panel bounds stay inside `[0, viewportWidth]` at every position.
-- Confirm panel title font-size scales correctly: ~32px at 375px, ~80px at 1440px.
-- Confirm sticky track computed height equals visual-viewport height on iPhone (read `window.visualViewport.height` and compare).
-- For font violation fixes: capture computed `font-size` on `.portfolio-tile-badge` AND LiveEstimate label at iPhone 13 (390x664). Confirm both >= 13px.
-- Save screenshots to `/tmp/soley-spark-cycle9-bug025/`.
-
-**Post-edit hygiene (RULES 5/6):**
-
-- This project is Next.js + Tailwind, not the static-CSS pattern from RULE 5/6. Skip clean-css-cli + cache-buster (those rules apply to projects that reference `style.min.css` from `index.html`). For Next.js + Tailwind: `npm run build` instead — confirm passes clean.
-
-**Forbidden moves:**
-
-- **HARD FORBID structural edits to `ServicesScrollLock.tsx`** (or any component file). CSS-only this cycle. The JS handler stays untouched.
-- **HARD FORBID structural edits to:** Hero3D, Process, PortfolioGallery, ScrollRevealObserver, SectionDivider, PaintFlow, Footer, Navbar, LiveEstimate, WhySoley, FounderBlock, FAQ.
-- **Do NOT introduce R3F / @react-three/fiber / drei / three.**
-- **Do NOT use `matchMedia` to disable** the scroll-lock or any panel feature on mobile (RULE 4). The point of this fix is to make the existing feature WORK on mobile, not bail it.
-- **Do NOT use Framer Motion `whileInView`** on SSR-rendered elements.
-- **Do NOT introduce a new accordion / vertical fallback** for ServicesScrollLock on mobile. Single layout, CSS + JS agree.
-- **Do NOT add ghost numbers** anywhere (RULE 8).
-- **Do NOT remove or downgrade** any prior glow / animation / effect (`feedback_nigel_no_removal.md`).
-- **Do NOT pile** a new color or new animation on top of the existing CTA paint-stroke or section dividers (`feedback_simplicity_over_polish.md`).
-- **Do NOT call the iMessage reply tool** (RULE 1 — Spark is a sub-agent).
-- **Do NOT use the words "subtle / considered / editorial restraint / tasteful / delicate / refined"** anywhere in code, commits, or comments (RULE 2).
-- **Do NOT score-chase** — this cycle is a real BLOCKER fix, not a polish round.
-- **Do NOT verify from a single snapshot** (RULE 3) — must capture all 5 runway positions on all 4 viewports.
-
-**MEMORY.md entries Spark MUST respect:**
-
-- RULE 4 / `feedback_disabling_isnt_fixing.md` — never bail ServicesScrollLock via matchMedia. Fix the CSS containment so the feature works on mobile.
-- RULE 3 / `feedback_actually_scroll_test.md` — mid-runway 5-position verification at 4 viewports. No single-snapshot claims.
-- RULE 1 / `feedback_always_imessage.md` — sub-agent: do NOT text the user.
-- RULE 2 / `feedback_no_self_throttle.md` — execute the BUG-025 fix at full intensity. Don't introduce "subtle" reframings.
-- RULE 8 / `feedback_no_ghost_numbers.md` — no ghost numerals.
-- `feedback_horizontal_scroll.md` — user explicitly LOVES the horizontal scroll-lock pattern. Keep it working.
-- `feedback_simplicity_over_polish.md` — replace, don't pile. CSS containment fix, not a redesign.
-- `feedback_frame_b_richness.md` — preserve content count.
-- `feedback_nigel_no_removal.md` — never remove a prior animation / glow / effect.
-- `feedback_pixel_alignment.md` — center-alignment audit at 375 + 414 mobile.
-- `project_penn_tech_baseline.md` — Penn Tech catalog #4 (horizontal scroll-lock) is the floor. The fix preserves and improves the catalog floor.
-
----
-
-### 2. Builder — Scope-clarity content addition (HONEST "what we don't do" buyer information)
-
-**Brief:** Builder adds a small content-honesty addition: a "Scope clarity" / "What we don't do" block that helps homeowners self-qualify before requesting an estimate. This is genuine new buyer information — painters routinely field "do you also do roofs / drywall repair / wallpaper removal" questions, and pre-launch transparency saves both sides time. Builder picks the cleanest placement (likely either inside Contact as a left-column block, OR as a new short section between FAQ and Process / Contact). Strict honesty — list what they DO NOT do; do NOT invent partner referrals or fabricate scope claims.
+- `feedback_no_invented_fight_data.md` — Schema must NOT invent values. No `streetAddress`, no `telephone`, no `aggregateRating`, no `review`, no fake `priceRange`, no `openingHours` if hours are not yet set. Use honest pre-launch fields only.
+- `feedback_no_dev_content.md` — This is for a local-business site selling painting services. Schema must reflect that, NOT a developer template feature list.
+- `feedback_unique_design.md` — No template-y AI-generated `description` field. The schema description must use the same honest brand voice already on the live site.
+- `feedback_simplicity_over_polish.md` — Replace, don't pile. The new metadata block in `layout.tsx` REPLACES the existing thin `metadata` export — it does not duplicate alongside it.
 
 **File targets (all under `/Users/modica/projects/soley-painting`):**
 
-- **Builder picks ONE of these placements (no piling — `feedback_simplicity_over_polish.md`):**
-  - **Option A:** Add a 4-6 bullet "What we don't do" block inside `Contact.tsx` left column, complementing the existing commitment bullets. This keeps it contained — no new section, no new file.
-  - **Option B:** Add a 2-3 question pair to the existing `FAQ.tsx` covering scope (e.g. "Do you do drywall repair / wallpaper removal / roof painting?"). Smallest change, reuses existing component.
-  - **Option C:** Add a new short `ScopeClarity.tsx` section between FAQ and Contact, mirroring the WhySoley card pattern. Most prominent but more structure.
-  - **Recommendation: Option B** — it's the smallest change, reuses an existing accordion that's already proven, and FAQ is the natural home for "do you do X?" questions. Builder may pick A or C if they have a strong reason to disagree, but must NOT pick more than one.
+- **`app/layout.tsx`** — Expand the existing `metadata` export with full Open Graph + Twitter card + canonical URL + keyword-honest fields. Use the live URL `https://soley-painting.vercel.app` as `metadataBase`. Add a `<Script type="application/ld+json">` (or inline `<script>` via `next/script` strategy="beforeInteractive") rendering a LocalBusiness JSON-LD object with HONEST values:
+  - `@type: "PaintingService"` (or `LocalBusiness` if PaintingService not in schema.org — verify)
+  - `name: "Soley Painting"`
+  - `url: "https://soley-painting.vercel.app"`
+  - `description:` use the existing site headline/subheadline copy, not a new invented blurb
+  - `image:` omit if no real photography (or use a deliberately-empty placeholder array)
+  - `address:` omit OR include `addressCountry: "US"` only — NO street, NO zip
+  - `telephone:` omit — NO fake phone
+  - `priceRange:` omit — NO fake range
+  - `aggregateRating:` ABSOLUTELY OMIT — fabrication risk
+  - `areaServed:` if Adam has not specified, omit; if a service area is mentioned anywhere on the site already, mirror that exact wording
+- **`app/robots.ts`** — NEW file. Standard Next.js 14 App Router robots config. `Allow: /`, `Sitemap: https://soley-painting.vercel.app/sitemap.xml`.
+- **`app/sitemap.ts`** — NEW file. Standard Next.js 14 App Router sitemap config. Single entry for the homepage with `lastModified: new Date()`. Add anchors for major sections if Builder reads the page.tsx and finds stable IDs (e.g., `#services`, `#process`, `#contact`, `#faq`).
+- **JSON-LD FAQPage** — Read the FAQ component (`app/components/FAQ.tsx` or wherever it lives — Builder must locate it). Render a `<script type="application/ld+json">` FAQPage schema that mirrors the actual on-page Q&A items 1:1. NO new questions invented. NO answer rephrasing — use the live answers verbatim.
+- **JSON-LD Service** — Render five Service schema entries mirroring the actual five panels of ServicesScrollLock (interior, exterior, commercial, cabinet & trim, specialty). Use the actual on-page panel titles + descriptions verbatim. NO invented prices, NO invented turnaround times.
 
-- **`app/page.tsx`** — only modified if Builder picks Option C.
+**Verification:**
 
-- **Honest content** (suggested questions for Option B — Builder may rephrase for painter voice):
-  - "Do you do drywall repair?" — honest answer about light patching being included; major drywall replacement being a separate trade.
-  - "Do you remove wallpaper?" — honest answer about wallpaper removal being included; cost depends on layers and adhesive.
-  - "Do you paint roofs / metal siding / brick exteriors?" — honest answer about which exterior surfaces ARE in scope.
-  - **NO fabricated specifics:** no "we partner with ABC drywall company", no fake referral networks, no fake pricing, no "we charge $X per sq ft", no fake square-footage thresholds.
-  - Generic operational framing is fine ("major drywall replacement is a separate trade — happy to flag it during the walkthrough").
-
-**What "scope clarity addition shipped at full quality" looks like:**
-
-- Visually consistent with existing FAQ / Contact pattern (no new card style, no new color introductions).
-- 2-3 (Option B) or 4-6 (Option A) honest items.
-- Every answer painter-specific, no marketing filler ("we strive to deliver excellence" banned).
-- ARIA correctness preserved (Option B inherits FAQ's accordion ARIA).
-- Build passes clean (`npm run build`).
-
-**Verification (RULE 3):**
-
-- `npm run build` passes.
-- Run Playwright on the live URL (or `npm run dev`) at desktop 1440x900 + iPhone SE 375x667 + iPhone 13 390x664.
-- For the new content: capture mid-section screenshots at 5 scroll positions per RULE 3 if Option C (new section). For Option A or B, capture before + after states on the existing section it modifies.
-- Save screenshots to `/tmp/soley-builder-cycle9-scope/`.
+- Run `npm run build` — confirm passes clean, no TypeScript errors, no Next.js metadata warnings.
+- After build, run a quick Playwright fetch of `https://soley-painting.vercel.app/robots.txt` and `https://soley-painting.vercel.app/sitemap.xml` AFTER Vercel deploy completes (Builder confirms both endpoints respond 200 with correct content-type).
+- View-source the homepage HTML — confirm three `<script type="application/ld+json">` tags present (LocalBusiness/PaintingService, FAQPage, Service array).
+- Paste each JSON-LD payload into Google's Rich Results Test mentally (or note in commit message that schema is well-formed JSON parseable).
+- Confirm zero new visual changes on screen (`npm run dev` quick eyeball of the page renders identically).
 
 **Forbidden moves:**
 
-- **HARD FORBID structural edits to:** Hero3D, ServicesScrollLock, Process, PortfolioGallery, ScrollRevealObserver, SectionDivider, PaintFlow, Footer, Navbar, LiveEstimate, WhySoley, FounderBlock.
-- **Soft-cool (do NOT structurally edit):** FAQ — Builder may ADD 2-3 items if Option B chosen, but does NOT restyle, restructure, or refactor the existing FAQ component. Pure additive copy.
-- **Do NOT introduce R3F / @react-three/fiber / drei / three.**
-- **Do NOT use `matchMedia` bail-outs** anywhere (RULE 4).
-- **Do NOT use Framer Motion `whileInView`** on SSR-rendered text.
-- **Do NOT add ghost numbers** anywhere (RULE 8).
-- **Do NOT fabricate** ANY scope specifics (RULE 7) — no fake partner companies, no fake pricing, no fake referral networks, no fake sq ft thresholds, no fake response times, no fake crew availability windows.
-- **Do NOT pick more than one** of Option A / B / C (`feedback_simplicity_over_polish.md`).
-- **Do NOT call the iMessage reply tool** (RULE 1 — Builder is a sub-agent).
-- **Do NOT use "subtle / considered / editorial restraint / tasteful / delicate / refined"** anywhere (RULE 2).
-- **Do NOT remove or downgrade** any prior animation / glow / effect (`feedback_nigel_no_removal.md`).
-- **Do NOT call the user a bottleneck** (`feedback_respectful_tone.md`).
-- **Do NOT score-chase** — this is honest content for buyers, not score polish.
+- **NEVER invent address, phone, hours, price range, ratings, reviews, photo URLs, opening dates, "Est. YYYY" claims** (RULE 7 + `feedback_no_invented_fight_data.md`).
+- **HARD FORBID structural edits to** every existing component listed in the cooldown register above. Pure additive `app/`-level configuration.
+- **HARD FORBID restructuring `app/page.tsx`** — only inject JSON-LD `<script>` tags at the top or via a small `<JsonLd />` helper component.
+- **Do NOT introduce R3F / @react-three/fiber / drei / three** (kept out per Razor's removal).
+- **Do NOT add a Google Analytics / Plausible / Vercel Analytics tag** — out of scope, separate decision needed from user.
+- **Do NOT call the iMessage reply tool** (RULE 1).
+- **Do NOT use the words "subtle / considered / editorial restraint / tasteful / delicate / refined"** anywhere in commits or code (RULE 2 + `feedback_no_self_throttle.md`).
+- **Do NOT** create any new `.md` summary / report files. Return findings inline. (Refiner-style hygiene.)
+- **Do NOT** add a JSON-LD `aggregateRating`, `review`, or `breadcrumb` field. No fake breadcrumbs for a single-page site.
+- **Do NOT touch `BUGS.md` / `AUDIT.md` / `SCORES.log`.** Those belong to QA / Nigel.
 
-**MEMORY.md entries Builder MUST respect:**
-
-- RULE 7 / `feedback_no_invented_fight_data.md` — no fabricated scope or partner-referral specifics.
-- RULE 1 / `feedback_always_imessage.md` — sub-agent: do NOT text the user.
-- RULE 2 / `feedback_no_self_throttle.md` — execute the addition at full intensity; no "subtle" reframings.
-- RULE 4 / `feedback_disabling_isnt_fixing.md` — no `matchMedia` bail-outs.
-- RULE 8 / `feedback_no_ghost_numbers.md` — no ghost numerals.
-- `feedback_simplicity_over_polish.md` — pick ONE placement option, do not pile.
-- `feedback_frame_b_richness.md` — additive only; preserve content count on existing sections.
-- `feedback_nigel_no_removal.md` — never remove a prior animation / glow / effect.
-- `feedback_respectful_tone.md` — collaborative framing only.
-- `feedback_no_dev_content.md` — buyer-facing painter scope language; no developer-feature framing.
-- `feedback_unique_design.md` — visual treatment matches established Soley brand system.
-- `project_penn_tech_baseline.md` — Penn Tech catalog binding stays the floor. Scope clarity is additive, not a catalog item.
+**Commit message format:** `feat(seo): JSON-LD LocalBusiness + FAQPage + Service schema, robots.txt, sitemap.xml, OG metadata expansion (cycle 10)`
 
 ---
 
-## Forbidden cycle-wide
+### 2. Pixel — Targeted Nigel-cycle-8-P5 verification on `.portfolio-tile-badge` + LiveEstimate label
 
-- **Sub-agents texting the user** (RULE 1).
-- **Touching Hero3D / Process / PortfolioGallery / ScrollRevealObserver / SectionDivider / PaintFlow / Footer / Navbar / WhySoley / FounderBlock / FAQ structurally.** All HARD FORBIDDEN this cycle.
-- **Touching `ServicesScrollLock.tsx` JS** structurally. Spark's BUG-025 fix is CSS-only.
-- **Hero R3F re-introduction** (Razor removed it deliberately; SVG signature is the approved centerpiece).
-- **Footer "SOCIAL CHANNELS COMING SOON" → fake INSTAGRAM swap.** Honest pre-launch only (RULE 7).
-- **Catalog #11 Instagram bottom bar** — orchestrator-approved as intentional pre-launch framing. Ignore Nigel's INSTAGRAM suggestions every cycle until real social channels exist.
-- **Fake project / customer / founder / neighborhood / city names**, fake "Est. YYYY", fake reviews, fake stats, fake warranty terms, fake certifications, fake crew sizes, fake partner companies, fake referral networks, fake pricing, fake sq ft thresholds (RULE 7).
-- **`matchMedia` bail-outs** to disable any feature on any viewport (RULE 4). Especially relevant for Spark — fixing BUG-025 means making the existing feature work, not bailing it on mobile.
-- **Framer Motion `whileInView`** on SSR-rendered elements.
-- **Ghost numbers** behind any section (RULE 8).
-- **Bloom postprocessing.**
-- **`Math.sin` / `lerp` smoothing** on positional motion (catalog #12).
-- **"Subtle / considered / editorial restraint / tasteful / delicate / refined"** language anywhere (RULE 2).
-- **Stripping content count** from any section (`feedback_frame_b_richness.md`).
-- **Removing or downgrading** any prior glow / animation / effect (`feedback_nigel_no_removal.md`).
-- **Calling the user a bottleneck** in commits or reports (`feedback_respectful_tone.md`).
-- **Score-chasing.** Cycle is a real BLOCKER fix + honest content addition. Score will follow.
-- **Single-snapshot verification** (RULE 3). 5 runway positions × 4 viewports for Spark; 5 positions for Builder if Option C, before/after if A or B.
+**Brief:** Pixel does ONE thing this cycle: re-verify Nigel cycle 8's only un-triple-confirmed font-violation claim — `.portfolio-tile-badge` reportedly 9.6px on iPhone 13 and LiveEstimate label reportedly 11px. Pixel cycle 8 (commit 594201e) bumped 10 eyebrow/label elements to 13px and may have already covered both. If both compute >= 13px on iPhone 13, Pixel commits a verification note (no code change) and the cycle 8 audit P5 is officially refuted-via-already-fixed. If either still measures < 13px, Pixel ships a one-line CSS bump.
 
----
+**Memory entries Pixel MUST respect this run:**
 
-## Section cooldown register (for next-cycle Coordinator)
+- `feedback_pixel_alignment.md` — Pixel always audits center-alignment consistency on mobile. While verifying fonts, also visually confirm `.portfolio-tile-badge` placement and LiveEstimate label center-alignment at iPhone 13 (390) and iPhone SE (375).
+- `feedback_actually_scroll_test.md` — Verification must scroll-into-view both elements and re-read computed `font-size` AFTER they have entered the viewport (scroll-reveal can change CSS class state).
+- `feedback_simplicity_over_polish.md` — If both elements already compute >= 13px, Pixel does NOT make any cosmetic change. No-op + verification note in CHANGELOG only.
 
-| Section | Touches in last 6 entries (after this cycle) | Cycle pressure |
-|---|---|---|
-| ServicesScrollLock | 3 (Refiner d6c2ccf + 0316c52 + Spark cycle 9 CSS containment) | **HARD COOLDOWN** for cycle 10 |
-| Process | 2 (Refiner d6c2ccf + 0316c52) | Hard cooldown |
-| PortfolioGallery | 3 (Builder + Pixel e2f0637/65f37b4 + Refiner d6c2ccf) | **HARD COOLDOWN** |
-| Hero3D | 2 (Spark 85888ef + Refiner 0316c52) | Hard cooldown |
-| SectionDivider | 2 (Spark 451cca8 + Pixel e2f0637) | Hard cooldown |
-| PaintFlow | 2 (Spark 451cca8 + Refiner e81b122) | Hard cooldown |
-| Navbar | 2 (Spark cycle 6 + cycle 7 c6f7093) | Hard cooldown |
-| LiveEstimate | 2 (Builder cycle 6 copy + Pixel cycle 8 font + Spark cycle 9 if 11px confirmed) | Hard cooldown |
-| WhySoley | 1 (Builder cycle 6 copy) | Soft-cool |
-| FounderBlock | 1 (Builder cycle 6 copy) | Soft-cool |
-| Footer | 1 (Pixel 6e88be7) | Soft-cool |
-| FAQ | 2 (Builder f3cc3fb + Builder cycle 9 if Option B) | Hard cooldown |
-| Contact | 1 if Option A | Soft-cool |
-| ScopeClarity NEW | 1 if Option C | Soft-cool |
-| **CTA hover** | Spark cycle 7 c6f7093 | Soft-cool |
+**File targets:**
+
+- **READ ONLY first** — `app/globals.css` and the relevant component files (`PortfolioGallery.tsx`, `LiveEstimate.tsx`) to identify the exact selectors.
+- **IF AND ONLY IF** computed font-size on iPhone 13 < 13px: bump the failing selector to `font-size: 0.8125rem` (13px) in `app/globals.css`.
+- **DO NOT** rewrite or reformat surrounding CSS. Surgical one-line bump only.
+
+**Verification:**
+
+- Playwright on `iPhone 13 (390x664)` AND `iPhone SE (375x667)`:
+  1. Navigate to live URL.
+  2. Scroll to PortfolioGallery — wait for first tile to enter viewport — read computed `font-size` of `.portfolio-tile-badge` (or actual selector).
+  3. Scroll to LiveEstimate — wait for the demo card to settle — read computed `font-size` of the eyebrow + label elements.
+  4. Save screenshots of both sections to `/tmp/soley-pixel-cycle10/`.
+- If ANY value < 13px → ship the bump and re-verify. Otherwise no-op.
+
+**Forbidden moves:**
+
+- **HARD FORBID structural edits anywhere** — Pixel does not touch component JSX this cycle.
+- **HARD FORBID** changes to any other selector outside `.portfolio-tile-badge` and the LiveEstimate eyebrow/label.
+- **Do NOT regress** the 10 elements Pixel cycle 8 already bumped. If Pixel's grep finds Nigel-8-P5 references the same elements as 594201e, Pixel notes it and exits.
+- **Do NOT call the iMessage reply tool** (RULE 1).
+- **Do NOT use** disallowed throttle words (RULE 2).
+- **Do NOT** create a `.md` summary file — inline result back in CHANGELOG-AGENT.md only.
+
+**Commit format (only if a change is shipped):** `pixel(cycle10): verify Nigel-8 P5 — bump <selector> 11px→13px on iPhone 13 (sole remaining font violation)`
+**No-op format:** Pixel appends a single line to CHANGELOG-AGENT.md noting verification without code change.
 
 ---
 
-## Rationale (one line)
+## One-line rationale
 
-Score 6.2 / 7.5 cap, BUG-025 panel overflow remains the only confirmed-real BLOCKER (Scout Round 4 has the exact CSS recipe), Nigel cycle 8's other "absent" items match prior Playwright-snapshot artifact patterns — schedule **Spark** to ship the Scout Round 4 BUG-025 three-part CSS fix (`max-width: 100vw; overflow: hidden`, panel-title clamp formula, `100vh → 100dvh`) plus targeted font violations, and **Builder** to add an honest 2-3 item scope-clarity addition (preferring Option B: extend FAQ in place) that helps buyers self-qualify before booking.
+Cycle 10 ships the SEO foundation layer (LocalBusiness + Service + FAQPage JSON-LD + robots.txt + sitemap.xml + OG metadata expansion) — the single highest-leverage non-fabricating improvement available before user check-in — plus one targeted Pixel verification of the only remaining un-confirmed-closed Nigel-cycle-8 priority.
+
+---
+
+## Forbidden sections summary (for fast Builder/Pixel reference)
+
+Hero3D, ServicesScrollLock, Process, PortfolioGallery (structurally), ScrollRevealObserver, SectionDivider, PaintFlow, Footer, Navbar, LiveEstimate (structurally), WhySoley, FounderBlock, FAQ, CTA hover. R3F re-intro forbidden. matchMedia bail-outs forbidden. Ghost numbers forbidden. Self-throttle language forbidden. Fabricated business data forbidden. New `.md` reports forbidden.
