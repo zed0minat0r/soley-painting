@@ -1,33 +1,38 @@
-# PLAN.md — Cycle 11 Builder: FounderBlock + WhySoley Visual Polish
+# PLAN.md — Builder cycle: Pre-launch email capture + ServicesMarquee palette refresh
 
 **Date:** 2026-05-07
-**Scope:** Visual refinement only — no content count changes, no JS structure changes
+**Scope:** Two targets. No cooldown sections touched.
 
-## Files to change
+## Target 1 — Pre-launch email-capture micro-section
 
-1. `app/components/FounderBlock.tsx`
-   - Remove teal radial gradient background wash (bottom-right, line 59-69) — replace with ochre/rust warm wash to match Drop Cloth & Rust palette
-   - Portrait placeholder frame: upgrade border from thin 1px dashed to a stronger craft-paper treatment — thicker border, terracotta corner marks already present (keep), add a subtle inset texture stripe at top/bottom
-   - Honest signals row: make each signal more visually distinct — wrap in a styled "data pill" box with left-border accent (rotate rust/ochre/stone per item) instead of plain text pairs
-   - Pull-quote: bump the left border from 3px to 4px, add a small terracotta quote-mark SVG above the quote text for visual weight
-   - "Owner takes calls before 8pm" copy is already in body text — surface it as a standalone callout chip above the blockquote
+**New file:** `app/components/NotifySignup.tsx`
+- 'use client' form component
+- Email input + submit button
+- On submit: POST to `/api/notify`, show "Thanks — we'll be in touch" success state
+- Honest copy: "First projects starting this season. Be the first to book when our calendar opens."
+- No fake counts, no fake testimonials, no Formspree URL
 
-2. `app/components/WhySoley.tsx`
-   - Card accents verify: 01=terra/rust, 02=ochre, 03=gold, 04=rust — confirm accent values hit the Drop Cloth & Rust tokens (current: terra, ochre, gold, rust — terra aliases rust so all warm, good)
-   - Card number "01"–"04": bump from 0.8125rem (small) to a more commanding display-size (1.75rem) so it reads as a visual anchor, not a footnote — full opacity, foreground (NOT ghost per RULE 8)
-   - Spotlight glow: verify the rgba uses `--color-rust` (#BF5B38 = rgb 191,91,56) not old terracotta #C2603A — update if needed
-   - Card icon container: bump background tint from rgba(44,31,22,0.04) to 0.07 so icons have more presence on chalk background
-   - Add a thin painted-edge top bar (2px, matching card accent) at very top of card body — supplements the existing left-edge bar for corner-to-corner brand presence
+**New file:** `app/api/notify/route.ts`
+- POST handler, returns `{ ok: true }`. Stub for real backend.
 
-3. `app/globals.css`
-   - No changes required (palette vars already correct)
+**Edit:** `app/page.tsx`
+- Import `NotifySignup`
+- Slot between `<FAQ />` ... `<SectionDivider />` ... `<NotifySignup />` ... `<SectionDivider />` ... `<Process />`
+
+## Target 2 — ServicesMarquee palette audit
+
+**Edit:** `app/components/ServicesMarquee.tsx`
+- Verify no teal residuals — current code already migrated (ochre/rust/linen) so this is a clean confirm
+- Add `--color-stone` (#EAE0D4) as a fourth rotation slot so mid-tone warm gray adds contrast variety
+- Verify background stays `var(--color-umber)` (correct)
+
+## Files changed
+1. `app/components/NotifySignup.tsx` — NEW
+2. `app/api/notify/route.ts` — NEW
+3. `app/page.tsx` — add import + slot
+4. `app/components/ServicesMarquee.tsx` — palette polish
 
 ## Success criterion
+`npx next build` passes clean. No teal, no fabricated URLs, no ghost numbers, no matchMedia bail-outs.
 
-`npx next build` passes clean. No new teal references. No ghost numbers. No fabricated content. Mobile accordion structure untouched.
-
-## Scope limit
-
-Touch ONLY `FounderBlock.tsx` and `WhySoley.tsx`. Zero JS logic changes.
-
-**Word count: ~190**
+**Word count: ~170**
