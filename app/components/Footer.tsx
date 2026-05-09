@@ -101,7 +101,7 @@ export default function Footer() {
                 style={{
                   fontFamily: 'var(--font-body)',
                   fontWeight: 600,
-                  fontSize: '0.6875rem',
+                  fontSize: '0.875rem',
                   letterSpacing: '0.16em',
                   textTransform: 'uppercase',
                   color: 'rgba(245,240,234,0.35)',
