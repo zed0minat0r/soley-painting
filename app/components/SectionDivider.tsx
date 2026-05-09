@@ -26,7 +26,7 @@ export default function SectionDivider({ flip = false }: { flip?: boolean }) {
     if (!el) return
     const obs = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setActive(true) },
-      { threshold: 0.4 }
+      { threshold: 0.15 }
     )
     obs.observe(el)
     return () => obs.disconnect()
