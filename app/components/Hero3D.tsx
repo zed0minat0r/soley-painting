@@ -3,17 +3,16 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 
 /* ── Soley Painting — Signature Reveal Hero
-   Technique: SVG <text> (Sacramento calligraphic font) with
-   stroke-dashoffset animation.  The word "Soley" reveals itself
-   via a CSS custom-property-driven dashoffset transition.
+   Technique: SVG clipPath rect (grows left→right) reveals solid filled
+   Sacramento text. No stroke-dashoffset — browser computes dasharray
+   per glyph and letters can pop before the brush. ClipPath is
+   browser-reliable and ensures zero pixels of the word are visible
+   until the brush leading-edge has passed that x position.
 
-   Brush tracking: because SVGTextElement doesn't implement
-   getPointAtLength we use a JS-driven rAF loop that measures the
-   text element's bounding box once (font loaded) and maps the
-   current drawn-fraction to an approximate leading-edge position
-   by linearly interpolating across the word's horizontal span.
-   This gives a brush that travels left→right at constant apparent
-   speed, which is accurate for a left-to-right script word.
+   Brush tracking: JS rAF loop measures text bounding box once (font
+   loaded) and maps progress → x = bbox.x + progress * bbox.w.
+   The clipPath rect width == progress * bbox.w, so brush tip and
+   clip leading edge are always identical.
 
    After the word fully paints: hold 2 s → fade 0.8 s → next color.
    Brand colors cycle: terracotta → deep teal → clay gold → repeat.
@@ -74,14 +73,18 @@ export default function Hero3D() {
   const phaseRef     = useRef<Phase>('idle')
   const colorIdxRef  = useRef(0)
   const startTimeRef = useRef(0)
-  const dashLenRef   = useRef(0)
-
   // Reactive state
-  const [color, setColor]       = useState(BRAND_COLORS[0])
+  const [color, setColor]          = useState(BRAND_COLORS[0])
   const [svgOpacity, setSvgOpacity] = useState(1)
-  const [brushX, setBrushX]    = useState(-100)
-  const [brushY, setBrushY]    = useState(200)
+  const [brushX, setBrushX]        = useState(-100)
+  const [brushY, setBrushY]        = useState(200)
   const [brushAngle, setBrushAngle] = useState(15)
+  // clipWidth drives the clipPath rect: 0 → full text width
+  const [clipWidth, setClipWidth]  = useState(0)
+  // clipOrigin is bbox.x — set once after first measureText()
+  const [clipOrigin, setClipOrigin] = useState(0)
+  const [clipY, setClipY]          = useState(-60)
+  const [clipH, setClipH]          = useState(340)
 
   // We'll derive brush Y from the text bbox midpoint
   const bboxRef = useRef<{ x: number; y: number; w: number; midY: number } | null>(null)
@@ -97,6 +100,10 @@ export default function Hero3D() {
         w: b.width,
         midY: b.y + b.height * 0.42, // slightly above vertical center = brush contact point
       }
+      // Initialise clip rect geometry: full height of svg + 40px margin each side
+      setClipOrigin(b.x)
+      setClipY(b.y - 50)
+      setClipH(b.height + 100)
     } catch {
       // getBBox can throw before layout; will retry
     }
@@ -108,27 +115,13 @@ export default function Hero3D() {
     phaseRef.current = 'painting'
     setColor(col)
     setSvgOpacity(1)
-
-    const el = textRef.current
-    if (!el) return
-
-    // Apply color
-    el.style.stroke = col
-    el.style.fill   = 'none'
-    el.style.strokeWidth = '5'
+    // Reset clip to zero — nothing visible until brush starts
+    setClipWidth(0)
 
     // Measure bounding box (font must be loaded)
     measureText()
 
-    // Estimate path length from bbox: for a script word spanning bbox.w,
-    // the actual stroke path is roughly 2.4× the width (ascenders/descenders)
     const bbox = bboxRef.current
-    const estimatedLen = bbox ? bbox.w * 2.4 : 1400
-    dashLenRef.current = estimatedLen
-
-    el.style.strokeDasharray  = `${estimatedLen}`
-    el.style.strokeDashoffset = `${estimatedLen}`
-
     startTimeRef.current = performance.now()
 
     const paintLoop = (now: number) => {
@@ -136,21 +129,20 @@ export default function Hero3D() {
       const elapsed  = now - startTimeRef.current
       const progress = Math.min(elapsed / STROKE_DURATION_MS, 1)
 
-      // Stroke-dashoffset: linear easing for constant velocity
-      const offset = estimatedLen * (1 - progress)
-      el.style.strokeDashoffset = `${offset}`
+      // ClipPath rect width = progress fraction of full word width.
+      // Nothing past this x is rendered — no letter can appear before the brush.
+      const revealWidth = bbox ? bbox.w * progress : 640 * progress
+      setClipWidth(revealWidth)
 
-      // Brush position: map progress to horizontal span
+      // Brush position: leading edge of the clip rect
       if (bbox) {
-        // Approximate x: script words read L→R almost linearly
         const bx = bbox.x + bbox.w * progress
 
-        // Approximate y: slight sine wave to mimic baseline undulation of script
-        // amplitude ≈ 20% of bbox height, centered at midY
+        // Slight sine undulation along baseline for realism
         const bboxHeight = bbox.midY - bbox.y
         const by = bbox.midY + Math.sin(progress * Math.PI * 2.5) * bboxHeight * 0.2
 
-        // Angle: derivative of y w.r.t. x (rough tangent)
+        // Brush angle follows tangent
         const dyDx = Math.cos(progress * Math.PI * 2.5) * bboxHeight * 0.2
           * (Math.PI * 2.5 / bbox.w)
         const angle = Math.atan2(dyDx, 1) * (180 / Math.PI)
@@ -163,11 +155,11 @@ export default function Hero3D() {
       if (progress < 1) {
         rafRef.current = requestAnimationFrame(paintLoop)
       } else {
-        // Word complete — fill in solid color, park brush off-right
-        el.style.fill  = col
-        el.style.stroke = col
-        el.style.strokeWidth = '2'
-        if (bbox) setBrushX(bbox.x + bbox.w + 40)
+        // Word fully revealed — open clip to full width, park brush off-right
+        if (bbox) {
+          setClipWidth(bbox.w + 20) // slight overshoot to ensure full reveal
+          setBrushX(bbox.x + bbox.w + 40)
+        }
         phaseRef.current = 'holding'
 
         timeoutRef.current = setTimeout(() => {
@@ -175,16 +167,15 @@ export default function Hero3D() {
           phaseRef.current = 'fading'
           const fadeStart = performance.now()
 
-          const fadeLoop = (now: number) => {
-            const t = Math.min((now - fadeStart) / FADE_DURATION_MS, 1)
+          const fadeLoop = (nowF: number) => {
+            const t = Math.min((nowF - fadeStart) / FADE_DURATION_MS, 1)
             setSvgOpacity(1 - t)
             if (t < 1) {
               rafRef.current = requestAnimationFrame(fadeLoop)
             } else {
-              // Reset text, cycle color
+              // Reset clip and cycle color
               setSvgOpacity(0)
-              el.style.fill  = 'none'
-              el.style.strokeWidth = '5'
+              setClipWidth(0)
               timeoutRef.current = setTimeout(() => {
                 runPaintCycle(colorIdxRef.current + 1)
               }, 80)
@@ -465,26 +456,42 @@ export default function Hero3D() {
           }}
           aria-label="Soley — painted in script"
         >
+          <defs>
+            {/*
+              ClipPath rect grows left→right as brush moves.
+              x=clipOrigin (bbox.x), width=clipWidth (0→bbox.w).
+              Nothing past the leading edge is rendered — no letter
+              can appear before the brush has passed it.
+              y/height generously oversized so ascenders+descenders
+              of Sacramento's tall script are fully covered.
+            */}
+            <clipPath id="soley-reveal-clip">
+              <rect
+                x={clipOrigin}
+                y={clipY}
+                width={clipWidth}
+                height={clipH}
+              />
+            </clipPath>
+          </defs>
+
           {/*
-            Sacramento text — stroke-dashoffset animates from
-            full length → 0, revealing each letterform as painted.
-            The fill is initially 'none' so only the stroke stroke is visible.
-            After painting completes, fill matches stroke for solidity.
+            Solid filled text — no stroke needed.
+            Hidden entirely by clipPath until brush sweeps past each x.
+            Sacramento's connected script reads as one continuous stroke
+            when revealed left-to-right.
           */}
           <text
             ref={textRef}
             x="320"
             y="210"
             textAnchor="middle"
+            clipPath="url(#soley-reveal-clip)"
             style={{
               fontFamily: '"Sacramento", cursive',
               fontSize: '172px',
-              stroke: color,
-              strokeWidth: '5',
-              fill: 'none',
-              strokeLinecap: 'round',
-              strokeLinejoin: 'round',
-              paintOrder: 'stroke fill',
+              fill: color,
+              stroke: 'none',
             }}
           >
             Soley
