@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import LiveEstimate from './LiveEstimate'
 
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -147,27 +148,40 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Right — form */}
-          <div
-            className="scroll-reveal"
-            style={{
-              background: 'var(--color-umber)',
-              padding: '3rem',
-              position: 'relative',
-            }}
-          >
-            {/* Accent corner */}
+          {/* Right — Live estimate preview + form */}
+          <div className="scroll-reveal" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+            {/* Live auto-typing estimate demo (catalog item #6) */}
             <div
               style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '64px',
-                height: '4px',
-                background: 'var(--color-terra)',
+                background: 'var(--color-umber)',
+                position: 'relative',
+                overflow: 'hidden',
               }}
-            />
+            >
+              {/* Accent corner */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '64px',
+                  height: '4px',
+                  background: 'var(--color-terra)',
+                  zIndex: 1,
+                }}
+              />
+              <LiveEstimate />
+            </div>
 
+            {/* Real form */}
+            <div
+              style={{
+                background: 'var(--color-umber)',
+                padding: '2rem 2rem 2.5rem',
+                position: 'relative',
+              }}
+            >
             {submitted ? (
               <div
                 style={{
@@ -351,6 +365,7 @@ export default function Contact() {
                 </div>
               </form>
             )}
+            </div>
           </div>
         </div>
       </div>

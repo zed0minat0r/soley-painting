@@ -3,6 +3,8 @@ import Hero3D from './components/Hero3D'
 import ServicesMarquee from './components/ServicesMarquee'
 import SectionDivider from './components/SectionDivider'
 import ServicesScrollLock from './components/ServicesScrollLock'
+import PaintFlow from './components/PaintFlow'
+import WhySoley from './components/WhySoley'
 import Process from './components/Process'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
@@ -17,7 +19,8 @@ export default function Home() {
       <SectionDivider />
       <ServicesMarquee />
       <ServicesScrollLock />
-      <SectionDivider flip />
+      <PaintFlow />
+      <WhySoley />
       <Process />
       <SectionDivider />
       <Contact />
