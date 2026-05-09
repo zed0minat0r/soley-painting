@@ -1,146 +1,98 @@
-# AGENT-PLAN.md — Soley Painting (Cycle 1)
+# AGENT-PLAN.md — Soley Painting (:03 slot, post-Refiner)
 
-**Date:** 2026-05-07
-**Decision rule fired:** Default rotation (no prior cycles, no scores, no AUDIT). This is the first supervised cycle of a fresh scaffold — Scout-first ordering takes precedence over the standard rotation because the brand-specific catalog mappings have not been written yet.
-**Repo state:** Two commits total — Next.js scaffold + tooling. `app/page.tsx` is a placeholder. Palette is terracotta + teal. R3F + framer-motion + Lucide already installed.
-**Catalog reference:** `~/.claude/projects/-Users-modica/memory/project_penn_tech_baseline.md` — 12-feature blueprint. **None of the 12 are present yet** — every cycle this month closes gaps.
+**Date:** 2026-05-07 :03
+**Live:** https://soley-painting.vercel.app
+**Latest score:** 6.6 (scroll-experience, 2026-05-07 21:30)
+**Latest commit:** 446a690 (Refiner — BUG-001 scroll-lock fix, LiveEstimate re-wired, Process aria-selected, WhySoley spotlight)
+
+---
+
+## Decision rule fired
+
+**Default rotation + Section cooldown.** Score (6.6) is below 8.5 — full toolset available. No stuck-loop signal (last 4 changelog entries all show commits). Refiner just landed the BLOCKER + 3 high-priority fixes, but the Nigel top-5 still has open structural and content gaps (WhySoley **accordion** behavior, Contact left-column void, navbar logo wrap, founder/team human-signal). PaintFlow + LiveEstimate need visual elevation. Schedule **Builder → Spark** in that order: Builder closes the structural gaps, Spark elevates the two flat-reading catalog items.
+
+**Section cooldown trigger:** Hero has been touched in 3 of the last 6 changelog entries (Frame A SOLEY path, Frame B brush sweep, Frame B Sacramento signature). **Hero is FORBIDDEN this cycle.** Distribute attention.
 
 ---
 
 ## Scheduled agents (in order)
 
-### 1. Scout — research + catalog mapping
-**Catalog items addressed:** All 12 (writes the brand-specific mapping document Builder + Spark consume).
-**Brief:** Research 4-6 best-in-class painting / contractor sites and 2-3 feature-rich premium-craft sites (e.g. niche Aesop-tier service brands). Produce `SCOUT-REPORT.md` with:
-- A 12-row table mapping each Penn Tech catalog item to its **Soley Painting equivalent** (cube → 3D paintbrush mid-stroke; cube-face palette → terracotta/teal/clay tile chips; services scroll-lock → 5 painting service categories; workflow diagram → prep → prime → paint → finish; live conversational moment → live "estimate request" form filling itself; etc.).
-- Pre-launch honest framing only. **No fake reviews, no fake addresses, no fake project counts** — Scout must explicitly note where placeholders go ("Project gallery — photography forthcoming", "Service area — coming soon").
-- Reference URLs for each mapping decision.
+### 1. Builder — structural gap-fill + human-signal block
 
-**MEMORY.md entries that bind Scout:**
-- `project_penn_tech_baseline.md` — the 12-feature catalog **IS** the deliverable spec.
-- `feedback_unique_design.md` — break Claude defaults; site must NOT look AI-generated.
-- `feedback_no_self_throttle.md` — execute "impressive 3D" at full intensity; do NOT extrapolate brand inspiration into "subtle / restrained / considered."
-- `feedback_interesting_scroll.md` + `feedback_horizontal_scroll.md` — mandatory scroll-driven sections, vertical-locks-then-scrolls-horizontally pattern.
-- RULE 7 (CLAUDE.md) — content honesty; no fabricated team / addresses / reviews.
-- RULE 1 — Scout does NOT text the user.
+**Targets:**
+- **Nigel Priority #3 — Contact left-column void.** Audit `app/components/Contact.tsx` (or wherever the Contact section lives). The desktop screenshot shows a large pale void in the left column. Either the scroll-reveal IntersectionObserver is using too tight a threshold (drop from 0.3 → 0.1) or content is missing. Fill the left column with: contact-info stack (email + service area placeholder + "We answer the phone" honest claim) + the three honest commitments from Scout Site E reference ("We answer every call. We show up on time. We protect your floors."). Verify mid-runway with Playwright at 5/25/50/75/95 % per RULE 3.
+- **Nigel Priority #2 — WhySoley mobile accordion.** Refiner only added spotlight glow on the card group. The catalog #10 spec calls for **mobile accordion** (tap to expand description + bullets) below ~640px while keeping the 3D tilt on desktop. Implement the accordion expand/collapse with `aria-expanded` and `aria-controls` — keep all 4 cards' content count intact (Frame B richness rule). Do NOT collapse to vertical static stack — that is RULE 4 disabling.
+- **Nigel Priority #5a — Navbar logo wrap on iPhone SE.** Add `white-space: nowrap` to the navbar logo container so "Soley / Painting" doesn't stack to two lines at 375px. Pixel fixed the tap target (44px) but the wrapping is still open. Verify at 375px with Playwright.
+- **New — Honest pre-launch human-signal section.** Insert a small founder/team intro block between WhySoley and Process with **honest pre-launch framing only**: a 2-line "Who's behind Soley" copy block + a placeholder portrait slot ("Founder photography forthcoming"). NO fabricated names, credentials, neighborhoods, "Est. YYYY" claims, or invented bios (RULE 7). The placeholder slot is the human signal, not a fake person.
 
-**Forbidden moves for Scout:**
-- Do NOT propose copying Penn Tech's cube literally. The hero is a 3D paintbrush (or rotating color wheel / paint-can stir / brush-stroke ribbon).
-- Do NOT invent a list of "5 fake testimonials" or "150+ projects" stats.
-- Do NOT propose a generic dev-content / template-marketplace framing (RULE: `feedback_no_dev_content.md`).
+**Forbidden moves (last 10 changelog):**
+- Do NOT touch the Hero centerpiece (3 touches in last 6 entries — cooldown).
+- Do NOT add ghost numbers behind WhySoley cards or the new founder block (RULE 8).
+- Do NOT collapse WhySoley to a static vertical stack on mobile to "make it work" (RULE 4).
+- Do NOT add `matchMedia` bail-outs to disable tilt on mobile (RULE 4).
+- Do NOT remove any glows / animations / effects shipped by prior cycles (`feedback_nigel_no_removal.md`).
+- Do NOT fabricate a founder name, bio, or "Est. 2018"-style claim (RULE 7).
 
----
-
-### 2. Builder — page structure + skeleton sections
-**Catalog items addressed:** #1 (3D hero scaffold), #2 (palette tokens propagated), #3 (section divider component), #4 (services scroll-lock skeleton), #9 (CSS scroll-reveal pattern wired in `globals.css`).
-**Brief:** Build the page shell per `app/page.tsx` target outline in CLAUDE.md. Prioritize wiring the structural backbone — Builder ships skeletons; Spark layers visual intensity next.
-- `Hero3D.tsx` — R3F canvas with a placeholder paintbrush primitive (cylinder handle + box bristles is fine for cycle 1). Constant rotation. No bloom postprocessing. Reserve a fixed-height container so layout doesn't jump.
-- `SectionDivider.tsx` — brand-equivalent of Penn Tech's mini-cube divider (mini paint-drops or mini brush-tips traveling across a hairline gradient).
-- `ServicesScrollLock.tsx` — vertical-locks-then-scrolls-horizontally through 5 painting service panels (Interior Residential / Exterior Residential / Commercial / Cabinet & Trim / Specialty Coatings — Scout confirms the final 5).
-- `Workflow.tsx` placeholder — SVG dot-flow stub through prep → prime → paint → finish.
-- `Process.tsx` placeholder — 5-step auto-advancing horizontal timeline stub.
-- `Contact.tsx` — form skeleton with **honest pre-launch framing** ("Service area details coming soon", "Photography forthcoming").
-- Globals: 3-layer text-glow utility classes; `.scroll-reveal` + `.in-view` IntersectionObserver pattern.
-
-**MEMORY.md entries that bind Builder:**
-- `project_penn_tech_baseline.md` — Builder MUST hit catalog items #1, #2, #3, #4, #9 in this cycle.
-- `feedback_agent_stability.md` — first action MUST be a tool call; keep prompts short.
-- `feedback_disabling_isnt_fixing.md` (RULE 4) — never bail JS via `matchMedia` to "make it work on mobile." One consistent layout; CSS + JS agree.
-- `feedback_simplicity_over_polish.md` — replace when adding; don't pile.
-- RULE 7 — pre-launch honest framing. NO invented testimonials or stats.
-- RULE 1 — Builder does NOT text the user.
-- Vercel deploy: commit author email must be `mmodica3@gmail.com`.
-
-**Forbidden moves for Builder:**
-- Do NOT add fake testimonials, fake star ratings, fake project counts, fake addresses, fake phone numbers.
-- Do NOT use `framer-motion` `whileInView` on SSR-rendered elements (causes visible→hidden flash). Use the CSS `.scroll-reveal` pattern (catalog item #9).
-- Do NOT add postprocessing bloom to the R3F canvas (flickers on alpha canvases).
-- Do NOT collapse the scroll-lock to a vertical stack on mobile — fix the CSS instead.
+**MEMORY.md entries Builder MUST respect:**
+- `project_penn_tech_baseline.md` — the 12-item catalog is the floor; Contact + WhySoley + Process are catalog-tracked.
+- RULE 4 / `feedback_disabling_isnt_fixing.md` — fix CSS/JS mismatch, never bail features.
+- RULE 7 — pre-launch honest framing on the new founder block. Placeholder portrait + honest copy only.
+- RULE 2 / `feedback_no_self_throttle.md` — no "subtle / considered / editorial restraint" language. Full-intensity execution.
+- RULE 3 / `feedback_actually_scroll_test.md` — verify each fix at 5+ runway positions and at 375 + 390 + 1440 viewports.
+- `feedback_frame_b_richness.md` — the WhySoley accordion keeps all 4 cards' content count intact.
+- `feedback_pixel_alignment.md` — center-alignment on every section at 375 + 414.
+- RULE 1 — do NOT text the user.
 
 ---
 
-### 3. Spark — visual intensity layer (3D paintbrush + palette accents + glow)
-**Catalog items addressed:** #1 (paintbrush detail + materials), #2 (palette propagated through dividers/marquee/glow), #8 (3-layer text glow on hero), #10 (custom feature cards with tilt for the services panels).
-**Brief:** Take Builder's skeleton and lift it to **eye-catching, full-intensity** (per RULE 2). The hero centerpiece is a 3D paintbrush — **make it the centerpiece**, not a stage prop.
-- Real paintbrush geometry: handle (lathed cylinder), ferrule (metallic ring), bristle bundle (instanced thin boxes with slight curvature). Dual rim lights — terracotta key + teal fill. Constant angular velocity. Brand-tinted emissive on the bristle tip as if loaded with paint.
-- Hero text: 3-layer halo glow (1px near-white core + 8-14px terracotta mid + 20-34px ambient). Per-element hue shifts available via `color-mix`.
-- Section dividers: paint-drop motifs in palette colors traveling across hairline gradient — IntersectionObserver-gated.
-- Services panels: 3D tilt on mousemove (rotateX/Y based on cursor); each panel uses one of the palette tile colors as accent.
-- Mobile: cards become accordion expand-interaction (catalog #10), NOT static glass cards.
+### 2. Spark — Catalog #5 PaintFlow depth + Catalog #6 LiveEstimate polish
 
-**MEMORY.md entries that bind Spark:**
-- `feedback_no_self_throttle.md` (RULE 2) — **execute at full intensity.** Do NOT write "subtle / considered / restrained / tasteful / delicate" anywhere. Brand inspiration ≠ throttle.
-- `feedback_simplicity_over_polish.md` — Frame B refines, never strips content count. Replace when adding; don't pile glow-on-glow or rule-on-rule.
-- `feedback_frame_b_richness.md` — Frame B keeps content count.
-- `feedback_no_ghost_numbers.md` (RULE 8) — NO large faded background numerals. Foreground oversized at full opacity is fine.
-- `feedback_unique_design.md` — break Claude default patterns. Asymmetric layouts welcome.
-- RULE 1 — Spark does NOT text the user.
+**Targets:**
+- **Catalog #5 — PaintFlow visual elevation.** Nigel scored 0.6: "section renders on chalk background and is visually flat. Dot animation and node pulses are too subtle to distinguish from a static diagram at a glance." Lift it: dark slate panel background (matches services panel mood), brighter terracotta + teal alternating animateMotion dots with a glowing trail (`filter: drop-shadow(0 0 6px var(--accent))`), node pulse on dot arrival (scale 1.15 + flash glow), thicker connecting path stroke (4–6px), node icons at higher contrast on dark background. Replace the flat chalk panel — do not pile on top of it.
+- **Catalog #6 — LiveEstimate auto-typing polish.** Refiner just re-wired it into page.tsx. Verify it renders at the right scroll position and elevate: ensure the form chrome reads as a real "Get a Quote" card (terracotta border accent, fixed height to prevent layout jump, blink cursor on the active typing field, characters at constant ~80ms cadence). Add the "Sent" terracotta checkmark animation at sequence end, then 8s pause + loop. Honest demo address only — "123 Maple Street" placeholder per Scout spec; **never invent a real address**.
+- **Hero polish (REJECTED — hero in cooldown).** The brief mentions "Hero polish — paintbrush sprite quality at the leading edge." Section cooldown rule blocks Hero this cycle. Carry to next cycle.
 
-**Forbidden moves for Spark:**
-- Do NOT add ghost numbers (faded large background numerals).
-- Do NOT pile glow-on-glow, gradient-on-gradient, or rule-on-rule. Replace; don't stack.
-- Do NOT downgrade to "subtle" — full-intensity 3D is the brief.
-- Do NOT remove animations / glows that Builder shipped (RULE: `feedback_nigel_no_removal.md` — applies to Spark too).
+**Forbidden moves (last 10 changelog):**
+- **Hero is FORBIDDEN this cycle** (cooldown trigger). No edits to Hero.tsx, the Sacramento SVG signature, the brush sprite, or globals affecting `.glow-hero` exclusively.
+- Do NOT pile glow-on-glow or rule-on-rule (`feedback_simplicity_over_polish.md`). Replace, don't stack.
+- Do NOT introduce `whileInView` Framer Motion on SSR-rendered elements — use the CSS `.scroll-reveal` pattern already in place.
+- Do NOT add ghost numbers behind PaintFlow nodes (RULE 8).
+- Do NOT downgrade PaintFlow to "subtle" or "considered" (RULE 2). The brief is "feels flat" — the fix is to elevate, not to refine restrained-ly.
+- Do NOT invent a real demo address, real phone number, or real customer name in the LiveEstimate sequence (RULE 7).
+- Do NOT strip content count from WhySoley or any other section (`feedback_frame_b_richness.md`).
+- Do NOT replace "SOCIAL CHANNELS COMING SOON…" with a fake INSTAGRAM handle. The user has explicitly said no fake social handles even though Nigel suggested it. Leave the footer bottom-bar as-is or use an honest "Instagram launching soon" treatment.
 
----
-
-### 4. Pixel — mobile alignment audit
-**Catalog items addressed:** #4 / #10 (mobile parity); ensures the scroll-lock + cards work at 375 + 414.
-**Brief:** Playwright audit at **375×667 (iPhone SE 3rd gen)** AND **390×664 (iPhone 13)** AND **414×896 (iPhone 11 Pro Max)** AND desktop **1440×900**. Sample at 5%/25%/50%/75%/95% through the scroll-lock runway and through the page as a whole. Capture screenshots at each sample. Verify:
-- Center-alignment consistency on every section (per `feedback_pixel_alignment.md` — non-negotiable).
-- The 3D paintbrush hero is centered and the canvas is not clipped at any viewport.
-- Scroll-lock horizontal travel works mid-runway, not just at the entry/exit.
-- Tap targets are ≥44px on mobile.
-- No overflow-x at any sample.
-**Output:** `PIXEL-AUDIT.md` listing each sampled position + viewport + finding. If something is broken, file the bug — do NOT fix by `matchMedia` guard (RULE 4).
-
-**MEMORY.md entries that bind Pixel:**
-- `feedback_pixel_alignment.md` — center-alignment audit on mobile is non-negotiable.
-- `feedback_actually_scroll_test.md` (RULE 3) — sample 5+ positions through the runway. Single-snapshot verification is theater.
-- `feedback_disabling_isnt_fixing.md` (RULE 4) — file bugs; do not "fix" by hiding features.
-- RULE 1 — Pixel does NOT text the user.
-
-**Forbidden moves for Pixel:**
-- Do NOT claim "fixed" from a single screenshot or a `getComputedStyle` read.
-- Do NOT propose disabling a feature on mobile as a fix.
-
----
-
-### 5. Nigel — score from real prospective customer's lens
-**Catalog items addressed:** Scores against all 12 catalog items as the rubric.
-**Brief:** Score the live site (Vercel deploy) from the perspective of a real homeowner / facilities manager evaluating Soley Painting for a job. Use the Penn Tech catalog as the rubric: **how many of the 12 features are present in a brand-appropriate form?** A site with hero + a couple cards is missing 10+ items and should NOT approach Penn Tech's score. Starting score for a fresh site is **~5.5, not 7.0** (per `feedback_nigel_stricter.md`).
-- Output: `SCORES.log` line: `2026-05-07 cycle1 — N.NN — <one-sentence headline>`
-- Output: `AUDIT.md` with top-3 priorities for next cycle.
-- Score cap stays in place because real photography + real reviews + real address have not landed yet (per `/loop` cycle rules in CLAUDE.md).
-
-**MEMORY.md entries that bind Nigel:**
-- `feedback_nigel_stricter.md` — start ~5.5, score from real customer's lens.
-- `feedback_nigel_no_removal.md` — NEVER recommend removing glows / animations / effects. Only add or improve.
-- `project_penn_tech_baseline.md` — the 12-item catalog IS the rubric.
-- RULE 1 — Nigel does NOT text the user.
-
-**Forbidden moves for Nigel:**
-- Do NOT recommend stripping animations / glows / 3D for "performance" or "polish."
-- Do NOT score above the cap until real photography + real reviews + real address arrive.
-- Do NOT recommend fabricating any content to raise the score.
+**MEMORY.md entries Spark MUST respect:**
+- `project_penn_tech_baseline.md` — catalog #5 + #6 are the explicit targets.
+- RULE 2 / `feedback_no_self_throttle.md` — execute at full intensity. PaintFlow needs to feel premium, not "considered."
+- RULE 7 — no fake addresses / customer names / phone numbers in LiveEstimate.
+- RULE 8 / `feedback_no_ghost_numbers.md` — no large faded background numerals behind PaintFlow nodes.
+- `feedback_simplicity_over_polish.md` — replace when adding; no piling.
+- `feedback_frame_b_richness.md` — preserve content count.
+- `feedback_nigel_no_removal.md` — no removing existing glows/animations.
+- RULE 3 / `feedback_actually_scroll_test.md` — verify PaintFlow + LiveEstimate at 5 runway positions, 3 viewports.
+- RULE 1 — do NOT text the user.
 
 ---
 
 ## Forbidden cycle-wide
 
-- **No fabricated content of any kind.** Pre-launch honest framing ONLY. (RULE 7)
-- **No copying Penn Tech moves verbatim.** Cube → 3D paintbrush. Cube-face tile palette → terracotta/teal/clay paint chips. (Catalog rule)
-- **No `matchMedia` bail-outs** to make features "work" on mobile. Fix the CSS/JS mismatch. (RULE 4)
-- **No ghost numbers.** Large faded background numerals are out. (RULE 8)
-- **No agent texts the user.** Only the orchestrator does. (RULE 1)
-- **No "subtle / considered / editorial restraint" qualifiers** invented by the agents. The brief is full-intensity 3D + scroll-driven feature density. (RULE 2)
+- **Hero centerpiece edits.** Section cooldown — touched 3 of last 6 entries.
+- **Footer "SOCIAL CHANNELS COMING SOON" → fake INSTAGRAM swap.** Nigel suggested this but the user has explicitly said no fake social handles. Leave as-is.
+- **Fake founder names / bios / "Est. YYYY" claims** in the new human-signal block (RULE 7).
+- **`matchMedia` bail-outs** to disable WhySoley tilt or scroll-lock on mobile (RULE 4).
+- **`whileInView`** on SSR-rendered elements — use `.scroll-reveal` (catalog #9).
+- **Ghost numbers** behind any new section (RULE 8).
+- **Sub-agents texting the user** (RULE 1).
+- **"Subtle / considered / editorial restraint / tasteful / delicate"** language in any agent prompt or commit message (RULE 2).
 
 ## Section cooldown
 
-None — first cycle, no history.
+- **Hero — FORBIDDEN this cycle.** 3 touches in last 6 entries (8802038 SOLEY path, b46fa24 brush sweep, b10a171 Sacramento signature).
+- **ServicesScrollLock — soft-cool.** Refiner fixed the BLOCKER in 446a690. Do not edit again unless verification reveals regression.
 
 ---
 
 ## Rationale (one line)
 
-Cycle 1 of a fresh scaffold: Scout maps the 12-item Penn Tech catalog onto Soley Painting first, then Builder ships the skeleton, Spark adds full-intensity 3D + glow, Pixel verifies mobile, Nigel scores against the catalog as rubric.
+Refiner closed the BLOCKER and three high-priority bugs in 446a690 — Builder now closes the remaining Nigel structural gaps (Contact left column, WhySoley mobile accordion, navbar logo wrap, honest founder block) while Spark elevates the two flat-reading catalog items (PaintFlow + LiveEstimate); Hero is in cooldown for one cycle.
