@@ -13,3 +13,4 @@
 2026-05-07 21:30 nigel — focus axis: scroll-experience, top issue: ServicesScrollLock renders blank mid-scroll breaking the site's signature horizontal section at the exact position users reach
 2026-05-07 06:11 scout — research angle: scroll-lock robustness/sticky pitfalls + painter-distinctive centerpiece (Ruinart fresco/Hermès hand-drawn) + WhySoley card depth (spotlight pattern) + signature ink-bleed upgrade, 10 references added
 2026-05-07 razor — uninstalled three/@react-three/fiber/@react-three/drei/@types/three (64 pkgs, 35.9MB); removed .gradient-text, .section-padding, .glow-terra from globals.css (12 lines); build passes clean 141kB
+2026-05-07 qa — Desktop 1440 + iPhone SE 375 + iPhone 13 390 + iPhone Pro Max 414, ServicesScrollLock runway 5×5=25 samples, 2 BLOCKERS + 5 HIGH + 5 MEDIUM found
