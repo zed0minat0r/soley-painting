@@ -1,83 +1,43 @@
-# PLAN.md — Builder cycle 3 (2026-05-07 :03 slot — Portfolio Gallery)
+# PLAN.md — Builder Copywriting Pass (cycle 4)
 
-## Target
+**Date:** 2026-05-07 (Builder slot)
+**Scope:** Word-level copy edits only. Zero structural/JS/CSS changes.
 
-**NEW SECTION: PortfolioGallery** — filterable project gallery inserted between
-`<FounderBlock />` and `<Process />` in `app/page.tsx`.
+## Files touched (text only)
 
-## Files
-
-| File | Change |
+| File | What changes |
 |---|---|
-| `app/components/PortfolioGallery.tsx` | NEW — full component |
-| `app/globals.css` | Add `portfolio-tile`, chip, filter-transition, and painted-swatch CSS (~60 lines) |
-| `app/page.tsx` | Import + insert `<PortfolioGallery />` between FounderBlock and Process |
+| `app/components/Hero3D.tsx` | Tagline "Watch the brush paint it out." → more concrete brand promise; body copy micro-tighten |
+| `app/components/ServicesScrollLock.tsx` | Exterior bullet 3: "Interior guaranteed against peeling" → "Finish guaranteed against peeling" (wrong word "Interior" in an exterior panel) |
+| `app/components/PaintFlow.tsx` | Sub-copy tighten in section header |
+| `app/components/WhySoley.tsx` | Section headline tighten; card 4 VOC body copy punch up |
+| `app/components/FounderBlock.tsx` | Body paragraph punch up; cut "We are building this the right way — slowly" (filler) |
+| `app/components/PortfolioGallery.tsx` | Sub-line tighten (less corporate) |
+| `app/components/Process.tsx` | Step 2 Color Consultation bullets punch up |
+| `app/components/Contact.tsx` | Minor commitment bullet tighten |
 
-## Tiles (9 total, honest generic descriptors, no city/homeowner names)
+## What does NOT change
 
-| # | Category | Descriptor |
-|---|---|---|
-| 1 | INTERIOR | Two-story living room + stairwell · open-plan repaint |
-| 2 | EXTERIOR | Single-family Cape Cod exterior · full repaint cycle |
-| 3 | CABINET & TRIM | Kitchen cabinet refinish · 32 doors + drawer fronts |
-| 4 | COMMERCIAL | Office suite build-out · primer + two-coat finish |
-| 5 | INTERIOR | Primary bedroom + en-suite · accent wall treatment |
-| 6 | EXTERIOR | Colonial revival facade · trim detail + shutters |
-| 7 | SPECIALTY | Garage floor epoxy coating · two-part system |
-| 8 | COMMERCIAL | Retail space repaint · 3,200 sq ft open floor plan |
-| 9 | CABINET & TRIM | Built-in bookcase + crown molding refinish |
+- ServicesMarquee labels — already clean
+- LiveEstimate typed message — honest, reads naturally
+- Hero H1 "Every wall done right." — strong, keep
+- Hero trust signals — already specific and honest
+- WhySoley cards 1–3 — already strong
+- Process steps 1/3/4/5 — already concrete
+- Footer — already clean and honest
+- ServicesScrollLock panels 1/3/4/5 — already strong
 
-## Tile design
+## Fabrication audit
 
-- Aspect ratio 4:3 CSS-generated painted-swatch placeholder (SVG abstract brushstroke blob, NO stock photo)
-- Chalk-on-umber painted texture: umber base `#3D2B1F`, abstract painted mark in category swatch color at 30-40% opacity
-- "Photography forthcoming" italic overlay label centered
-- Category chip badge top-left
-- 2-line descriptor bottom
-
-## Filter chips (6)
-
-ALL · INTERIOR · EXTERIOR · COMMERCIAL · CABINET & TRIM · SPECIALTY
-
-- Active: terracotta bg + chalk text
-- Inactive: chalk border + slate text
-- Click updates React state; opacity transition 200ms
-- Empty-state card if filter produces zero tiles
-
-## Section copy
-
-- Eyebrow: "Recent Work"
-- Headline: "A sketch of the work we'll showcase."
-- Sub-line: "First project photography lands as soon as our launch crew wraps their first set of jobs. Until then, here is a preview of the work categories."
-
-## Grid layout
-
-- Desktop (≥1024px): 3 columns
-- Tablet (640-1023px): 2 columns
-- Mobile (<640px): 1 column
-- Filter chips wrap naturally, tap targets ≥ 44px (RULE 4 — no collapse to select)
-
-## Scroll-reveal
-
-Use existing `.scroll-reveal` class + `ScrollRevealObserver` IntersectionObserver pattern (catalog #9). No Framer Motion `whileInView`.
+No fake stats, fake names, fake dates, or fake reviews found in any file.
+All pre-launch framing is honest. No changes needed on that front.
 
 ## Success criterion
 
-- `npx next build` passes clean
-- Section renders at `#portfolio` between FounderBlock and Process
-- All 6 filter chips work via React state
-- 9 tiles visible on ALL filter; correct subset on each category chip
-- Empty-state shows for SPECIALTY (1 tile — may appear non-empty; show state handled regardless)
-
-## Forbidden (per AGENT-PLAN.md)
-
-- NO fabricated city/homeowner/project names
-- NO ghost numbers
-- NO matchMedia bail-outs
-- NO Framer Motion whileInView on SSR elements
-- NO touching FounderBlock / Process / ServicesScrollLock internals
-- NO R3F re-introduction
+`npx next build` passes clean. All copy changes are word-level. Brand voice
+is cohesive: hands-on, concrete, honest — nothing could appear on a generic
+competitor's site unchanged.
 
 ## Diff scope
 
-~250 lines new (PortfolioGallery) + ~70 lines CSS + ~3 lines page.tsx.
+~12 string swaps across 7 files. Total: under 30 lines changed.
