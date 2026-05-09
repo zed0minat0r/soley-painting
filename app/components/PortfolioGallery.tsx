@@ -190,7 +190,7 @@ export default function PortfolioGallery() {
           paddingRight: '1.5rem',
         }}
       >
-        Photography fills in as first projects complete — checking back this season.
+        We&apos;re 1 job into our first season. Photos start landing here as projects wrap.
       </p>
 
       {/* ── Tile grid or empty state ────────────────────────────────────── */}

@@ -9,6 +9,7 @@ import FounderBlock from './components/FounderBlock'
 import PortfolioGallery from './components/PortfolioGallery'
 import FAQ from './components/FAQ'
 import NotifySignup from './components/NotifySignup'
+import LiveEstimate from './components/LiveEstimate'
 import Process from './components/Process'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
@@ -35,6 +36,8 @@ export default function Home() {
       <FAQ />
       <SectionDivider />
       <NotifySignup />
+      <SectionDivider />
+      <LiveEstimate />
       <SectionDivider />
       <Process />
       <Contact />

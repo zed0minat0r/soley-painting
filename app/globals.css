@@ -466,15 +466,6 @@ a:focus-visible {
   gap: 3rem;
 }
 
-/* ── FounderBlock layout — 2-col desktop, 1-col mobile ──────────────── */
-/* Base rule MUST appear before the mobile @media block to avoid cascade override */
-.founder-grid {
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 5rem;
-  align-items: start;
-}
-
 /* ── WhySoley: desktop tilt vs mobile accordion ─────────────────────── */
 /* On desktop the tilt grid shows and accordion hides */
 .why-soley-desktop { display: flex !important; }
@@ -482,15 +473,6 @@ a:focus-visible {
 
 /* ── Mobile breakpoint (≤640px) ──────────────────────────────────────── */
 @media (max-width: 640px) {
-  /* FounderBlock: single column on mobile */
-  .founder-grid {
-    grid-template-columns: 1fr;
-    gap: 3rem;
-  }
-  .founder-portrait-col {
-    align-items: center !important;
-  }
-
   /* BUG-042: Hero canvas too small on mobile (149px in 1074px hero = 13.9%).
      Fix: expand canvas to min 320px tall and tighten section padding so the
      visual centerpiece dominates rather than floating in a cream void.
