@@ -176,9 +176,9 @@ export default function PaintFlow() {
     <section
       id="workflow"
       ref={sectionRef}
+      className="paintflow-section"
       style={{
         background: 'var(--color-umber)',
-        padding: '5rem 0 4.5rem',
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -259,11 +259,11 @@ export default function PaintFlow() {
       <div className="container-width" style={{ position: 'relative', zIndex: 3 }}>
         {/* Header */}
         <div
+          className="paintflow-header"
           style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'flex-end',
-            marginBottom: '3.5rem',
             flexWrap: 'wrap',
             gap: '1.5rem',
             opacity: blindsOpen ? 1 : 0,
@@ -445,10 +445,10 @@ export default function PaintFlow() {
 
           {/* Node labels + swatch tiles */}
           <div
+            className="paintflow-node-labels"
             style={{
               display: 'flex',
               justifyContent: 'space-between',
-              marginTop: '1.5rem',
             }}
           >
             {NODES.map((node, i) => {
@@ -483,6 +483,7 @@ export default function PaintFlow() {
 
                   {/* Icon circle */}
                   <div
+                    className="paintflow-node-icon"
                     style={{
                       width: '48px',
                       height: '48px',
