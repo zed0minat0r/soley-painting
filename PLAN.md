@@ -1,35 +1,40 @@
-# PLAN.md — Builder Cycle 1
+# PLAN.md — Builder cycle (2026-05-07 :03 slot)
 
-**Date:** 2026-05-07
-**Agent:** Builder
+## Targets (4)
 
-## What changes
+### 1. Contact left-column scroll-reveal void
+- **File:** `app/components/Contact.tsx`
+- **Change:** Drop IntersectionObserver threshold from 0.15 → 0.05. Add a
+  `scroll-reveal-left` stagger class to each item in the left column so the
+  content slides in from the left when the section enters the viewport.
+- **Success:** Left column content visible at all 5 mid-runway scroll positions.
 
-### Files created
-- `app/components/Navbar.tsx` — sticky nav, logo left, links right
-- `app/components/Hero3D.tsx` — R3F canvas with 3D paintbrush (cylinder handle + ferrule + MeshLine bristles). Constant Y-axis rotation 0.004 rad/frame. Environment preset="studio". 3-layer text glow headline. Split layout: text left, canvas right.
-- `app/components/SectionDivider.tsx` — SVG hairline + 3 teardrop paint-drop motifs + 2 traveling circle pulses. IntersectionObserver-gated.
-- `app/components/ServicesScrollLock.tsx` — 5 panels (INTERIOR / EXTERIOR / COMMERCIAL / CABINET & TRIM / SPECIALTY). Motion.dev useScroll + useTransform for horizontal travel. 500vh container. Mood-lerp background CSS var on scroll progress. No matchMedia bail-outs.
-- `app/components/Process.tsx` — 5-step auto-advancing timeline (Free Walkthrough / Color Consultation / Surface Prep / Application / Final Walkthrough & Touch-Up). 10s per step, char-stagger title, countdown bar.
-- `app/components/Contact.tsx` — form (name / email / phone / message). Pre-launch honest framing. No fake address/phone.
-- `app/components/Footer.tsx` — 4-column. "Social channels coming soon" in bottom bar.
+### 2. WhySoley mobile accordion (≤640px)
+- **File:** `app/components/WhySoley.tsx`
+- **Change:** Add per-card `isOpen` state tracked in parent via `openId` string.
+  On mobile (≤640px) cards render in a vertical accordion stack: header row is
+  always visible, description body collapses/expands on tap via CSS max-height
+  transition + `aria-expanded` / `aria-controls`. Desktop 3D tilt unchanged. All
+  4 cards, all content kept (Frame B richness rule).
+- **Success:** Tap to expand works at 375px; desktop tilt unaffected.
 
-### Files modified
-- `app/page.tsx` — assemble all sections in order
-- `app/layout.tsx` — swap Inter for Cormorant Garamond + DM Sans. Update metadata.
-- `app/globals.css` — add `.glow-hero`, `.glow-sub` utilities. Palette CSS custom properties. Teardrop keyframe animations.
-- `tailwind.config.ts` — add chalk/umber/gold color tokens matching Scout's revised 5-color system.
+### 3. Navbar logo `white-space: nowrap` at 375px
+- **File:** `app/globals.css`
+- **Change:** Add `white-space: nowrap` to `.nav-logo` inside the ≤640px block.
+- **Success:** "Soley Painting" stays on one line at 375px.
 
-## Expected diff scope
-~8 files, ~900 lines total across components + config updates.
+### 4. Honest founder / human-signal block
+- **File:** `app/components/FounderBlock.tsx` (new) + `app/page.tsx`
+- **Change:** Insert between WhySoley and Process. Contains: placeholder portrait
+  frame (chalk silhouette on umber tile) + two-line honest copy ("Run by a small
+  crew that actually shows up. Founder portrait forthcoming — real photography on
+  the way.") + a short pull-quote attributed only to "the painter behind Soley".
+  NO name, NO "Est. YYYY", NO neighborhood. Umber-background section, contrasts
+  with chalk sections on either side.
+- **Success:** Section renders between WhySoley and Process; build passes.
 
-## Success criterion
-`npx next build` completes with zero errors. All 7 sections render. R3F canvas displays. Services scroll-lock translates horizontally on vertical scroll. Process timeline auto-advances.
+## Diff scope
+~200 lines new (FounderBlock) + ~60 lines modified (WhySoley, Contact, globals.css, page.tsx).
 
-## Constraints honored
-- No fabricated content (pre-launch honest framing only)
-- No matchMedia bail-outs (RULE 4)
-- No bloom postprocessing (confirmed Scout)
-- No ghost numbers (RULE 8)
-- Author email: mmodica3@gmail.com
-- RULE 1: no iMessage to user
+## Build check
+`npx next build` must pass clean before commit.
