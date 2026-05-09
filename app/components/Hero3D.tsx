@@ -214,6 +214,7 @@ export default function Hero3D() {
   return (
     <section
       id="top"
+      className="hero-section-mobile"
       style={{
         minHeight: '100vh',
         background: 'var(--color-umber)',

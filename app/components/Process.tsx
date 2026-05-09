@@ -218,13 +218,53 @@ export default function Process() {
           className="process-grid"
           style={{ alignItems: 'start' }}
         >
-          {/* Step nav tabs */}
-          <div className="process-tabs" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          {/* Step nav tabs — BUG-038: full ARIA tablist pattern */}
+          <div
+            className="process-tabs"
+            role="tablist"
+            aria-label="Process steps"
+            style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}
+            onKeyDown={(e) => {
+              // Arrow-key roving tabindex for keyboard navigation
+              const tabs = sectionRef.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+              if (!tabs) return
+              const currentIdx = Array.from(tabs).findIndex(t => t === document.activeElement)
+              if (currentIdx === -1) return
+              let next = currentIdx
+              if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                e.preventDefault()
+                next = (currentIdx + 1) % STEPS.length
+              } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault()
+                next = (currentIdx - 1 + STEPS.length) % STEPS.length
+              } else if (e.key === 'Home') {
+                e.preventDefault()
+                next = 0
+              } else if (e.key === 'End') {
+                e.preventDefault()
+                next = STEPS.length - 1
+              } else {
+                return
+              }
+              tabs[next].focus()
+              if (intervalRef.current) clearInterval(intervalRef.current)
+              nextStepRef.current = next
+              transitionTo(next)
+              if (visible) {
+                setTimeout(() => {
+                  intervalRef.current = setInterval(advance, STEP_DURATION)
+                }, EXIT_MS + 60)
+              }
+            }}
+          >
             {STEPS.map((s, i) => (
               <button
                 key={s.id}
+                id={`process-tab-${i}`}
                 role="tab"
                 aria-selected={i === activeStep}
+                aria-controls={`process-panel-${i}`}
+                tabIndex={i === activeStep ? 0 : -1}
                 onClick={() => {
                   if (intervalRef.current) clearInterval(intervalRef.current)
                   nextStepRef.current = i
@@ -276,7 +316,14 @@ export default function Process() {
           </div>
 
           {/* Step content panel — cross-fade + slide transition */}
-          <div style={panelStyle}>
+          {/* BUG-038: role=tabpanel with id + aria-labelledby matching the active tab */}
+          <div
+            role="tabpanel"
+            id={`process-panel-${activeStep}`}
+            aria-labelledby={`process-tab-${activeStep}`}
+            tabIndex={0}
+            style={panelStyle}
+          >
             {/* Foreground step numeral — full opacity (RULE 8 compliant: NOT ghost) */}
             <div
               style={{

@@ -485,10 +485,17 @@ a:focus-visible {
     align-items: center !important;
   }
 
-  /* Hero: canvas already single-column, just ensure full width */
+  /* BUG-042: Hero canvas too small on mobile (149px in 1074px hero = 13.9%).
+     Fix: expand canvas to min 320px tall and tighten section padding so the
+     visual centerpiece dominates rather than floating in a cream void.
+     aspect-ratio: auto allows the explicit height to take effect.           */
   .hero-canvas-wrap {
     width: min(340px, 92vw) !important;
+    min-height: 320px !important;
+    aspect-ratio: auto !important;
   }
+  /* Shrink hero bottom padding on mobile to reduce cream void below canvas */
+  .hero-section-mobile { padding-bottom: 2rem !important; }
 
   /* Navbar: hide links, show CTA only */
   .nav-links {
