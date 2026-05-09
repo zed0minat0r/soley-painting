@@ -65,7 +65,7 @@ const CARDS = [
     number: '04',
     title: 'Low-VOC by default',
     description:
-      'We use low-VOC and zero-VOC formulations on every interior project unless you specify otherwise. Your air quality matters as much as your walls.',
+      'Low-VOC and zero-VOC formulations on every interior — by default, not by request. You should not have to ask for cleaner air in your own home.',
     accent: 'var(--color-teal)',
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
@@ -413,9 +413,9 @@ export default function WhySoley() {
               lineHeight: 1.1,
             }}
           >
-            What separates a good
+            The difference between a
             <br />
-            <em>paint job from a lasting one.</em>
+            <em>paint job and a lasting finish.</em>
           </h2>
         </div>
 

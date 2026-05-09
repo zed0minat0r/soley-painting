@@ -32,7 +32,7 @@ const PANELS = [
     bullets: [
       'Full caulking of all trim gaps before primer',
       'Prep includes power washing + scraping + sanding',
-      'Interior guaranteed against peeling and flaking',
+      'Finish guaranteed against peeling and flaking',
     ],
     icon: '🏡',
   },

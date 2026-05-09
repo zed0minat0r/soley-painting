@@ -112,7 +112,7 @@ export default function Contact() {
                 'We answer every call — no voicemail runaround',
                 'We show up inside our confirmed window, every time',
                 'Written estimates, line by line — no ballpark ranges',
-                'We protect your floors, furniture, and trim daily',
+                'Floors, furniture, and trim protected on every day of the job',
                 'Low-VOC formulations on every interior, by default',
                 'Written warranty terms provided when scope is finalized',
               ].map((item, i) => (

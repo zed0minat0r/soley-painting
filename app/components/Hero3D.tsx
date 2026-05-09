@@ -416,7 +416,7 @@ export default function Hero3D() {
           maxWidth: '36ch',
         }}
       >
-        Watch the brush paint it out.
+        One crew. One contact. Every wall done right.
       </p>
 
       {/* ── SIGNATURE REVEAL CENTERPIECE ── */}

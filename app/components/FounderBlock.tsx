@@ -201,10 +201,10 @@ export default function FounderBlock() {
                   maxWidth: '44ch',
                 }}
               >
-                Soley Painting is a small, owner-operated company. Every estimate,
-                every walkthrough, every final punch-list item gets handled by the
-                same person who answers the phone. We are building this the right way
-                — slowly, with the people whose homes and offices we paint.
+                Soley Painting is owner-operated. Every estimate, every walkthrough,
+                and every punch-list item is handled by the same person who answers
+                the phone. No handoffs, no middlemen — the person you call is the
+                person on the job.
               </p>
             </div>
 

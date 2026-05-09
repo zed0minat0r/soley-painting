@@ -112,10 +112,10 @@ export default function PortfolioGallery() {
       {/* ── Section header ─────────────────────────────────────────────── */}
       <div className="portfolio-header scroll-reveal">
         <p className="portfolio-eyebrow">Recent Work</p>
-        <h2 className="portfolio-headline">A sketch of the work we&apos;ll showcase.</h2>
+        <h2 className="portfolio-headline">The work categories — photos coming with the first jobs.</h2>
         <p className="portfolio-sub">
-          First project photography lands as soon as our launch crew wraps their first set of jobs.
-          Until then, here is a preview of the work categories.
+          Real project photography lands as soon as the first set of jobs wraps.
+          Each category below shows the scope we take on.
         </p>
       </div>
 

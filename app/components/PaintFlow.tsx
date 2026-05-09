@@ -256,8 +256,8 @@ export default function PaintFlow() {
               maxWidth: '34ch',
             }}
           >
-            Every project follows the same disciplined sequence. The coat you
-            don&apos;t see is what makes the one you do last.
+            Every project runs this sequence — no steps cut, no order
+            swapped. The coat you don&apos;t see is what makes the one you do last.
           </p>
         </div>
 

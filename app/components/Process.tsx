@@ -26,11 +26,11 @@ const STEPS = [
     id: 2,
     title: 'Color Consultation',
     description:
-      'Sample boards applied directly to your walls in natural and artificial light. No guessing from paint chips under fluorescents.',
+      'We apply sample boards directly to your walls and test them in natural and lamp light. No color decisions from a 1-inch chip held up under a fluorescent bulb.',
     bullets: [
-      'Sample boards in actual paint — not swatches',
-      'Tested in day, evening, and lamp light',
-      'Revision until it\'s right — before a single drop is ordered',
+      'Sample boards in actual paint — not 1-inch chips',
+      'Tested in day, evening, and lamp light on your actual walls',
+      'We revise until it\'s right — before a single gallon is ordered',
     ],
   },
   {
