@@ -31,3 +31,4 @@
 
 2026-05-09 03:45 qa — iPhone SE 375 + iPhone 13 390 + iPhone Pro Max 414 + Desktop 1440, 5 runway positions, Nigel P1 CONFIRMED (double-panel bleed at 95% all viewports), P2 REFUTED (gap=0px), P3 REFUTED (LiveEstimate height=978px present), P5a REFUTED (FounderBlock visible opacity=1), P5b CONFIRMED INTENTIONAL; 2 new BLOCKERS (BUG-025 services panel bleed, BUG-026 Process auto-advance dead) + 2 HIGH + 4 MEDIUM found
 2026-05-07 03:22 pixel — BUG-030 footer headings 11px→14px; BUG-031 PortfolioGallery chips SE375 3-rows→2-rows (gap+padding+font-size mobile)
+2026-05-07 refiner — BUG-025 ServicesScrollLock double-panel bleed (stickyRef.clientWidth px fix); BUG-026 Process auto-advance (IO threshold 0.3→0.05 + nextStepRef closure fix); BUG-027 chip text invisible (--color-slate defined + !important chalk); BUG-028 scroll-reveal stuck (threshold 0 + rootMargin 100px + MutationObserver); BUG-032 countdown bar (key includes visible state) — commit d6c2ccf
