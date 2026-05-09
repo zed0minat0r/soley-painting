@@ -204,6 +204,26 @@
   to   { opacity: 1; transform: scale(1); }
 }
 
+/* ── Services panel: hide right-column numeral on narrow viewports ───── */
+/* The numeral is a desktop decoration for the right-column void (BUG-022) */
+@media (max-width: 900px) {
+  .panel-numeral-right {
+    display: none !important;
+  }
+}
+
+/* ── LiveEstimate: two-col desktop, single-col mobile (BUG-017 fix) ──── */
+/* Moved from LiveEstimate.tsx inline <style> to avoid React hydration mismatch */
+@media (max-width: 767px) {
+  .estimate-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2.5rem !important;
+  }
+  .estimate-grid > div:last-child {
+    height: 380px !important;
+  }
+}
+
 /* ── Legacy helpers ───────────────────────────────────────────────────  */
 @keyframes bounce-x {
   0%, 100% { transform: translateX(0); }

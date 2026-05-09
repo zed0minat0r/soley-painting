@@ -93,7 +93,10 @@ function buildPath(nodeXArr: number[], y: number): string {
 }
 
 const PATH_D = buildPath(NODE_X, NODE_Y)
-const PATH_LEN = 750
+/* BUG-018 fix: SVG viewBox is 80×40 user units; path spans ~64 user units.
+   Using pathLength="1" normalises the path to 1 unit regardless of geometry,
+   so strokeDasharray="1" + strokeDashoffset 1→0 gives a clean draw-in. */
+const PATH_LEN = 1
 
 /* 6 horizontal blind strips — each expands from scaleX(0) to scaleX(1) */
 const STRIP_COUNT = 6
@@ -105,7 +108,11 @@ export default function PaintFlow() {
   const [pulsingNode, setPulsingNode] = useState<number>(-1)
   const [dotPos, setDotPos] = useState(0)
 
-  /* IntersectionObserver — trigger blinds + draw on enter */
+  /* IntersectionObserver — trigger blinds + draw on enter.
+     BUG-014 fix: threshold 0.05 fires when just 5% is visible (fires much
+     earlier than 0.2, before iOS momentum scroll can blow past the section).
+     rootMargin '-20px 0px' provides a small buffer to fire before full entry.
+     Opacity transitions have 0s delay so content is visible immediately. */
   useEffect(() => {
     const el = sectionRef.current
     if (!el) return
@@ -113,11 +120,11 @@ export default function PaintFlow() {
       ([entry]) => {
         if (entry.isIntersecting) {
           setBlindsOpen(true)
-          // Slight delay so blinds open before path draws
-          setTimeout(() => setDrawn(true), 400)
+          // Minimal delay (100ms) for blinds to start before path draws
+          setTimeout(() => setDrawn(true), 100)
         }
       },
-      { threshold: 0.2 }
+      { threshold: 0.05, rootMargin: '-20px 0px' }
     )
     obs.observe(el)
     return () => obs.disconnect()
@@ -211,7 +218,7 @@ export default function PaintFlow() {
             flexWrap: 'wrap',
             gap: '1.5rem',
             opacity: blindsOpen ? 1 : 0,
-            transition: 'opacity 0.5s ease 0.5s',
+            transition: 'opacity 0.4s ease 0.1s',
           }}
         >
           <div>
@@ -260,7 +267,7 @@ export default function PaintFlow() {
             position: 'relative',
             width: '100%',
             opacity: blindsOpen ? 1 : 0,
-            transition: 'opacity 0.5s ease 0.55s',
+            transition: 'opacity 0.4s ease 0.15s',
           }}
         >
           <svg
@@ -297,13 +304,16 @@ export default function PaintFlow() {
               fill="none"
             />
 
-            {/* Animated draw-in overlay — thicker stroke on dark bg */}
+            {/* Animated draw-in overlay — thicker stroke on dark bg.
+                pathLength="1" normalises path to 1 unit — dasharray/dashoffset
+                values of 1 and 0 map cleanly regardless of viewBox geometry. */}
             <path
               d={PATH_D}
               stroke="url(#flow-gradient-dark)"
               strokeWidth="0.9"
               fill="none"
               strokeLinecap="round"
+              pathLength={PATH_LEN}
               style={{
                 strokeDasharray: PATH_LEN,
                 strokeDashoffset: drawn ? 0 : PATH_LEN,

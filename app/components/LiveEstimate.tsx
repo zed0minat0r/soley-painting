@@ -437,18 +437,6 @@ export default function LiveEstimate() {
         </div>
       </div>
 
-      {/* Mobile: stack grid to single col */}
-      <style>{`
-        @media (max-width: 767px) {
-          .estimate-grid {
-            grid-template-columns: 1fr !important;
-            gap: 2.5rem !important;
-          }
-          .estimate-grid > div:last-child {
-            height: 380px !important;
-          }
-        }
-      `}</style>
     </section>
   )
 }

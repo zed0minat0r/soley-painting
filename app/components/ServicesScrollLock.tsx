@@ -232,7 +232,7 @@ export default function ServicesScrollLock() {
                 }}
               />
 
-              {/* Panel number */}
+              {/* Panel number — top right label */}
               <span
                 style={{
                   position: 'absolute',
@@ -242,10 +242,58 @@ export default function ServicesScrollLock() {
                   fontSize: '0.875rem',
                   letterSpacing: '0.15em',
                   color: 'rgba(245,240,234,0.25)',
+                  zIndex: 2,
                 }}
               >
                 0{i + 1} / 0{PANELS.length}
               </span>
+
+              {/* BUG-022 fix: Right-column panel numeral at full opacity fills the dark void.
+                  Positioned in the right 50% of the panel as a foreground design element.
+                  Full opacity per RULE 8 — not a ghost/faded number behind content.
+                  Hidden on mobile via .panel-numeral-right in globals.css */}
+              <div
+                aria-hidden="true"
+                className="panel-numeral-right"
+                style={{
+                  position: 'absolute',
+                  right: '4vw',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-end',
+                  pointerEvents: 'none',
+                  zIndex: 1,
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: 'var(--font-heading)',
+                    fontWeight: 700,
+                    fontSize: 'clamp(7rem, 14vw, 14rem)',
+                    lineHeight: 1,
+                    color: panel.accent,
+                    userSelect: 'none',
+                    letterSpacing: '-0.04em',
+                  }}
+                >
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontWeight: 500,
+                    fontSize: '0.75rem',
+                    letterSpacing: '0.2em',
+                    textTransform: 'uppercase',
+                    color: panel.accent,
+                    marginTop: '0.5rem',
+                  }}
+                >
+                  {panel.title}
+                </span>
+              </div>
 
               {/* Content */}
               <div
