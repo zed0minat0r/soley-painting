@@ -157,7 +157,7 @@ export default function Footer() {
           <p
             style={{
               fontFamily: 'var(--font-body)',
-              fontSize: '0.75rem',
+              fontSize: '0.8125rem',
               color: 'rgba(245,240,234,0.3)',
             }}
           >

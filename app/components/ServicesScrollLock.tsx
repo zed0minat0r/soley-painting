@@ -215,7 +215,7 @@ export default function ServicesScrollLock() {
           <span
             style={{
               fontFamily: 'var(--font-body)',
-              fontSize: '0.75rem',
+              fontSize: '0.8125rem',
               letterSpacing: '0.3em',
               textTransform: 'uppercase',
               color: 'rgba(245,240,234,0.5)',
@@ -327,7 +327,7 @@ export default function ServicesScrollLock() {
                   style={{
                     fontFamily: 'var(--font-body)',
                     fontWeight: 500,
-                    fontSize: '0.75rem',
+                    fontSize: '0.8125rem',
                     letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: panel.accent,
