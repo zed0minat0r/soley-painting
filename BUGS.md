@@ -1111,3 +1111,140 @@ These require structural changes and are deferred to Refiner.
 **Defer to:** Refiner (requires structural change to Process.tsx).
 
 *ARIA gaps logged by Spark cycle 7, 2026-05-07. All other interactive elements verified clean: FAQ accordion (aria-expanded/controls/labelledby ✓), WhySoley accordion (aria-expanded/controls ✓), PortfolioGallery chips (aria-pressed/group ✓), Contact form (htmlFor labels on all 4 inputs ✓), Hero3D icon buttons (aria-label ✓), scroll-down button (aria-label ✓). No icon-only buttons found without labels.*
+
+---
+
+## EMERGENCY AUDIT — QA cycle 7: 2026-05-07 (post-commit 6ad296f Spark palette migration + icon draw)
+## Viewports: iPhone SE 375, iPhone 13 390, iPhone Pro Max 414, Desktop 1440
+## Playwright full-page screenshots: /tmp/soley-emergency/
+
+---
+
+# SEVERITY RANKING
+
+## BLOCKER
+
+### BUG-047 — LiveEstimate rendered TWICE in DOM — duplicate `id="live-estimate"` invalid HTML [ALL VIEWPORTS]
+**Severity:** BLOCKER — invalid HTML (duplicate IDs), duplicate content, extra ~1100px of page height
+**Viewports:** SE375, IP13, IPMax414, D1440 — confirmed all 4
+**Components:** `app/page.tsx` (standalone `<LiveEstimate />` at line 38) + `app/components/Contact.tsx` (embeds `<LiveEstimate />` at line 229)
+**Measurements:**
+- SE375: first instance top=15148 h=1068, second instance top=17477 h=1151 (inside Contact)
+- IP13: first top=16009, second top=18331 (inside Contact)
+- IPMax414: first top=16323, second top=18644 (inside Contact)
+- D1440: first top=12696 h=596, second top=13532 h=919 (inside Contact, which starts at top=13388 — second LE is 144px inside Contact)
+- Total duplicate ID count: 2 on all 4 viewports (confirmed via `document.querySelectorAll('#live-estimate').length`)
+**Probable cause:** Nigel cycle 9 flagged LiveEstimate appearing twice. `page.tsx` was not updated to remove the standalone `<LiveEstimate />` when Contact.tsx was updated to embed it (or vice versa). The commit 6ad296f palette migration touched LiveEstimate.tsx and Contact.tsx but did not resolve this duplication that was already noted by Nigel.
+**Fix:** Remove standalone `<LiveEstimate />` from `app/page.tsx` (between Process and SectionDivider). Keep only the embedded instance in `Contact.tsx`. Also remove the orphaned `<SectionDivider />` that currently sits between `<LiveEstimate />` and `<Contact />` in page.tsx since it now falls between nothing and Contact.
+
+---
+
+## HIGH
+
+### BUG-048 — Massive cream voids throughout page — scroll-reveal elements stuck at opacity:0 [ALL VIEWPORTS, REAL BROWSER RISK]
+**Severity:** HIGH — page appears broken with large blank linen-colored sections between visible content
+**Viewports:** Confirmed visually in full-page screenshots at SE375 (42,118px page), IP13 (65,577px page), D1440 (15,667px page)
+**Evidence:** Full-page screenshots at /tmp/soley-emergency/full_SE375.png, full_IP13.png, full_D1440.png show extensive blank linen voids. When scroll-reveal elements are force-revealed (class `in-view` injected), page renders correctly (see SE375_all_revealed.png, D1440_all_revealed.png).
+**Components affected:**
+- `app/components/WhySoley.tsx` — 3 elements with `.scroll-reveal` (lines 124, 225, 389); these account for a ~400–700px invisible void on desktop
+- `app/components/FounderBlock.tsx` — 3 `.scroll-reveal` / `.scroll-reveal-left` elements (lines 76, 166, 213, 250)
+- `app/components/PaintFlow.tsx` — has scroll-reveal elements
+- `app/components/Contact.tsx` — right column entire div wrapped in `.scroll-reveal` (line 207) — the entire form + embedded LiveEstimate invisible until IO fires
+- `app/components/FAQ.tsx` — `.scroll-reveal` at root container (line 94)
+- `app/components/LiveEstimate.tsx` — `.scroll-reveal` on main content div (line 191)
+- `app/components/PortfolioGallery.tsx` — header, chips, all tiles are `.scroll-reveal`
+**Root cause analysis:** In headless Playwright (no scroll), `ScrollRevealObserver` fires IO correctly but all elements start at `opacity:0; transform:translateY(32px)`. In a real slow-loading browser or when JS hydration is delayed (common on mobile), elements may briefly appear as blank voids. On the live Vercel site, SSR + hydration gap means users see the linen-colored void before React boots.
+**Critical note on Contact right column:** Line 207 of Contact.tsx wraps the ENTIRE right column (containing the embedded LiveEstimate + contact form) in a single `.scroll-reveal` div. This means the entire right side of the contact section is invisible until the IO fires. On mobile this column reflows to full-width so it is the primary visible content — meaning the contact form is invisible on mobile load.
+**Fix options:**
+- Option A (preferred): Remove `.scroll-reveal` from section-level wrappers. Only apply it to individual headline/body elements, never to a container that holds 1000px+ of content.
+- Option B: Add `animation-fill-mode: forwards` and start elements at opacity:1 with a zero-delay fallback so content is visible immediately.
+- Option C: Move Contact right column scroll-reveal from the column div to individual child elements inside it.
+**Screenshots:** /tmp/soley-emergency/full_SE375.png (voids clearly visible), /tmp/soley-emergency/SE375_all_revealed.png (correct layout when revealed)
+
+### BUG-049 — Hero icon cycling centerpiece: panel counter "1 / 5" at 11px (below 13px floor) [ALL VIEWPORTS]
+**Severity:** HIGH — font-size violation below established 13px floor (BUG-040/BUG-046 family)
+**Viewports:** SE375, IP13, IPMax414, D1440 — confirmed 11px computed on all viewports
+**Component:** `app/components/Hero3D.tsx`
+**Evidence:** `panelCounter` audit — SPAN with text "1 / 5" at `fs: 11` at top=579px (inside the hero section). Note the ServicesScrollLock "01 / 05" counters are 14px (compliant). Only the Hero3D cycle counter is 11px.
+**Fix:** Find the panel progress counter in Hero3D.tsx and bump its font-size to at least `0.8125rem` (13px).
+
+---
+
+## MEDIUM
+
+### BUG-050 — Contact.tsx right column entirely wrapped in single `.scroll-reveal` — form invisible on slow hydration [ALL MOBILE VIEWPORTS]
+**Severity:** MEDIUM (conversion risk — the contact form is the primary CTA destination)
+**Note:** This is the specific sub-issue of BUG-048 that most directly impacts conversion. Calling it out separately so Refiner prioritizes it.
+**Viewports:** SE375, IP13, IPMax414 (on mobile the right column reflows to full-width and is the primary content)
+**Component:** `app/components/Contact.tsx` line 207
+**Current code:** `<div className="scroll-reveal" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>` wraps the entire right column including LiveEstimate + form
+**Fix:** Remove the `.scroll-reveal` wrapper from the column div. Apply reveal class only to the LiveEstimate preview card and the form heading, not the form fields themselves (form fields should always be immediately accessible).
+
+### BUG-051 — ServicesScrollLock: sticky viewport still uses `100vh` (not `100dvh`) in inline style [iOS Safari risk]
+**Severity:** MEDIUM — `100dvh` override in globals.css should catch this but inline styles may win on specific Safari versions
+**Viewports:** SE375, IP13, IPMax414 (iOS Safari-specific)
+**Component:** `app/components/ServicesScrollLock.tsx` line 203: `height: '100vh'` and line 251: `height: '100vh'`
+**Evidence:** `servicesData.stickyH = 667` on SE375 which equals the viewport height — appears correct, but this is the headless Chromium value. Safari on real iOS handles `100vh` as the full document height including browser chrome, making the sticky container too tall. The `!important` override in globals.css line 825 (`#services > div { height: 100dvh !important; }`) SHOULD override the inline style, but inline styles have specificity 1000 which `!important` in a class/id rule still wins over. However inline `!important` would win over external `!important` — this needs a real device check.
+**Fix:** Change inline `height: '100vh'` to `height: '100dvh'` in ServicesScrollLock.tsx at lines 203, 251, 259. This eliminates the CSS override dependency.
+
+---
+
+## LOW
+
+### BUG-052 — Process tab buttons 2 and 3 share identical `top` position on SE375 — possible layout overlap [SE375, IPMax414]
+**Severity:** LOW — tap target overlap risk on narrow viewports
+**Viewports:** SE375 (tabs 2+3 both at top=14496), IPMax414 (tabs 1+2 both at top=15646)
+**Component:** `app/components/Process.tsx`
+**Evidence:** SE375 layout data: `process-tab-2` top=14496 h=47, `process-tab-3` top=14496 h=47 w=153. Two tabs at the same y-offset means they are rendered side-by-side in the flex-wrap layout. Combined widths: 166+153=319px vs 327px container. This may cause them to collide or have very tight spacing (4px gap) that is below 8px minimum.
+**Fix:** Verify `.process-tabs button` on mobile has adequate `gap` and `flex: 1 1 auto` allows both to coexist without overlap.
+
+### BUG-053 — Hero section height 1215px on SE375 — 26% ratio canvas-wrap/hero is improvement but hero still very tall relative to canvas [SE375]
+**Severity:** LOW — cosmetic, functional ratio now 26% (up from 13.9% at BUG-042 discovery)
+**Viewports:** SE375
+**Evidence:** heroCanvas: width=340 height=320 heroHeight=1215 ratio=26%. The canvas is 320px in a 1215px section. The bottom 895px is hero copy + CTAs + scroll indicator + drop-cloth SVG decorations. This is better than the 149px/1074px state (13.9%) but the section still feels very tall on SE375.
+**Note:** BUG-042 was marked CLOSED at min-height 320px fix. This is a follow-up noting the ratio is improved but may still leave a large void perception on real device.
+
+---
+
+## CONFIRMED CLOSED (re-verified this cycle)
+
+| Bug | Description | Status |
+|-----|-------------|--------|
+| BUG-025 | ServicesScrollLock horizontal overflow | CLOSED — overflow=hidden confirmed SE375/IP13/D1440 |
+| BUG-038 | Process tablist ARIA | CLOSED — tablist+tabpanel+aria-controls all 3 viewports |
+| BUG-040 | Font-size violations 12px | CLOSED — 13px floor confirmed all elements |
+| BUG-043 | SectionDivider 2/8 placements | CLOSED — page.tsx now has 8 SectionDividers, all at 96px height |
+
+---
+
+## Viewport coverage matrix (QA Emergency Cycle 7)
+
+| Component | SE375 | IP13 | IPMax414 | D1440 |
+|-----------|:-----:|:----:|:--------:|:-----:|
+| No console errors | PASS | PASS | PASS | PASS |
+| No horizontal overflow | PASS | PASS | PASS | PASS |
+| SectionDividers (8x) at 96px | PASS | PASS | PASS | PASS |
+| Hero canvas-wrap height | 320px / 26% | not measured | not measured | not measured |
+| Hero icon counter font-size | 11px FAIL | 11px FAIL | 11px FAIL | 11px FAIL |
+| LiveEstimate duplicate IDs | 2 FAIL | 2 FAIL | 2 FAIL | 2 FAIL |
+| Contact right col scroll-reveal | opacity:0 FAIL | opacity:0 FAIL | opacity:0 FAIL | not critical |
+| ServicesScrollLock h2 font | 32px clamp PASS | 32px PASS | 32px PASS | 32px PASS |
+| Process tabs overlap | top=14496 tabs 2+3 FLAG | not measured | top=15646 FLAG | PASS |
+
+---
+
+## Screenshot index (Emergency Cycle 7)
+All screenshots: `/tmp/soley-emergency/`
+- `full_SE375.png` — full page 750×42118px — blank voids clearly visible
+- `full_IP13.png` — full page 1170×65577px — blank voids clearly visible  
+- `full_IPMax414.png` — full page at 414px — blank voids
+- `full_D1440.png` — full page 1440×15667px — blank voids
+- `SE375_all_revealed.png` — SE375 with all scroll-reveal forced in-view — shows correct layout
+- `D1440_all_revealed.png` — D1440 with all scroll-reveal forced in-view — shows correct layout
+- `D1440_void_services_to_paintflow.png` — void at services→PaintFlow boundary
+- `D1440_void_whysoley_founder.png` — void at WhySoley→FounderBlock boundary
+- `SE375_hero_top.png` — hero section top on SE375
+- `SE375_second_LE_in_contact.png` — second LiveEstimate embedded inside Contact
+- `D1440_contact_top.png` — Contact section top on D1440 (duplicate LE boundary)
+
+*QA Emergency Audit cycle 7 by QA agent, 2026-05-07. 4 viewports, full-page screenshots + section gap analysis. Commit triggering bugs: 6ad296f (Spark palette migration + icon draw, 11 files). 7 new bugs found: BUG-047 BLOCKER, BUG-048/049 HIGH, BUG-050/051 MEDIUM, BUG-052/053 LOW.*
