@@ -476,7 +476,9 @@ export default function Hero3D() {
         Soley Painting
       </p>
 
-      {/* H1 */}
+      {/* H1 — BUG-055 fix: glow applied inline to guarantee it's never stripped
+           by CSS bundling/purge. The .glow-hero class is kept as a hook for
+           QA selectors but the text-shadow is owned by the inline style.      */}
       <h1
         className="glow-hero"
         style={{
@@ -489,6 +491,8 @@ export default function Hero3D() {
           marginBottom: '0.875rem',
           textAlign: 'center',
           maxWidth: '20ch',
+          textShadow:
+            '0 0 1px #fff, 0 0 10px rgba(191,91,56,0.75), 0 0 28px rgba(184,136,74,0.35)',
         }}
       >
         Every wall{' '}
@@ -664,7 +668,7 @@ export default function Hero3D() {
         </span>
       </div>
 
-      {/* Body copy */}
+      {/* Body copy — BUG-055 fix: glow-sub also inline to match h1 treatment */}
       <p
         className="glow-sub"
         style={{
@@ -675,6 +679,8 @@ export default function Hero3D() {
           maxWidth: '46ch',
           marginTop: '2.5rem',
           textAlign: 'center',
+          textShadow:
+            '0 0 1px rgba(255,255,255,0.5), 0 0 8px rgba(184,136,74,0.55), 0 0 20px rgba(191,91,56,0.25)',
         }}
       >
         Meticulous surface prep. Durable finishes. One point of contact

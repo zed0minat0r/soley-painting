@@ -184,9 +184,12 @@ export default function ServicesScrollLock() {
     }
   }, [])
 
-  // Panel width in px; falls back to 100vw string during SSR/first-paint
-  const panelPx = panelWidth > 0 ? `${panelWidth}px` : '100vw'
-  const trackWidth = panelWidth > 0 ? `${PANELS.length * panelWidth}px` : `${PANELS.length * 100}vw`
+  // Panel width in px; falls back to 100% during SSR/first-paint
+  // IMPORTANT: never use vw units inside overflow:hidden containers — vw resolves to
+  // the full document width (ignoring scrollbar and parent clips), causing panels to
+  // be wider than the sticky container on some browsers. Use % (relative to parent) instead.
+  const panelPx = panelWidth > 0 ? `${panelWidth}px` : '100%'
+  const trackWidth = panelWidth > 0 ? `${PANELS.length * panelWidth}px` : '500%'
 
   return (
     <section
@@ -255,7 +258,17 @@ export default function ServicesScrollLock() {
             <div
               key={panel.id}
               style={{
-                width: panelPx,
+                /* BUG-056 fix: explicit width + minWidth + flexShrink 0 prevents panels
+                   collapsing to content width (103-141px) on SE375.
+                   - panelWidth > 0: use computed px from stickyRef.clientWidth (exact)
+                   - panelWidth === 0: SSR/first-paint fallback uses 100% (fills the flex
+                     container's current width — safe inside overflow:hidden unlike 100vw)
+                   - flexShrink: 0 alone is insufficient when width is not explicit;
+                     both width AND minWidth must be set to lock the flex item size.    */
+                width: panelWidth > 0 ? panelPx : '100%',
+                minWidth: panelWidth > 0 ? panelPx : '100%',
+                flexShrink: 0,
+                flexGrow: 0,
                 height: '100dvh',
                 background: panel.bg,
                 display: 'flex',
@@ -263,7 +276,6 @@ export default function ServicesScrollLock() {
                 justifyContent: 'center',
                 position: 'relative',
                 overflow: 'hidden',
-                flexShrink: 0,
               }}
             >
               {/* Accent bar — top (Nigel P4: 4px full-width brand color rotation)
