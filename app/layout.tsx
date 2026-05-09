@@ -1,18 +1,33 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { DM_Sans, Cormorant_Garamond } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
+  weight: ['400', '500', '600'],
   display: 'swap',
-  variable: '--font-inter',
+  variable: '--font-body',
+  preload: true,
+})
+
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+  variable: '--font-heading',
   preload: true,
 })
 
 export const metadata: Metadata = {
-  title: 'Soley Painting | Professional Painting Services',
-  description: 'Residential and commercial painting — clean lines, durable finishes, on-time delivery.',
+  title: 'Soley Painting | Expert Residential & Commercial Painting',
+  description:
+    'Meticulous surface prep, durable finishes, and one point of contact from estimate to final walkthrough. Residential and commercial painting — done right the first time.',
+  openGraph: {
+    title: 'Soley Painting',
+    description: 'Expert residential and commercial painting.',
+    type: 'website',
+  },
 }
 
 export default function RootLayout({
@@ -21,9 +36,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className={inter.className}>
-        <main>{children}</main>
+    <html lang="en" className={`${dmSans.variable} ${cormorant.variable}`}>
+      <body className={dmSans.className}>
+        {children}
       </body>
     </html>
   )

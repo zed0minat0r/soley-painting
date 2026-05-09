@@ -1,6 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Brand CSS Custom Properties ─────────────────────────────────────── */
+:root {
+  --color-terra:  #C2603A;
+  --color-teal:   #2D7A70;
+  --color-chalk:  #F5F0EA;
+  --color-umber:  #2C1F16;
+  --color-gold:   #B8935A;
+
+  --font-heading: "Cormorant Garamond", Georgia, serif;
+  --font-body:    "DM Sans", system-ui, sans-serif;
+
+  /* Page bg lerps during ServicesScrollLock scroll */
+  --page-bg: var(--color-chalk);
+}
 
 @layer base {
   html {
@@ -9,62 +26,194 @@
     overscroll-behavior: contain;
   }
   body {
-    @apply bg-dark-950 text-dark-100 font-sans antialiased;
+    font-family: var(--font-body);
+    background-color: var(--color-chalk);
+    color: var(--color-umber);
     overflow-x: clip;
     overscroll-behavior: contain;
     margin: 0;
     padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-heading);
   }
 }
 
 @layer components {
   .gradient-text {
-    @apply bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent;
-  }
-  .glass {
-    @apply bg-dark-800/80 backdrop-blur-lg border border-dark-700/50;
+    background: linear-gradient(135deg, var(--color-terra), var(--color-gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
   .btn-primary {
-    @apply px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-lg
-           hover:from-primary-600 hover:to-primary-700 transition-all duration-300
-           shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/30
-           hover:-translate-y-0.5 active:translate-y-0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 2rem;
+    background: var(--color-terra);
+    color: var(--color-chalk);
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.15s ease;
+  }
+  .btn-primary:hover {
+    background: #A34E2D;
+    transform: translateY(-1px);
+  }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 2rem;
+    background: transparent;
+    color: var(--color-chalk);
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid rgba(245, 240, 234, 0.4);
+    cursor: pointer;
+    transition: border-color 0.25s ease, color 0.25s ease, transform 0.15s ease;
+  }
+  .btn-secondary:hover {
+    border-color: var(--color-chalk);
+    transform: translateY(-1px);
   }
   .section-padding {
-    @apply py-20 md:py-28 lg:py-32;
+    padding-top: 5rem;
+    padding-bottom: 5rem;
   }
   .container-width {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    max-width: 80rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-  .perspective-1000 {
-    perspective: 1000px;
-  }
+/* ── Premium 3-layer text glow (catalog item #8) ──────────────────────
+   1px near-white core + 10px terracotta mid + 28px teal ambient         */
+.glow-hero {
+  text-shadow:
+    0 0 1px #fff,
+    0 0 10px rgba(194, 96, 58, 0.75),
+    0 0 28px rgba(45, 122, 112, 0.45);
+}
+.glow-sub {
+  text-shadow:
+    0 0 1px rgba(255,255,255,0.5),
+    0 0 8px rgba(45, 122, 112, 0.6),
+    0 0 20px rgba(184, 147, 90, 0.35);
+}
+.glow-terra {
+  text-shadow:
+    0 0 2px #fff,
+    0 0 12px rgba(194, 96, 58, 0.8),
+    0 0 32px rgba(194, 96, 58, 0.4);
 }
 
-/* SSR-safe scroll-reveal — hidden state is the CSS default so server HTML
-   ships pre-animation. Pair with IntersectionObserver toggling .in-view.
-   Avoids the framer-motion whileInView SSR hydration flash. */
+/* ── SSR-safe scroll reveal (catalog item #9) ─────────────────────────
+   Hidden state ships in SSR HTML — no hydration flash                    */
 .scroll-reveal {
   opacity: 0;
-  transform: translateY(80px) scale(0.9);
+  transform: translateY(32px);
   transition:
-    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .scroll-reveal.in-view {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(0);
+}
+.scroll-reveal-left {
+  opacity: 0;
+  transform: translateX(-32px);
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.scroll-reveal-left.in-view {
+  opacity: 1;
+  transform: translateX(0);
 }
 
+/* ── Teardrop paint-drop divider animation ────────────────────────────  */
+@keyframes drop-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50%       { transform: scale(1.18); opacity: 1; }
+}
+@keyframes pulse-travel-right {
+  0%   { opacity: 0; transform: translateX(0) scale(0.4); }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(var(--travel-w)) scale(0.4); }
+}
+@keyframes pulse-travel-left {
+  0%   { opacity: 0; transform: translateX(0) scale(0.4); }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(calc(-1 * var(--travel-w))) scale(0.4); }
+}
+
+/* ── Process timeline countdown bar ──────────────────────────────────── */
+@keyframes countdown {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+/* ── Marquee scroll animation ─────────────────────────────────────────  */
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee-left 28s linear infinite;
+  will-change: transform;
+}
+
+/* ── Char stagger animation for Process titles ──────────────────────── */
+@keyframes char-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Form field focus styling ─────────────────────────────────────────  */
+.form-field {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: rgba(245, 240, 234, 0.06);
+  border: 1px solid rgba(245, 240, 234, 0.2);
+  color: var(--color-chalk);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.form-field::placeholder {
+  color: rgba(245, 240, 234, 0.35);
+}
+.form-field:focus {
+  border-color: var(--color-terra);
+  background: rgba(194, 96, 58, 0.05);
+}
+.form-field:focus::placeholder {
+  color: rgba(245, 240, 234, 0.5);
+}
+
+/* ── Legacy helpers ───────────────────────────────────────────────────  */
 @keyframes bounce-x {
   0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(5px); }
+  50%       { transform: translateX(5px); }
 }
 .animate-bounce-x {
   animation: bounce-x 1.5s ease-in-out infinite;
