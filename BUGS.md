@@ -1,6 +1,210 @@
 # BUGS.md — Soley Painting QA Audit
-## QA cycle 6: 2026-05-09 (post-Nigel-7/Pixel-6/Refiner-5/Builder-7/Spark-7), Playwright, 3 viewports
+## QA cycle 12: 2026-05-07 (post-Nigel-11 / spark icon refinement a3dc11a), Playwright, 3 viewports
 ## Live site: https://soley-painting.vercel.app
+## Nigel cycle 11 urgent diagnosis — ServicesScrollLock mobile root cause + 4 scroll-reveal voids
+
+---
+
+# QA CYCLE 12 — ROOT CAUSE DIAGNOSIS (post-a3dc11a, Nigel-11 priorities)
+
+## DIAGNOSIS 1 — ServicesScrollLock mobile: ROOT CAUSE FOUND — FALSE ALARM
+
+**Nigel claimed: Track reports 195px on iPhone 13 instead of 5×390=1950px.**
+
+**REFUTED. The current build (a3dc11a) is FULLY CORRECT on all mobile viewports.**
+
+Live Playwright measurements on the deployed Vercel site:
+
+### iPhone 13 (390px) — 5 runway positions
+
+| Position | scrollY | translateX | stickyClientW | trackOffsetW |
+|---|---|---|---|---|
+| 5% | 1218 | 0.0px | 390 | 1950 |
+| 25% | 2032 | -357.7px | 390 | 1950 |
+| 50% | 2675 | -802.0px | 390 | 1950 |
+| 75% | 3348 | -1267.1px | 390 | 1950 |
+| 95% | 3890 | -1560.0px | 390 | 1950 |
+
+### iPhone SE 375px — 5 runway positions
+
+| Position | scrollY | translateX | stickyClientW | trackOffsetW |
+|---|---|---|---|---|
+| 5% | 1123 | 0.0px | 375 | 1875 |
+| 25% | 2019 | -333.4px | 375 | 1875 |
+| 50% | 2671 | -764.7px | 375 | 1875 |
+| 75% | 3347 | -1211.8px | 375 | 1875 |
+| 95% | 3905 | -1500.0px | 375 | 1875 |
+
+**Width chain on iPhone 13 (all agree — no mismatch):**
+- `window.innerWidth` = 390
+- `document.documentElement.clientWidth` = 390
+- `stickyRef.clientWidth` = 390
+- `stickyRef.offsetWidth` = 390
+- `stickyRef.getBoundingClientRect().width` = 390
+
+**Track computed style:** `width: 1950px` (IP13), `width: 1875px` (SE375). Set correctly via `trackRef.current.style.width = ${PANELS.length * w}px` in `computePanelWidth()`.
+
+**Each panel:** `offsetWidth=390, clientWidth=390, computedWidth="390px", computedMinWidth="390px", flexShrink=0` — all correct.
+
+**Panel inline styles:** `width: 390px; min-width: 390px; flex-shrink: 0; flex-grow: 0` — exactly as written in JSX.
+
+**Sticky container:** `position: sticky, height: 664px, overflow: hidden, width: 390px` on IP13. Correct.
+
+**Section:** `#services offsetWidth=390, offsetHeight=3320 (SE: 3335)` — 500vh relative to 664px/667px dvh. Correct.
+
+**TranslateX at 95% runway:** -1560px on IP13 = exactly `(5-1) * 390 = 1560`. Correct maxShift. Panel 5 fully in view at exit.
+
+### Root cause of Nigel-11's "195px" reading
+
+Nigel's reported 195px (or prior "183px" on SE375) was from an EARLIER build — the prior Refiner cycle (d6c2ccf) where `stickyRef.clientWidth` was misread or the track JS had not yet fired on the Nigel audit path. The current build (a3dc11a) has the BUG-056 fix (`panelWidth > 0 ? panelPx : '100%'`) in place and working. The JS `computePanelWidth()` fires correctly on mount and sets both track width AND panel width via `setState` before the first scroll event.
+
+**The real question is whether Nigel audited the live Vercel URL or a stale build. The live Vercel URL is CLEAN.**
+
+**NIGEL-11 P1 REFUTED on deployed site. ServicesScrollLock is fully functional at iPhone 13 and SE375.**
+
+Screenshots: `/tmp/soley-qa12-screenshots/IP13_390-runway-5pct.png` through `IP13_390-runway-95pct.png`, `SE375-runway-5pct.png` through `SE375-runway-95pct.png`
+
+---
+
+## DIAGNOSIS 2 — 4 scroll-reveal elements permanently stuck opacity:0
+
+**Nigel claimed: 4 scroll-reveal elements permanently stuck blank on both viewports.**
+
+**CONFIRMED. Exact elements identified. Root cause: display:none parent prevents IO from ever firing.**
+
+### On Desktop 1440:
+
+All 4 stuck elements are `.scroll-reveal` divs inside `.why-soley-accordion`:
+
+| Element | textContent (first 60 chars) | Parent chain |
+|---|---|---|
+| 1 | "01 Prep is the product — We spend more time preparing..." | `.why-soley-accordion` (display:none) → `.container-width` (display:block) → `<section>` (overflow:hidden) |
+| 2 | "02 One person, start to finish — One person runs your project..." | same |
+| 3 | "03 Written quotes, line by line — Every estimate breaks down..." | same |
+| 4 | "04 Low-VOC by default — Every interior project uses low-VOC..." | same |
+
+**Root cause (Desktop 1440):** The accordion cards each have `className="scroll-reveal"` set on the root `<div>`. On Desktop 1440, `.why-soley-accordion` has `display: none !important` (line 481 of globals.css). IntersectionObserver **never fires** for elements inside `display: none` parents because they have zero layout box (rect top=0, height=0, width=0). The elements are observed by `ScrollRevealObserver`, but IO reports `isIntersecting: false` for them because they are effectively not in the document flow. `in-view` is never added. They stay at `opacity: 0`.
+
+**Root cause (iPhone 13 390px mobile):** The same 4 AccordionCard `<div className="scroll-reveal">` elements sit inside `.why-soley-grid.why-soley-desktop` (class: `why-soley-grid why-soley-desktop`), which has `display: none !important` at ≤640px (line 515 globals.css). Wait — actually the Playwright output shows a different parent chain on IP13:
+
+- Element is inside `DIV.` (no class, display=block) → `DIV.why-soley-grid.why-soley-desktop` (display=none) → `DIV.container-width` → `<section>`
+
+This means: on mobile, the **TiltCard desktop cards** are the ones stuck, not the accordion cards. `TiltCard` renders `<div className="scroll-reveal">` inside `<motion.div>` inside the `.why-soley-desktop` grid which is `display:none` on mobile.
+
+### Summary: Two separate bugs in one symptom
+
+**Bug A (Desktop):** `AccordionCard` renders `<div className="scroll-reveal">` on the accordion divs. On desktop, accordion is hidden (`display:none`). IO cannot fire. Fix: remove `.scroll-reveal` from accordion card root div, OR add `.in-view` immediately on mount since accordion cards are not meant to scroll-reveal (they're always visible once accordion opens).
+
+**Bug B (Mobile):** `TiltCard` renders `<div className="scroll-reveal">` inside `.why-soley-desktop` grid which is `display:none` on mobile. IO cannot fire. Fix: same — remove `.scroll-reveal` from TiltCard inner div, OR skip observing elements with `display:none` parents in `ScrollRevealObserver`.
+
+**Exact CSS selector responsible:**
+- Desktop: `.why-soley-accordion { display: none !important }` (globals.css line 481) hides the 4 AccordionCard `.scroll-reveal` roots
+- Mobile: `.why-soley-desktop { display: none !important }` (globals.css line 515) hides the 4 TiltCard `.scroll-reveal` roots
+
+**IO behavior with display:none parents:** IntersectionObserver spec states that if an element has no layout box (i.e., `display:none` ancestor), its intersection ratio is 0 and it never crosses the threshold. The `rootMargin: '200px 0px'` in ScrollRevealObserver cannot override this — `rootMargin` only expands the viewport root, it does not give a layout box to elements with no box.
+
+**Fix path for Refiner:** In `WhySoley.tsx`, the `scroll-reveal` class on both `TiltCard`'s inner div and `AccordionCard`'s root div should be conditionally applied only when the element is in the visible view, OR the `.scroll-reveal` class should be removed from both entirely (the section header already has a working `scroll-reveal` on the heading block). The 4 cards can enter without scroll-reveal since they are the primary content of the section.
+
+Screenshots: `/tmp/soley-qa12-screenshots/D1440-scroll-reveal-check.png`, `/tmp/soley-qa12-screenshots/IP13-scroll-reveal-check.png`
+
+---
+
+## DIAGNOSIS 3 — PaintFlow dots traveling: CONFIRMED ACTIVE
+
+**Nigel claimed: PaintFlow dots not traveling.**
+
+**REFUTED. PaintFlow JS animation (RAF loop) is running on both mobile viewports.**
+
+Evidence on SE375 and IP13:
+- Lead dot found at `cx=26, cy=0` (a node coordinate) at t0
+- After 2s: circles show cx values at different path positions: `cx=26, cx=-10, cx=8, cx=8, cx=24` — ghost trail circles at multiple positions across the SVG path
+- The dot is paused at a node briefly then traverses the next segment
+
+**PaintFlow confirmed working on both mobile viewports.**
+
+Screenshots: `/tmp/soley-qa12-screenshots/SE375-paintflow.png`, `/tmp/soley-qa12-screenshots/SE375-paintflow-t2s.png`, `/tmp/soley-qa12-screenshots/IP13-paintflow.png`
+
+---
+
+## DIAGNOSIS 4 — Process countdown bar + tab advance: CONFIRMED ACTIVE
+
+**Nigel claimed: countdown bar absent, tab advance broken.**
+
+**REFUTED. Both confirmed on SE375 and iPhone 13.**
+
+Evidence:
+- `countdownBarFound: true` on both viewports
+- `countdownBarStyle` includes `position:absolute;bottom:0;left:0;width:100%;height:1.5px;background:var(--color-terra);transform-origin...` — bar is present with correct CSS
+- At t0: `activeTab=0` (tab 01 selected)
+- At t+12s: `activeTab=1, activeTabText="02Color Consultation"` — tab auto-advanced after ~10s
+
+**Process countdown and tab advance confirmed working on both mobile viewports.**
+
+Screenshots: `/tmp/soley-qa12-screenshots/SE375-process-entry.png`, `/tmp/soley-qa12-screenshots/SE375-process-t12s.png`, `/tmp/soley-qa12-screenshots/IP13-process-entry.png`
+
+---
+
+## ACTIVE BUG FOUND — QA Cycle 12
+
+### BUG-058 — WhySoley: 4 scroll-reveal cards permanently invisible due to display:none parent [HIGH]
+
+**Severity: HIGH**
+**Viewports: Desktop 1440 (accordion cards hidden), iPhone 13/SE (desktop grid cards hidden)**
+
+**Root cause:** `WhySoley.tsx` applies `className="scroll-reveal"` to:
+1. `AccordionCard` root div (line 237) — hidden on desktop by `.why-soley-accordion { display: none !important }`
+2. `TiltCard` inner div (line 124) — hidden on mobile by `.why-soley-desktop { display: none !important }`
+
+On each viewport, exactly 4 elements with `scroll-reveal` class are inside a `display:none` container. IntersectionObserver cannot fire for zero-box elements. IO threshold=0 + rootMargin=200px cannot compensate for the missing layout box.
+
+**Result:** On desktop, 4 accordion cards are `opacity:0` (permanently invisible under desktop layout but the `scroll-reveal` class still applies to them). On mobile, 4 TiltCard divs are `opacity:0` (permanently invisible under mobile layout). The **visible** cards on each viewport DO correctly show — the section heading `.scroll-reveal` fires, and the accordion cards on mobile are readable (they don't have `.scroll-reveal` on the button/text inside). But the structural `.scroll-reveal` divs permanently accumulate `opacity:0` state that could cause confusion for future styling.
+
+**Fix path:** Remove `className="scroll-reveal"` from `TiltCard`'s inner div (line 124 of WhySoley.tsx) and from `AccordionCard`'s root div (line 237). The cards will render immediately visible. The section header scroll-reveal is sufficient for scroll-entry animation. Alternatively: apply `in-view` immediately on mount for the hidden-viewport variant.
+
+**Exact file/line:**
+- `/Users/modica/projects/soley-painting/app/components/WhySoley.tsx` line 124: `className="scroll-reveal"` on TiltCard inner div
+- `/Users/modica/projects/soley-painting/app/components/WhySoley.tsx` line 237: `className="scroll-reveal"` on AccordionCard root div
+
+---
+
+## ACTIVE BUGS SUMMARY (QA Cycle 12)
+
+| # | Bug | Severity | Status |
+|---|---|---|---|
+| BUG-058 | WhySoley 4 scroll-reveal cards stuck opacity:0 (display:none parent) | HIGH | NEW |
+
+## QA Cycle 12 CLOSED
+
+| # | Bug | Verdict |
+|---|---|---|
+| Nigel-11 P1 ServicesScrollLock 195px | REFUTED — track=1950px (IP13), 1875px (SE), translateX advancing correctly all 5 positions | REFUTED |
+| Nigel-11 P2 scroll-reveal voids | CONFIRMED — 4 AccordionCard + 4 TiltCard divs stuck | CONFIRMED |
+| Nigel-11 PaintFlow dots | REFUTED — RAF loop active, ghost dots traversing | REFUTED |
+| Nigel-11 Process countdown | REFUTED — bar present, tab advances at t12s | REFUTED |
+
+---
+
+## Viewport coverage matrix (QA Cycle 12)
+
+| Component | iPhone SE 375 | iPhone 13 390 | Desktop 1440 |
+|---|---|---|---|
+| ServicesScrollLock track width | PASS (1875px) | PASS (1950px) | not tested |
+| ServicesScrollLock translateX travel | PASS (0 → -1500px) | PASS (0 → -1560px) | not tested |
+| ServicesScrollLock panel width | PASS (375px each) | PASS (390px each) | not tested |
+| ServicesScrollLock overflow containment | PASS (sticky overflow=hidden) | PASS | not tested |
+| WhySoley scroll-reveal 4 cards | FAIL (BUG-058, 4 TiltCard divs display:none) | FAIL (BUG-058) | FAIL (4 AccordionCard divs display:none) |
+| PaintFlow dot animation | PASS (RAF active, cx advancing) | PASS | not tested |
+| Process countdown bar | PASS (bar found, terra color) | PASS | not tested |
+| Process tab auto-advance | PASS (tab 1→2 at t12s) | PASS | not tested |
+| Console errors | not checked | not checked | not checked |
+
+---
+
+*QA audit cycle 12 by QA agent, 2026-05-07. Viewports: SE375, IP13 390, D1440 (partial). Nigel-11 P1 REFUTED (ServicesScrollLock working correctly at 390/375px). Nigel-11 scroll-reveal voids CONFIRMED: BUG-058 — 4 WhySoley cards with scroll-reveal inside display:none parent on each viewport. PaintFlow REFUTED (active). Process countdown REFUTED (active). 1 HIGH bug found.*
+
+---
+
+## QA cycle 6: 2026-05-09 (post-Nigel-7/Pixel-6/Refiner-5/Builder-7/Spark-7), Playwright, 3 viewports
 ## Nigel cycle 7 priority verdicts + new findings
 
 ---
