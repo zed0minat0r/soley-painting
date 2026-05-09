@@ -86,7 +86,6 @@ export default function Process() {
   const transitionTo = useCallback((next: number) => {
     if (transitioningRef.current) return
     transitioningRef.current = true
-    nextStepRef.current = next
 
     // Check prefers-reduced-motion
     const reducedMotion = typeof window !== 'undefined'
@@ -97,6 +96,7 @@ export default function Process() {
       setDisplayStep(next)
       setActiveStep(next)
       setKey(k => k + 1)
+      nextStepRef.current = next
       transitioningRef.current = false
       return
     }
@@ -114,6 +114,8 @@ export default function Process() {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setPanelState('visible')
+          // Update ref AFTER transition completes so advance() reads correct current step
+          nextStepRef.current = next
           transitioningRef.current = false
         })
       })
@@ -121,18 +123,22 @@ export default function Process() {
   }, [])
 
   const advance = useCallback(() => {
+    // nextStepRef tracks the CURRENTLY DISPLAYED step (updated by transitionTo).
+    // advance always moves +1 from the current displayed step.
     const next = (nextStepRef.current + 1) % STEPS.length
-    nextStepRef.current = next
     transitionTo(next)
   }, [transitionTo])
 
-  // IntersectionObserver — start auto-advance when section is in view
+  // IntersectionObserver — start auto-advance when section is in view.
+  // threshold: 0.05 (not 0.3) so even a small sliver of the section entering
+  // the viewport triggers the interval. 0.3 required 30% (≈239px) in view
+  // before firing — programmatic scrolls and fast-scroll users missed it.
   useEffect(() => {
     const el = sectionRef.current
     if (!el) return
     const obs = new IntersectionObserver(
       ([entry]) => setVisible(entry.isIntersecting),
-      { threshold: 0.3 }
+      { threshold: 0.05, rootMargin: '0px' }
     )
     obs.observe(el)
     return () => obs.disconnect()
@@ -305,12 +311,16 @@ export default function Process() {
                 }}
               >
                 <div
-                  key={key}
+                  key={`${key}-${visible ? 'v' : 'h'}`}
                   style={{
                     position: 'absolute',
                     inset: 0,
                     background: 'var(--color-terra)',
                     transformOrigin: 'left center',
+                    /* BUG-032 fix: key includes visible state so the element
+                       re-mounts (restarting the CSS animation) when the section
+                       enters view. Previously key only changed on step advance,
+                       so the countdown never started on first entry. */
                     animation: visible
                       ? `countdown ${STEP_DURATION}ms linear forwards`
                       : 'none',

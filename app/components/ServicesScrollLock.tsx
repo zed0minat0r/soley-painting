@@ -106,12 +106,33 @@ const BG_COLORS = PANELS.map(p => p.bg)
 
 export default function ServicesScrollLock() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const stickyRef    = useRef<HTMLDivElement>(null)
+  const trackRef     = useRef<HTMLDivElement>(null)
   const [translateX, setTranslateX] = useState(0) // px offset for track
+  // panelWidth in px — computed from the sticky container's clientWidth, not vw
+  const [panelWidth, setPanelWidth] = useState(0)
 
   useEffect(() => {
+    // Compute panel width from the sticky container (avoids vw-inside-overflow:hidden issues)
+    const computePanelWidth = () => {
+      const sticky = stickyRef.current
+      if (!sticky) return
+      const w = sticky.clientWidth
+      setPanelWidth(w)
+      // Also set track width directly to avoid stale CSS vw units
+      if (trackRef.current) {
+        trackRef.current.style.width = `${PANELS.length * w}px`
+      }
+    }
+
     const onScroll = () => {
       const el = containerRef.current
-      if (!el) return
+      const sticky = stickyRef.current
+      if (!el || !sticky) return
+
+      // Use clientWidth measured from the sticky container — never window.innerWidth
+      // because vw resolves differently inside overflow:hidden parents on some browsers
+      const w = sticky.clientWidth || window.innerWidth
 
       // getBoundingClientRect is LIVE — never stale from mount-time cache
       const rect = el.getBoundingClientRect()
@@ -121,9 +142,9 @@ export default function ServicesScrollLock() {
       // -rect.top = how far we've scrolled INTO the section (0 at entry, runway at exit)
       const raw = Math.max(0, Math.min(1, -rect.top / runway))
 
-      // translateX: 0 (panel 1 in view) → -(PANELS.length-1)*100vw (panel 5 in view)
-      // We want to move (PANELS.length - 1) full viewport widths
-      const maxShift = (PANELS.length - 1) * window.innerWidth
+      // translateX: 0 (panel 1 in view) → -(PANELS.length-1)*panelWidth (panel 5 in view)
+      // Using clientWidth-derived panelWidth ensures panel width === sticky container width
+      const maxShift = (PANELS.length - 1) * w
       setTranslateX(-(raw * maxShift))
 
       // Mood-lerp background
@@ -134,17 +155,24 @@ export default function ServicesScrollLock() {
       document.documentElement.style.setProperty('--page-bg', color)
     }
 
+    // Compute on mount
+    computePanelWidth()
+
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
+    window.addEventListener('resize', () => { computePanelWidth(); onScroll() })
     // Run once immediately so initial position is correct
     onScroll()
 
     return () => {
       window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
+      window.removeEventListener('resize', () => { computePanelWidth(); onScroll() })
       document.documentElement.style.setProperty('--page-bg', 'var(--color-chalk)')
     }
   }, [])
+
+  // Panel width in px; falls back to 100vw string during SSR/first-paint
+  const panelPx = panelWidth > 0 ? `${panelWidth}px` : '100vw'
+  const trackWidth = panelWidth > 0 ? `${PANELS.length * panelWidth}px` : `${PANELS.length * 100}vw`
 
   return (
     <section
@@ -154,6 +182,7 @@ export default function ServicesScrollLock() {
     >
       {/* Sticky viewport */}
       <div
+        ref={stickyRef}
         style={{
           position: 'sticky',
           top: 0,
@@ -195,13 +224,16 @@ export default function ServicesScrollLock() {
           />
         </div>
 
-        {/* Horizontal track — driven by pure-JS computed translateX */}
+        {/* Horizontal track — driven by pure-JS computed translateX.
+            Width set in JS (px) via trackRef to avoid vw-resolution issues
+            inside overflow:hidden sticky containers. */}
         <div
+          ref={trackRef}
           style={{
             transform: `translateX(${translateX}px)`,
             willChange: 'transform',
             display: 'flex',
-            width: `${PANELS.length * 100}vw`,
+            width: trackWidth,
             height: '100vh',
           }}
         >
@@ -209,7 +241,7 @@ export default function ServicesScrollLock() {
             <div
               key={panel.id}
               style={{
-                width: '100vw',
+                width: panelPx,
                 height: '100vh',
                 background: panel.bg,
                 display: 'flex',

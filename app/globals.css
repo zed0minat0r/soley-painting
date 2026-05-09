@@ -11,6 +11,7 @@
   --color-chalk:  #F5F0EA;
   --color-umber:  #2C1F16;
   --color-gold:   #B8935A;
+  --color-slate:  #8C7B72;  /* mid-tone warm gray — used for chip borders/inactive text */
 
   --font-heading: "Cormorant Garamond", Georgia, serif;
   --font-body:    "DM Sans", system-ui, sans-serif;
@@ -469,7 +470,8 @@
 .portfolio-chip--active {
   background: var(--color-terra);
   border-color: var(--color-terra);
-  color: var(--color-chalk);
+  /* !important ensures chalk text wins over Tailwind Preflight color:inherit on <button> */
+  color: var(--color-chalk) !important;
 }
 
 /* ── Tile grid ──────────────────────────────────────────────────────────── */
