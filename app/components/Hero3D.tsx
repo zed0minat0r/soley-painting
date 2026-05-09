@@ -158,7 +158,7 @@ export default function Hero3D() {
   const pathIdxRef     = useRef(0)  // which path within current icon we're drawing
   const startTimeRef   = useRef(0)
 
-  const [iconIdx, setIconIdx]       = useState(0)
+  const [iconIdx, setIconIdx]       = useState(-1)
   const [pathIdx, setPathIdx]       = useState(0)      // which path is currently drawing
   const [drawnPaths, setDrawnPaths] = useState<boolean[]>([])  // paths fully drawn
   const [color, setColor]           = useState(BRAND_COLORS[0])
@@ -283,8 +283,12 @@ export default function Hero3D() {
   }, [drawPath, startIconCycle])
 
   // When iconIdx changes (after startIconCycle), kick off drawing
+  // Note: phaseRef is set to 'painting' inside startIconCycle BEFORE setIconIdx,
+  // so the guard is redundant — and would block the initial 0 cycle if iconIdx
+  // started at 0 (React skips same-value setState). We now start at -1 so the
+  // -1 → 0 transition always fires. We skip the guard and rely on iconIdx >= 0.
   useEffect(() => {
-    if (phaseRef.current !== 'painting') return
+    if (iconIdx < 0) return
     // Give React a frame to mount the new paths
     const t = setTimeout(() => {
       const states = measurePaths(iconIdx)
@@ -310,7 +314,7 @@ export default function Hero3D() {
     }
   }, [startIconCycle])
 
-  const currentIcon = ICONS[iconIdx]
+  const currentIcon = iconIdx >= 0 ? ICONS[iconIdx] : ICONS[0]
 
   return (
     <section
@@ -656,7 +660,7 @@ export default function Hero3D() {
             zIndex: 3,
           }}
         >
-          {iconIdx + 1} / {ICONS.length}
+          {Math.max(iconIdx + 1, 1)} / {ICONS.length}
         </span>
       </div>
 
