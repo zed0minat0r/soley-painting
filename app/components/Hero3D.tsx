@@ -11,11 +11,11 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 
    Phase machine: painting → holding → fading → (next icon)
    5 icons, painter-themed, pure line drawings:
-     0. Smiley face    — 2 dot eyes + curved smile arc
-     1. Paint can      — rectangle body + handle arc + drip
-     2. Paintbrush     — handle line + bristle V fan
-     3. Paint roller   — cylinder + handle + drip
-     4. House outline  — square + triangle roof + door + window
+     0. Smiley face    — face circle + 2 eye circles (eyes at 28% from top) + smile Q arc
+     1. House          — walls+roof outline + door + window square
+     2. Paint bucket   — trapezoid body + rim + handle arc + drip
+     3. Star           — 5-point single-stroke star
+     4. Heart          — smooth cubic Bézier lobes
 
    Brand color per cycle (rust/ochre alternate to keep warm palette only).
    ref: Scout Section 5 SVG stroke-draw + Site I (Corentin Bernadou focal centerpiece)
@@ -67,62 +67,75 @@ interface IconDef {
 
 const ICONS: IconDef[] = [
   {
-    // 0 — Smiley face: big face circle → smile arc → left eye arc → right eye arc
-    // Face circle is ONE unbroken path so silhouette reads in first second.
+    // 0 — Smiley face: face circle → left eye → right eye → smile arc
+    // Eyes repositioned to ~28% from top of face for natural proportion.
+    // Face center at (140, 105), radius 58: top=47, bottom=163.
+    // Eyes at y=80 (28% from top). Smile Q curve in lower third y=120→148.
     label: 'smiley face',
     paths: [
-      // Face circle — single full loop (legible in first 500ms = you see a circle forming)
-      'M 140 58 a 62 62 0 1 0 0.01 0 Z',
-      // Smile arc — generous curve in lower third
-      'M 108 118 Q 140 148 172 118',
-      // Left eye — small arc (fast draw, ~6px circle)
-      'M 116 88 a 8 8 0 1 0 0.01 0 Z',
-      // Right eye — small arc
-      'M 164 88 a 8 8 0 1 0 0.01 0 Z',
+      // Face circle — full loop, center (140,105) radius 58
+      'M 140 47 a 58 58 0 1 0 0.01 0 Z',
+      // Left eye — filled circle, center (115, 82), radius 7
+      'M 115 75 a 7 7 0 1 0 0.01 0 Z',
+      // Right eye — filled circle, center (165, 82), radius 7
+      'M 165 75 a 7 7 0 1 0 0.01 0 Z',
+      // Smile arc — clean Q Bézier from left cheek to right, apex dips to y=148
+      'M 108 122 Q 140 152 172 122',
     ],
   },
   {
-    // 1 — House: single continuous path traces walls+roof in one stroke → instantly house-shaped
-    // Door drawn second. Two paths total.
+    // 1 — House: outer walls+roof → door → window
+    // Walls span x80-200, floor at y=168, roof apex at y=62.
+    // Door centered at x=120-155, floor to y=140.
+    // Window: small square left side at x=90-110, y=125-145.
     label: 'house',
     paths: [
-      // One continuous path: up-left wall → apex → down-right wall → right wall → floor →
-      // left wall back → close. Reads as house silhouette by the time roof apex is reached (~30% in).
+      // Outer shell — left wall up → roof apex → right wall down → floor → close
       'M 80 168 L 80 120 L 140 62 L 200 120 L 200 168 L 80 168 Z',
-      // Door — centered, open-top rectangle (3 sides, bottom is floor line)
-      'M 120 168 L 120 140 L 160 140 L 160 168',
+      // Door — right-of-center open-top rectangle, 3 sides (floor is base line)
+      'M 128 168 L 128 138 L 158 138 L 158 168',
+      // Window — small square on left side of facade
+      'M 88 128 L 88 148 L 108 148 L 108 128 Z',
     ],
   },
   {
-    // 2 — Paint roller: handle L + roller cylinder in 2 paths
-    label: 'paint roller',
+    // 2 — Paint bucket: painter's most recognizable tool
+    // Bucket body: trapezoid (wider at top). Handle arc over top. Drip at bottom.
+    // Bucket: top x=100-180 y=88, bottom x=108-172 y=162. Handle arc over top center.
+    label: 'paint bucket',
     paths: [
-      // Handle — angled L-shape, reads as roller handle immediately
-      'M 90 52 L 140 98 L 140 150',
-      // Roller body — wide rounded rectangle
-      'M 150 98 L 205 98 Q 215 98 215 115 L 215 135 Q 215 150 205 150 L 150 150 Q 140 150 140 135 L 140 115 Q 140 98 150 98 Z',
+      // Bucket body — trapezoid outline (top wider, bottom slightly narrower)
+      'M 100 88 L 180 88 L 172 162 L 108 162 Z',
+      // Bucket rim — thick top edge stroke
+      'M 96 88 L 184 88',
+      // Handle — arc from left rim to right rim over top
+      'M 110 88 Q 140 52 170 88',
+      // Paint drip from bottom center
+      'M 140 162 Q 140 172 143 178 Q 146 185 140 188 Q 134 185 137 178 Q 140 172 140 162',
     ],
   },
   {
-    // 3 — Star: 5-pointed star drawn as single continuous path (children's art style)
-    // Path: start at top tip, draw each point in sequence — instantly a star.
+    // 3 — Star: clean 5-pointed single-stroke star
+    // Center (140,100), outer radius 68, inner radius 28.
+    // Points calculated: top tip at (140,32). Clock-skip-one pattern.
     label: 'star',
     paths: [
-      // 5-point star, one closed path, counter-clockwise from top
-      'M 140 52 L 151 85 L 188 85 L 158 106 L 169 140 L 140 119 L 111 140 L 122 106 L 92 85 L 129 85 Z',
+      // 5-point star, one closed continuous path from top
+      'M 140 32 L 153 74 L 198 74 L 163 98 L 176 140 L 140 116 L 104 140 L 117 98 L 82 74 L 127 74 Z',
     ],
   },
   {
-    // 4 — Heart: single closed path, 2 cubic Béziers — reads as heart in first 40% of draw
+    // 4 — Heart: single closed path, smooth cubic Béziers on both lobes
+    // Center (140,100). Bottom tip at y=162. Lobe tops at y=72.
     label: 'heart',
     paths: [
-      // Heart: start at bottom tip, sweep up-left lobe, over top, down-right lobe, back to tip
-      'M 140 165 C 80 130 68 75 100 68 C 115 65 130 75 140 92 C 150 75 165 65 180 68 C 212 75 200 130 140 165 Z',
+      // Heart: bottom tip → up-left lobe → top → down-right lobe → back to tip
+      'M 140 162 C 78 128 66 72 100 66 C 116 63 132 74 140 90 C 148 74 164 63 180 66 C 214 72 202 128 140 162 Z',
     ],
   },
 ]
 
-const STROKE_DURATION_MS = 1200  // fast constant-velocity draw (~1.2s per path)
+const STROKE_DURATION_MS = 1900  // deliberate constant-velocity draw (~1.9s per path)
 const HOLD_DURATION_MS   = 1500  // hold after complete
 const FADE_DURATION_MS   = 600   // fade out
 
