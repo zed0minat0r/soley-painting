@@ -34,7 +34,7 @@ const CARDS = [
     title: 'One person, start to finish',
     description:
       'One person runs your project from estimate to punch-list. No call centers, no crew-lead handoffs. You get a confirmed arrival window the night before — not a four-hour "sometime in the morning" block.',
-    accent: 'var(--color-teal)',
+    accent: 'var(--color-ochre)',
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
         <circle cx="16" cy="10" r="5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
@@ -66,7 +66,7 @@ const CARDS = [
     title: 'Low-VOC by default',
     description:
       'Every interior project uses low-VOC or zero-VOC paint — not as an upgrade, not by request. We choose cleaner formulations as the standard because your home is where you breathe.',
-    accent: 'var(--color-teal)',
+    accent: 'var(--color-rust)',
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
         <path d="M16 4 Q20 10 20 16 Q20 22 16 26 Q12 22 12 16 Q12 10 16 4Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
@@ -379,7 +379,7 @@ export default function WhySoley() {
           left: 0,
           right: 0,
           height: '1px',
-          background: 'linear-gradient(90deg, transparent, var(--color-terra) 30%, var(--color-teal) 70%, transparent)',
+          background: 'linear-gradient(90deg, transparent, var(--color-rust) 30%, var(--color-ochre) 70%, transparent)',
         }}
       />
 

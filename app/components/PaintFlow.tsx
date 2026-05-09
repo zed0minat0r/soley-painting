@@ -16,8 +16,8 @@ import { useEffect, useRef, useState } from 'react'
        + Scout Site C (Mills) dark premium panel with warm accent rhythm.
    Replaced: simple feGaussianBlur bloom ring on lead dot (was outer glow ring, now splatter) */
 
-const NODE_SWATCHES = ['#C2603A', '#B8935A', '#F5F0EA', '#2D7A70', '#B8935A']
-const NODE_SWATCH_LABELS = ['Terra', 'Gold', 'Chalk', 'Teal', 'Finish']
+const NODE_SWATCHES = ['#BF5B38', '#B8884A', '#F4EDE3', '#B8884A', '#BF5B38']
+const NODE_SWATCH_LABELS = ['Rust', 'Ochre', 'Linen', 'Ochre', 'Finish']
 
 const NODES = [
   {
@@ -231,7 +231,7 @@ export default function PaintFlow() {
           left: 0,
           right: 0,
           height: '3px',
-          background: 'linear-gradient(90deg, var(--color-terra), var(--color-teal))',
+          background: 'linear-gradient(90deg, var(--color-rust), var(--color-ochre))',
         }}
       />
 
@@ -331,8 +331,8 @@ export default function PaintFlow() {
           >
             <defs>
               <linearGradient id="flow-gradient-dark" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#C2603A" />
-                <stop offset="100%" stopColor="#2D7A70" />
+                <stop offset="0%" stopColor="#BF5B38" />
+                <stop offset="100%" stopColor="#B8884A" />
               </linearGradient>
             </defs>
 

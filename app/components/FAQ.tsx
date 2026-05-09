@@ -22,7 +22,7 @@ const ITEMS = [
     question: 'Will you protect my floors and furniture?',
     answer:
       'Yes. We lay drop cloths on every floor in the work area and cover furniture that cannot be moved. We use low-tack painter\'s tape on trim, hardware, and outlets before any coating goes on. Our daily routine ends with covering every surface so we pick up clean the next morning.',
-    accent: 'var(--color-teal)',
+    accent: 'var(--color-ochre)',
   },
   {
     id: 'pets-kids',
@@ -43,7 +43,7 @@ const ITEMS = [
     question: 'How does the estimate process work?',
     answer:
       'Fill out the contact form or send us a message with your room details and we\'ll schedule a walkthrough. We measure every surface, note the condition, and put together a line-by-line written quote — each surface, square footage, and product listed separately. You see exactly what you\'re paying for before we agree to anything.',
-    accent: 'var(--color-teal)',
+    accent: 'var(--color-rust)',
   },
   {
     id: 'paint-brands',
@@ -222,7 +222,7 @@ export default function FAQ() {
           right: 0,
           height: '2px',
           background:
-            'linear-gradient(90deg, transparent, var(--color-terra) 25%, var(--color-teal) 75%, transparent)',
+            'linear-gradient(90deg, transparent, var(--color-rust) 25%, var(--color-ochre) 75%, transparent)',
         }}
       />
 
@@ -305,7 +305,7 @@ export default function FAQ() {
           right: 0,
           height: '1px',
           background:
-            'linear-gradient(90deg, transparent, var(--color-teal) 40%, var(--color-gold) 60%, transparent)',
+            'linear-gradient(90deg, transparent, var(--color-ochre) 40%, var(--color-rust) 60%, transparent)',
         }}
       />
     </section>

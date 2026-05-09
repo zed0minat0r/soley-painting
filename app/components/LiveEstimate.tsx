@@ -172,7 +172,7 @@ export default function LiveEstimate() {
           left: 0,
           right: 0,
           height: '3px',
-          background: 'linear-gradient(90deg, var(--color-teal), var(--color-terra))',
+          background: 'linear-gradient(90deg, var(--color-ochre), var(--color-rust))',
         }}
       />
 

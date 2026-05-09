@@ -2,9 +2,9 @@
 
 import { useRef, useEffect, useState } from 'react'
 
-/* ── Brand accent bar colors (Nigel P4 — one per panel, rotating palette) ─── */
-// Rotation: terracotta / teal / clay-gold / chalk / terracotta
-const PANEL_BAR_COLORS = ['#C2603A', '#2D7A70', '#B8935A', '#F5F0EA', '#C2603A']
+/* ── Brand accent bar colors — Drop Cloth & Rust palette ─────────────────── */
+// Rotation: rust / stone / ochre / linen / rust (teal removed)
+const PANEL_BAR_COLORS = ['#BF5B38', '#EAE0D4', '#B8884A', '#F4EDE3', '#BF5B38']
 
 /* ── Panel data (Scout catalog item #4 + #2 palette) ─────────────────── */
 const PANELS = [
@@ -27,8 +27,8 @@ const PANELS = [
   {
     id: 'exterior',
     title: 'Exterior',
-    accent: '#2D7A70',
-    accentText: '#F5F0EA',
+    accent: '#EAE0D4',
+    accentText: '#221810',
     bg: '#1F1712',
     headline: 'Weather-ready from the first coat.',
     descriptor:
@@ -267,7 +267,7 @@ export default function ServicesScrollLock() {
               }}
             >
               {/* Accent bar — top (Nigel P4: 4px full-width brand color rotation)
-                  Colors rotate: terracotta → teal → clay-gold → chalk → terracotta
+                  Colors rotate: rust → stone → ochre → linen → rust
                   Each panel gets its own distinct brand color per PANEL_BAR_COLORS. */}
               <div
                 style={{

@@ -6,14 +6,14 @@
 import { useScroll, useVelocity, useTransform, useSpring, motion } from 'framer-motion'
 
 const ITEMS = [
-  { label: 'Interior Painting', color: '#F5F0EA' },
-  { label: 'Exterior Painting', color: '#2D7A70' },
-  { label: 'Commercial', color: '#C2603A' },
-  { label: 'Cabinet & Trim', color: '#B8935A' },
-  { label: 'Specialty Coatings', color: '#C2603A' },
-  { label: 'Surface Prep', color: '#F5F0EA' },
-  { label: 'Color Consultation', color: '#2D7A70' },
-  { label: 'Free Estimate', color: '#B8935A' },
+  { label: 'Interior Painting', color: '#F4EDE3' },   // linen
+  { label: 'Exterior Painting', color: '#B8884A' },   // ochre (was teal)
+  { label: 'Commercial', color: '#BF5B38' },          // rust
+  { label: 'Cabinet & Trim', color: '#B8884A' },      // ochre
+  { label: 'Specialty Coatings', color: '#BF5B38' },  // rust
+  { label: 'Surface Prep', color: '#F4EDE3' },        // linen
+  { label: 'Color Consultation', color: '#B8884A' },  // ochre (was teal)
+  { label: 'Free Estimate', color: '#B8884A' },       // ochre
 ]
 
 // Duplicate for seamless loop

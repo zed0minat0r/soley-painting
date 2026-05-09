@@ -9,9 +9,9 @@ import { useEffect, useRef, useState } from 'react'
    IntersectionObserver-gated for perf. */
 
 const DROPS = [
-  { color: '#C2603A', highlight: '#E8906A', delay: 0 },
-  { color: '#2D7A70', highlight: '#5AADA4', delay: 0.15 },
-  { color: '#B8935A', highlight: '#D4B07A', delay: 0.3 },
+  { color: '#BF5B38', highlight: '#E8906A', delay: 0 },     // rust
+  { color: '#B8884A', highlight: '#D4B07A', delay: 0.15 },  // ochre (replaced teal)
+  { color: '#B8884A', highlight: '#CFA96A', delay: 0.3 },   // ochre warm
 ]
 
 export default function SectionDivider({ flip = false }: { flip?: boolean }) {
@@ -95,7 +95,7 @@ export default function SectionDivider({ flip = false }: { flip?: boolean }) {
           right: `calc(-6% - ${-lineOffset}px)`,
           top: '72%',
           height: '1px',
-          background: `linear-gradient(to right, transparent 0%, ${hairlineOpacity} 25%, var(--color-teal) 50%, ${hairlineOpacity} 75%, transparent 100%)`,
+          background: `linear-gradient(to right, transparent 0%, ${hairlineOpacity} 25%, var(--color-ochre) 50%, ${hairlineOpacity} 75%, transparent 100%)`,
           opacity: active ? 1 : 0,
           transition: 'opacity 0.6s ease',
         }}
@@ -181,8 +181,8 @@ export default function SectionDivider({ flip = false }: { flip?: boolean }) {
             width: '12px',
             height: '12px',
             borderRadius: '50%',
-            background: 'var(--color-teal)',
-            boxShadow: '0 0 8px 3px rgba(45,122,112,0.55), 0 0 18px 6px rgba(45,122,112,0.25)',
+            background: 'var(--color-ochre)',
+            boxShadow: '0 0 8px 3px rgba(184,136,74,0.55), 0 0 18px 6px rgba(184,136,74,0.25)',
             '--travel-w': '40%',
             animation: 'pulse-travel-left 1.8s ease-in-out 0.9s infinite',
           } as React.CSSProperties}

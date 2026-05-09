@@ -2,21 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Brand CSS Custom Properties ─────────────────────────────────────── */
+/* ── Brand CSS Custom Properties — Drop Cloth & Rust palette ─────────── */
 :root {
-  --color-terra:  #C2603A;
-  --color-teal:   #2D7A70;
-  --color-chalk:  #F5F0EA;
-  --color-umber:  #2C1F16;
-  --color-gold:   #B8935A;
-  --color-slate:  #8C7B72;  /* mid-tone warm gray — used for chip borders/inactive text */
+  /* Primary tokens — Drop Cloth & Rust (Scout Round 5, commit 40979ad) */
+  --color-rust:   #BF5B38;  /* primary brand — was terracotta #C2603A */
+  --color-linen:  #F4EDE3;  /* main background — was chalk #F5F0EA */
+  --color-stone:  #EAE0D4;  /* alt warm background (NEW) */
+  --color-umber:  #221810;  /* text/footer — was #2C1F16 */
+  --color-ochre:  #B8884A;  /* hover/accent only, max 5% pixel real estate — was gold #B8935A */
+  /* Backward-compat aliases — keep components that reference old tokens working */
+  --color-terra:  var(--color-rust);
+  --color-chalk:  var(--color-linen);
+  --color-gold:   var(--color-ochre);
+  --color-slate:  #8C7B72;  /* mid-tone warm gray — chip borders/inactive text */
 
   --font-heading: "Cormorant Garamond", Georgia, serif;
   --font-body:    "DM Sans", system-ui, sans-serif;
   --font-script:  "Sacramento", cursive;
 
   /* Page bg lerps during ServicesScrollLock scroll */
-  --page-bg: var(--color-chalk);
+  --page-bg: var(--color-linen);
 }
 
 @layer base {
@@ -27,7 +32,7 @@
   }
   body {
     font-family: var(--font-body);
-    background-color: var(--color-chalk);
+    background-color: var(--color-linen);
     color: var(--color-umber);
     overflow-x: clip;
     overscroll-behavior: contain;
@@ -43,17 +48,17 @@
 
 @layer components {
   /* ── Primary CTA — brush-wipe hover (Spark cycle 7, Frame B)
-     Teal fill slides in from right over terracotta base at constant velocity.
+     Ochre fill slides in from right over rust base at constant velocity.
      Matches the scaleX paint-stroke on nav links — same brand aesthetic.
-     Replaces: weak #A34E2D darkening with 1px translateY.
-     prefers-reduced-motion: snaps to teal fill, no slide.              */
+     Replaces: teal fill (teal removed from palette in Drop Cloth & Rust migration).
+     prefers-reduced-motion: snaps to ochre fill, no slide.            */
   .btn-primary {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.875rem 2rem;
-    /* Two-stop gradient: teal (left half) | terra (right half) */
-    background-image: linear-gradient(to right, var(--color-teal) 50%, var(--color-terra) 50%);
+    /* Two-stop gradient: ochre (left half) | rust (right half) */
+    background-image: linear-gradient(to right, var(--color-ochre) 50%, var(--color-rust) 50%);
     background-size: 200% 100%;
     background-position: right center;
     color: var(--color-chalk);
@@ -139,18 +144,19 @@
 }
 
 /* ── Premium 3-layer text glow (catalog item #8) ──────────────────────
-   1px near-white core + 10px terracotta mid + 28px teal ambient         */
+   1px near-white core + 10px rust mid + 28px ochre ambient
+   Drop Cloth & Rust migration: teal layer replaced with ochre          */
 .glow-hero {
   text-shadow:
     0 0 1px #fff,
-    0 0 10px rgba(194, 96, 58, 0.75),
-    0 0 28px rgba(45, 122, 112, 0.45);
+    0 0 10px rgba(191, 91, 56, 0.75),
+    0 0 28px rgba(184, 136, 74, 0.35);
 }
 .glow-sub {
   text-shadow:
     0 0 1px rgba(255,255,255,0.5),
-    0 0 8px rgba(45, 122, 112, 0.6),
-    0 0 20px rgba(184, 147, 90, 0.35);
+    0 0 8px rgba(184, 136, 74, 0.55),
+    0 0 20px rgba(191, 91, 56, 0.25);
 }
 /* ── SSR-safe scroll reveal (catalog item #9) ─────────────────────────
    Hidden state ships in SSR HTML — no hydration flash                    */
@@ -297,9 +303,9 @@ button:focus-visible,
   border-radius: 2px;
 }
 
-/* .btn-primary — teal ring (contrasts better against terracotta fill) */
+/* .btn-primary — ochre ring (contrasts against rust fill) */
 .btn-primary:focus-visible {
-  outline: 2px solid var(--color-teal);
+  outline: 2px solid var(--color-ochre);
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -313,7 +319,7 @@ button:focus-visible,
 
 /* Nav links — ring hugs the text + underline */
 .nav-link-stroke:focus-visible {
-  outline: 2px solid var(--color-teal);
+  outline: 2px solid var(--color-ochre);
   outline-offset: 4px;
   border-radius: 1px;
 }
@@ -325,9 +331,9 @@ button:focus-visible,
   border-radius: 2px;
 }
 
-/* Process tabs (role="tab") — teal on dark panel background */
+/* Process tabs (role="tab") — ochre on dark panel background */
 [role="tab"]:focus-visible {
-  outline: 2px solid var(--color-teal);
+  outline: 2px solid var(--color-ochre);
   outline-offset: 2px;
   border-radius: 2px;
 }
@@ -340,16 +346,16 @@ textarea:focus-visible {
   border-radius: 0;
 }
 
-/* FAQ accordion triggers — on umber bg, teal ring stands out clearly */
+/* FAQ accordion triggers — on umber bg, ochre ring stands out */
 #faq button:focus-visible {
-  outline: 2px solid var(--color-teal);
+  outline: 2px solid var(--color-ochre);
   outline-offset: 2px;
   border-radius: 2px;
 }
 
 /* WhySoley accordion triggers (mobile) — same umber bg treatment */
 .why-soley-accordion button:focus-visible {
-  outline: 2px solid var(--color-teal);
+  outline: 2px solid var(--color-ochre);
   outline-offset: 2px;
   border-radius: 2px;
 }
