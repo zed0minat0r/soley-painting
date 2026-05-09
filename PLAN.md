@@ -1,43 +1,37 @@
-# PLAN.md — Builder Copywriting Pass (cycle 4)
+# PLAN.md — Builder Cycle 6 — Content polish pass
 
-**Date:** 2026-05-07 (Builder slot)
-**Scope:** Word-level copy edits only. Zero structural/JS/CSS changes.
+**Date:** 2026-05-07  
+**Scope:** Word-level copy edits only. Zero structural/CSS/JS changes.
 
-## Files touched (text only)
+## Files changing
 
-| File | What changes |
-|---|---|
-| `app/components/Hero3D.tsx` | Tagline "Watch the brush paint it out." → more concrete brand promise; body copy micro-tighten |
-| `app/components/ServicesScrollLock.tsx` | Exterior bullet 3: "Interior guaranteed against peeling" → "Finish guaranteed against peeling" (wrong word "Interior" in an exterior panel) |
-| `app/components/PaintFlow.tsx` | Sub-copy tighten in section header |
-| `app/components/WhySoley.tsx` | Section headline tighten; card 4 VOC body copy punch up |
-| `app/components/FounderBlock.tsx` | Body paragraph punch up; cut "We are building this the right way — slowly" (filler) |
-| `app/components/PortfolioGallery.tsx` | Sub-line tighten (less corporate) |
-| `app/components/Process.tsx` | Step 2 Color Consultation bullets punch up |
-| `app/components/Contact.tsx` | Minor commitment bullet tighten |
+1. `app/components/LiveEstimate.tsx`
+   - Eyebrow: "Free estimate" → "See how an estimate comes together"
+   - PLACEHOLDER_MESSAGE: replace vague generic filler with concrete prospect voice (~280 sq ft, low-VOC, trim details)
+   - Commitment bullets (3): sharpen to real painter promises with time + scope specifics
+
+2. `app/components/WhySoley.tsx`
+   - Card 01 "Prep is the product" body: add concrete prep steps (two-coat primer on bare drywall, sand between coats)
+   - Card 02 "One person, start to finish" body: confirm arrival window detail already present — minor tighten
+   - Card 03 "Written quotes, line by line" body: already strong — confirm no filler
+   - Card 04 "Low-VOC by default" body: tighten with concrete painter commitment, no fabricated brand names
+
+3. `app/components/FounderBlock.tsx`
+   - Body copy: extend "no handoffs" claim with one concrete operational detail (owner answers before 8pm)
+   - Cut weak filler language if any
+   - Honest signals row stays intact (4 cards, 3 bullets, honest placeholders)
 
 ## What does NOT change
 
-- ServicesMarquee labels — already clean
-- LiveEstimate typed message — honest, reads naturally
-- Hero H1 "Every wall done right." — strong, keep
-- Hero trust signals — already specific and honest
-- WhySoley cards 1–3 — already strong
-- Process steps 1/3/4/5 — already concrete
-- Footer — already clean and honest
-- ServicesScrollLock panels 1/3/4/5 — already strong
-
-## Fabrication audit
-
-No fake stats, fake names, fake dates, or fake reviews found in any file.
-All pre-launch framing is honest. No changes needed on that front.
+- Zero JS, zero CSS, zero component structure
+- Content count: 4 cards stay 4 cards, 3 bullets stay 3 bullets, 3 signals stay 3 signals
+- All honest pre-launch placeholders stay
+- Tilt JS, accordion logic, spotlight — untouched
 
 ## Success criterion
 
-`npx next build` passes clean. All copy changes are word-level. Brand voice
-is cohesive: hands-on, concrete, honest — nothing could appear on a generic
-competitor's site unchanged.
+`npx next build` passes clean. Every body copy sentence is concrete enough it could not appear on a generic painter's site.
 
 ## Diff scope
 
-~12 string swaps across 7 files. Total: under 30 lines changed.
+~8-12 string edits across 3 files. Under 30 lines changed.
