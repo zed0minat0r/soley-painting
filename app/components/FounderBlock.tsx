@@ -53,17 +53,17 @@ export default function FounderBlock() {
           pointerEvents: 'none',
         }}
       />
-      {/* Teal wash bottom-right */}
+      {/* Ochre warm wash bottom-right — Drop Cloth & Rust palette */}
       <div
         aria-hidden
         style={{
           position: 'absolute',
           bottom: '-80px',
           right: '-80px',
-          width: '360px',
-          height: '360px',
+          width: '420px',
+          height: '420px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(45,122,112,0.07) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(184,136,74,0.08) 0%, transparent 70%)',
           pointerEvents: 'none',
         }}
       />
@@ -82,14 +82,15 @@ export default function FounderBlock() {
               transitionDelay: '0s',
             }}
           >
-            {/* Portrait placeholder tile */}
+            {/* Portrait placeholder tile — craft-paper treatment */}
             <div
               style={{
                 width: '100%',
                 maxWidth: '320px',
                 aspectRatio: '4/5',
-                background: 'rgba(245,240,234,0.04)',
-                border: '1px solid rgba(245,240,234,0.12)',
+                background: 'rgba(245,240,234,0.05)',
+                border: '1.5px solid rgba(245,240,234,0.18)',
+                boxShadow: 'inset 0 0 0 6px rgba(245,240,234,0.03)',
                 position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
@@ -98,6 +99,32 @@ export default function FounderBlock() {
                 gap: '1rem',
               }}
             >
+              {/* Craft-paper top stripe */}
+              <div
+                aria-hidden
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '3px',
+                  background: 'linear-gradient(90deg, var(--color-terra), var(--color-ochre) 60%, transparent)',
+                  opacity: 0.6,
+                }}
+              />
+              {/* Craft-paper bottom stripe */}
+              <div
+                aria-hidden
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: '2px',
+                  background: 'linear-gradient(90deg, transparent, var(--color-terra) 40%, var(--color-ochre))',
+                  opacity: 0.35,
+                }}
+              />
               {/* Chalk silhouette SVG */}
               <svg
                 width="80"
@@ -208,67 +235,102 @@ export default function FounderBlock() {
               </p>
             </div>
 
-            {/* Pull quote — attributed honestly */}
+            {/* Pull quote — attributed honestly, upgraded visual weight */}
             <blockquote
               className="scroll-reveal"
               style={{
-                borderLeft: '3px solid var(--color-terra)',
-                paddingLeft: '1.5rem',
+                borderLeft: '4px solid var(--color-terra)',
+                paddingLeft: '1.75rem',
                 margin: 0,
                 transitionDelay: '0.2s',
+                position: 'relative',
               }}
             >
+              {/* Large open-quote mark — foreground, full opacity (not a ghost number) */}
+              <span
+                aria-hidden
+                style={{
+                  position: 'absolute',
+                  top: '-0.5rem',
+                  left: '1.5rem',
+                  fontFamily: 'var(--font-heading)',
+                  fontSize: '3.5rem',
+                  lineHeight: 1,
+                  color: 'var(--color-terra)',
+                  opacity: 0.55,
+                  userSelect: 'none',
+                }}
+              >
+                &ldquo;
+              </span>
               <p
                 style={{
                   fontFamily: 'var(--font-heading)',
                   fontStyle: 'italic',
-                  fontSize: 'clamp(1.25rem, 2vw, 1.5rem)',
+                  fontSize: 'clamp(1.3rem, 2.2vw, 1.65rem)',
                   color: 'var(--color-chalk)',
                   lineHeight: 1.45,
                   marginBottom: '0.875rem',
+                  paddingTop: '1.25rem',
                 }}
               >
-                &ldquo;I&rsquo;d rather walk every project myself than hand it off
-                to someone who hasn&rsquo;t read the spec sheet.&rdquo;
+                I&rsquo;d rather walk every project myself than hand it off
+                to someone who hasn&rsquo;t read the spec sheet.
               </p>
               <cite
                 style={{
                   fontFamily: 'var(--font-body)',
                   fontStyle: 'normal',
-                  fontSize: '0.875rem',
-                  letterSpacing: '0.14em',
+                  fontSize: '0.8125rem',
+                  letterSpacing: '0.18em',
                   textTransform: 'uppercase',
-                  color: 'rgba(245,240,234,0.4)',
+                  color: 'rgba(245,240,234,0.38)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
                 }}
               >
-                — The painter behind Soley
+                <span style={{ display: 'inline-block', width: '18px', height: '1px', background: 'var(--color-terra)', opacity: 0.6 }} />
+                The painter behind Soley
               </cite>
             </blockquote>
 
-            {/* Honest signals row */}
+            {/* Honest signals row — distinct data-pill treatment */}
             <div
               className="scroll-reveal"
               style={{
                 display: 'flex',
                 flexWrap: 'wrap',
-                gap: '1rem 2rem',
+                gap: '0.75rem',
                 transitionDelay: '0.3s',
               }}
             >
               {[
-                { label: 'Team size', value: 'Small, by design' },
-                { label: 'First projects', value: 'Starting this season' },
-                { label: 'Names + portraits', value: 'Coming once we launch' },
-              ].map(({ label, value }) => (
-                <div key={label}>
+                { label: 'Team size', value: 'Small, by design', accent: 'var(--color-rust)' },
+                { label: 'First projects', value: 'Starting this season', accent: 'var(--color-ochre)' },
+                { label: 'Names + portraits', value: 'Coming once we launch', accent: 'var(--color-terra)' },
+              ].map(({ label, value, accent }) => (
+                <div
+                  key={label}
+                  style={{
+                    borderLeft: `3px solid ${accent}`,
+                    paddingLeft: '0.875rem',
+                    paddingTop: '0.375rem',
+                    paddingBottom: '0.375rem',
+                    background: 'rgba(245,240,234,0.03)',
+                    flex: '1 1 160px',
+                    minWidth: 0,
+                  }}
+                >
                   <p
                     style={{
                       fontFamily: 'var(--font-body)',
-                      fontSize: '0.875rem',
-                      letterSpacing: '0.14em',
+                      fontSize: '0.8125rem',
+                      letterSpacing: '0.16em',
                       textTransform: 'uppercase',
-                      color: 'rgba(245,240,234,0.35)',
-                      marginBottom: '0.25rem',
+                      color: accent,
+                      marginBottom: '0.2rem',
+                      opacity: 0.75,
                     }}
                   >
                     {label}
@@ -276,9 +338,9 @@ export default function FounderBlock() {
                   <p
                     style={{
                       fontFamily: 'var(--font-body)',
-                      fontSize: '1rem',
-                      lineHeight: 1.55,
-                      color: 'rgba(245,240,234,0.65)',
+                      fontSize: '0.9375rem',
+                      lineHeight: 1.5,
+                      color: 'rgba(245,240,234,0.7)',
                     }}
                   >
                     {value}

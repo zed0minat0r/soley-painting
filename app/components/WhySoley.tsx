@@ -144,18 +144,29 @@ function TiltCard({ card, index }: { card: typeof CARDS[0]; index: number }) {
             background: card.accent,
           }}
         />
+        {/* Accent bar top edge — pairs with left bar for corner-to-corner brand presence */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '2px',
+            background: `linear-gradient(90deg, ${card.accent}, transparent 60%)`,
+          }}
+        />
 
-        {/* Card number — foreground, full opacity (per RULE 8, NO ghost) */}
+        {/* Card number — commanding display size, foreground, full opacity (per RULE 8, NO ghost) */}
         <span
           style={{
             display: 'block',
-            fontFamily: 'var(--font-body)',
-            fontSize: '0.8125rem',
-            fontWeight: 600,
-            letterSpacing: '0.16em',
-            textTransform: 'uppercase',
+            fontFamily: 'var(--font-heading)',
+            fontSize: '1.75rem',
+            fontWeight: 700,
+            letterSpacing: '0.04em',
             color: card.accent,
-            marginBottom: '1.25rem',
+            lineHeight: 1,
+            marginBottom: '1rem',
           }}
         >
           {card.number}
@@ -171,7 +182,7 @@ function TiltCard({ card, index }: { card: typeof CARDS[0]; index: number }) {
             justifyContent: 'center',
             color: 'var(--color-umber)',
             marginBottom: '1.25rem',
-            background: 'rgba(44,31,22,0.04)',
+            background: 'rgba(44,31,22,0.07)',
             borderRadius: '4px',
           }}
         >
@@ -270,12 +281,12 @@ function AccordionCard({
           <span
             style={{
               display: 'block',
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.8125rem', /* Pixel cycle 8: bumped from 0.65rem (10.4px) → 13px floor */
-              fontWeight: 600,
-              letterSpacing: '0.16em',
-              textTransform: 'uppercase',
+              fontFamily: 'var(--font-heading)',
+              fontSize: '1.125rem',
+              fontWeight: 700,
+              letterSpacing: '0.04em',
               color: card.accent,
+              lineHeight: 1,
               marginBottom: '0.2rem',
             }}
           >
@@ -451,7 +462,7 @@ export default function WhySoley() {
                 width: '400px',
                 height: '400px',
                 borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(194,96,58,0.07) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, rgba(191,91,56,0.08) 0%, transparent 70%)',
                 transform: 'translate(calc(var(--spotlight-x, -9999px) - 200px), calc(var(--spotlight-y, -9999px) - 200px))',
                 opacity: 'var(--spotlight-opacity, 0)' as React.CSSProperties['opacity'],
                 transition: 'opacity 0.3s ease',
