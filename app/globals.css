@@ -383,6 +383,15 @@
     border-bottom: 3px solid transparent;
   }
 
+  /* FAQ: single column on mobile */
+  .faq-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .faq-header {
+    max-width: 100%;
+  }
+
   /* Contact: single column */
   .contact-grid {
     grid-template-columns: 1fr;
@@ -393,6 +402,23 @@
   .footer-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
+  }
+}
+
+/* ── FAQ: 2-col desktop (header left, accordion right), 1-col mobile ──── */
+.faq-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 4rem 5rem;
+  align-items: start;
+}
+
+/* prefers-reduced-motion: snap accordion, no slide */
+@media (prefers-reduced-motion: reduce) {
+  #faq [role="region"] {
+    transition: none !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 }
 

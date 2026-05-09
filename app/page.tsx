@@ -7,6 +7,7 @@ import PaintFlow from './components/PaintFlow'
 import WhySoley from './components/WhySoley'
 import FounderBlock from './components/FounderBlock'
 import PortfolioGallery from './components/PortfolioGallery'
+import FAQ from './components/FAQ'
 import Process from './components/Process'
 import LiveEstimate from './components/LiveEstimate'
 import Contact from './components/Contact'
@@ -26,6 +27,7 @@ export default function Home() {
       <WhySoley />
       <FounderBlock />
       <PortfolioGallery />
+      <FAQ />
       <Process />
       <LiveEstimate />
       <SectionDivider />
