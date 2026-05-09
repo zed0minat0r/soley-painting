@@ -203,8 +203,8 @@ export default function FounderBlock() {
               >
                 Soley Painting is owner-operated. Every estimate, every walkthrough,
                 and every punch-list item is handled by the same person who answers
-                the phone. No handoffs, no middlemen — the person you call is the
-                person on the job.
+                the phone. No handoffs, no middlemen — the owner takes calls before
+                8pm and shows up on day one with the same crew that finishes the job.
               </p>
             </div>
 
