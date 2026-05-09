@@ -2,26 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    overflow-x: clip;
+    overscroll-behavior: contain;
+  }
+  body {
+    @apply bg-dark-950 text-dark-100 font-sans antialiased;
+    overflow-x: clip;
+    overscroll-behavior: contain;
+    margin: 0;
+    padding: 0;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent;
+  }
+  .glass {
+    @apply bg-dark-800/80 backdrop-blur-lg border border-dark-700/50;
+  }
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-lg
+           hover:from-primary-600 hover:to-primary-700 transition-all duration-300
+           shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/30
+           hover:-translate-y-0.5 active:translate-y-0;
+  }
+  .section-padding {
+    @apply py-20 md:py-28 lg:py-32;
+  }
+  .container-width {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+}
+
+/* SSR-safe scroll-reveal — hidden state is the CSS default so server HTML
+   ships pre-animation. Pair with IntersectionObserver toggling .in-view.
+   Avoids the framer-motion whileInView SSR hydration flash. */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(80px) scale(0.9);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.scroll-reveal.in-view {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@keyframes bounce-x {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+}
+.animate-bounce-x {
+  animation: bounce-x 1.5s ease-in-out infinite;
 }
