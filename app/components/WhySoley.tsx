@@ -17,7 +17,7 @@ const CARDS = [
     number: '01',
     title: 'Prep is the product',
     description:
-      'We spend more time preparing surfaces than applying paint. Cleaning, sanding, caulking, and priming are not optional steps — they are the reason finishes last.',
+      'We spend more time preparing surfaces than applying paint. That means two-coat primer on bare drywall, sanding between coats, and fresh caulk on every gap before a brush touches the wall. These steps are why finishes last.',
     accent: 'var(--color-terra)',
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
@@ -33,7 +33,7 @@ const CARDS = [
     number: '02',
     title: 'One person, start to finish',
     description:
-      'You get a single point of contact from estimate to final walkthrough. No call centers. No handoff to a crew lead you never met. We confirm our arrival window the night before, every time.',
+      'One person runs your project from estimate to punch-list. No call centers, no crew-lead handoffs. You get a confirmed arrival window the night before — not a four-hour "sometime in the morning" block.',
     accent: 'var(--color-teal)',
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
@@ -48,7 +48,7 @@ const CARDS = [
     number: '03',
     title: 'Written quotes, line by line',
     description:
-      'Every estimate is itemized — surface by surface, product by product. No ballpark ranges. No surprise add-ons at final invoice. What we quote is what you pay.',
+      'Every estimate breaks down each surface, square footage, and product separately. You see exactly what you are paying for before we start. The final invoice matches the quote — line for line.',
     accent: 'var(--color-gold)',
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
@@ -65,7 +65,7 @@ const CARDS = [
     number: '04',
     title: 'Low-VOC by default',
     description:
-      'Low-VOC and zero-VOC formulations on every interior — by default, not by request. You should not have to ask for cleaner air in your own home.',
+      'Every interior project uses low-VOC or zero-VOC paint — not as an upgrade, not by request. We choose cleaner formulations as the standard because your home is where you breathe.',
     accent: 'var(--color-teal)',
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
