@@ -71,7 +71,7 @@
     cursor: pointer;
     text-decoration: none;
     /* Constant-velocity background slide — no ease curve on travel */
-    transition: background-position 0.32s linear, transform 0.15s ease;
+    transition: background-position 0.32s linear, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .btn-primary:hover {
     background-position: left center;
@@ -107,7 +107,7 @@
     position: relative;
     cursor: pointer;
     text-decoration: none;
-    transition: border-color 0.25s ease, color 0.25s ease, transform 0.15s ease;
+    transition: border-color 0.25s ease, color 0.25s ease, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   }
   /* Bottom stroke: grows scaleX 0→1 from left, terracotta, 2px */
   .btn-secondary::after {
@@ -420,7 +420,7 @@ a:focus-visible {
   50%       { transform: translateX(5px); }
 }
 .animate-bounce-x {
-  animation: bounce-x 1.5s ease-in-out infinite;
+  animation: bounce-x 1.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
 /* ── Hero layout — single-column centered centerpiece ───────────────── */
@@ -675,13 +675,13 @@ a:focus-visible {
 .portfolio-grid--exit .portfolio-tile {
   opacity: 0;
   transform: translateY(6px);
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ── Filter enter phase: tiles stagger in via CSS custom prop ──────────── */
 /* @keyframes defined further down in the file */
 .portfolio-grid--enter .portfolio-tile {
-  animation: tileFadeUp 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: tileFadeUp 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: var(--tile-delay, 0s);
 }
 
@@ -704,7 +704,7 @@ a:focus-visible {
   background: var(--color-chalk);
   box-shadow: 0 2px 14px rgba(44, 44, 44, 0.08);
   /* lift + shadow on hover — see ::before for brand-accent left-rail */
-  transition: box-shadow 0.28s ease, transform 0.28s ease;
+  transition: box-shadow 0.28s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Brand-accent left-rail draws in on hover (scaleY 0→1, top-origin) */
@@ -718,7 +718,7 @@ a:focus-visible {
   background: var(--tile-accent, var(--color-rust));
   transform: scaleY(0);
   transform-origin: top center;
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 2;
 }
 

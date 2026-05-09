@@ -159,10 +159,10 @@ export default function Process() {
   const panelStyle: React.CSSProperties = {
     paddingTop: '0.5rem',
     transition: panelState === 'exiting'
-      ? `opacity ${EXIT_MS}ms ease-in, transform ${EXIT_MS}ms ease-in`
+      ? `opacity ${EXIT_MS}ms cubic-bezier(0.16, 1, 0.3, 1), transform ${EXIT_MS}ms cubic-bezier(0.16, 1, 0.3, 1)`
       : panelState === 'entering'
       ? 'none'
-      : `opacity 0.28s ease-out, transform 0.28s ease-out`,
+      : `opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)`,
     opacity: panelState === 'exiting' ? 0 : panelState === 'entering' ? 0 : 1,
     transform: panelState === 'exiting'
       ? 'translateX(-16px)'
@@ -285,7 +285,7 @@ export default function Process() {
                   borderLeft: `3px solid ${i === activeStep ? 'var(--color-terra)' : 'rgba(245,240,234,0.08)'}`,
                   cursor: 'pointer',
                   textAlign: 'left',
-                  transition: 'all 0.25s ease',
+                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
                   minHeight: '44px',
                 }}
               >

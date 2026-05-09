@@ -249,7 +249,7 @@ export default function PaintFlow() {
             background: 'var(--color-chalk)',
             transformOrigin: 'center',
             transform: blindsOpen ? 'scaleY(0)' : 'scaleY(1)',
-            transition: `transform 0.55s cubic-bezier(0.77,0,0.18,1) ${i * 0.07}s`,
+            transition: `transform 0.55s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.07}s`,
             pointerEvents: 'none',
             zIndex: 2,
           }}
@@ -267,7 +267,7 @@ export default function PaintFlow() {
             flexWrap: 'wrap',
             gap: '1.5rem',
             opacity: blindsOpen ? 1 : 0,
-            transition: 'opacity 0.4s ease 0.1s',
+            transition: 'opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s',
           }}
         >
           <div>
@@ -316,7 +316,7 @@ export default function PaintFlow() {
             position: 'relative',
             width: '100%',
             opacity: blindsOpen ? 1 : 0,
-            transition: 'opacity 0.4s ease 0.15s',
+            transition: 'opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s',
           }}
         >
           <svg
@@ -462,7 +462,7 @@ export default function PaintFlow() {
                     flexDirection: 'column',
                     alignItems: 'center',
                     gap: '0.5rem',
-                    transition: 'opacity 0.3s ease',
+                    transition: 'opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                     opacity: drawn ? 1 : 0.3,
                   }}
                 >
@@ -474,7 +474,7 @@ export default function PaintFlow() {
                       borderRadius: '2px',
                       background: NODE_SWATCHES[i],
                       opacity: isPulsing ? 1 : 0.4,
-                      transition: 'opacity 0.3s ease',
+                      transition: 'opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                       marginBottom: '2px',
                       boxShadow: isPulsing ? `0 0 10px ${NODE_SWATCHES[i]}80` : 'none',
                     }}
@@ -494,7 +494,7 @@ export default function PaintFlow() {
                       alignItems: 'center',
                       justifyContent: 'center',
                       color: isPulsing ? '#C2603A' : 'rgba(245,240,234,0.65)',
-                      transition: 'all 0.3s ease',
+                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                       transform: isPulsing ? 'scale(1.18)' : 'scale(1)',
                       boxShadow: isPulsing ? '0 0 14px rgba(194,96,58,0.35)' : 'none',
                     }}

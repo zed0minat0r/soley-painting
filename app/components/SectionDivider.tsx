@@ -83,7 +83,7 @@ export default function SectionDivider({ flip = false }: { flip?: boolean }) {
           height: '1px',
           background: `linear-gradient(to right, transparent 0%, ${hairlineOpacity} 25%, var(--color-terra) 50%, ${hairlineOpacity} 75%, transparent 100%)`,
           opacity: active ? 1 : 0,
-          transition: 'opacity 0.6s ease',
+          transition: 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       />
 
@@ -97,7 +97,7 @@ export default function SectionDivider({ flip = false }: { flip?: boolean }) {
           height: '1px',
           background: `linear-gradient(to right, transparent 0%, ${hairlineOpacity} 25%, var(--color-ochre) 50%, ${hairlineOpacity} 75%, transparent 100%)`,
           opacity: active ? 1 : 0,
-          transition: 'opacity 0.6s ease',
+          transition: 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       />
 
@@ -115,7 +115,7 @@ export default function SectionDivider({ flip = false }: { flip?: boolean }) {
             background: 'var(--color-terra)',
             boxShadow: '0 0 8px 3px rgba(194,96,58,0.55), 0 0 18px 6px rgba(194,96,58,0.25)',
             '--travel-w': '40%',
-            animation: 'pulse-travel-right 1.8s ease-in-out infinite',
+            animation: 'pulse-travel-right 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite',
           } as React.CSSProperties}
         />
       )}
@@ -131,7 +131,7 @@ export default function SectionDivider({ flip = false }: { flip?: boolean }) {
             fill="none"
             style={{
               animation: active
-                ? `drop-pulse 2s ease-in-out ${delay}s infinite`
+                ? `drop-pulse 2s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s infinite`
                 : 'none',
               filter: `drop-shadow(0 0 5px ${color}90) drop-shadow(0 3px 8px ${color}50)`,
             }}
@@ -184,7 +184,7 @@ export default function SectionDivider({ flip = false }: { flip?: boolean }) {
             background: 'var(--color-ochre)',
             boxShadow: '0 0 8px 3px rgba(184,136,74,0.55), 0 0 18px 6px rgba(184,136,74,0.25)',
             '--travel-w': '40%',
-            animation: 'pulse-travel-left 1.8s ease-in-out 0.9s infinite',
+            animation: 'pulse-travel-left 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.9s infinite',
           } as React.CSSProperties}
         />
       )}

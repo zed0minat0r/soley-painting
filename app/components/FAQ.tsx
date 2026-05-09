@@ -127,7 +127,7 @@ function FAQItem({
             borderRadius: '50%',
             background: item.accent,
             opacity: isOpen ? 1 : 0.4,
-            transition: 'opacity 0.3s ease',
+            transition: 'opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         />
 

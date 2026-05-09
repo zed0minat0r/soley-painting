@@ -105,7 +105,7 @@ export default function Navbar() {
                 background: 'var(--color-terra)',
                 transformOrigin: 'left center',
                 transform: 'scaleX(0)',
-                transition: 'transform 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
+                transition: 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
                 pointerEvents: 'none',
               }}
             />
