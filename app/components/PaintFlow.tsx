@@ -3,9 +3,12 @@
 import { useEffect, useRef, useState } from 'react'
 
 /* ── Catalog item #5 — Wall→Prep→Prime→Paint→Finish animated workflow ──
-   SVG path with stroke-dashoffset draw-in on IntersectionObserver entry.
-   Dots travel the path with animateMotion, nodes pulse on arrival.
-   Ref: Scout section 1 — Codrops pattern + Penn Tech animated workflow.  */
+   Dark-slate background so terracotta dots bloom against it.
+   Codrops "horizontal blind" reveal strips — expand from center on entry.
+   SVG path draws in on IntersectionObserver entry.
+   Dots travel path with rAF, nodes pulse terracotta on arrival.
+   Ref: Codrops SVG mask transitions + horizontal blind entry (Scout Round 3 finding 6).
+   Frame B: Clarity & Whitespace — premium dark panel contrasts chalk sections.  */
 
 const NODES = [
   {
@@ -76,11 +79,9 @@ const NODES = [
   },
 ]
 
-/* Node x positions as percent of SVG width (we'll use 80 wide SVG) */
-const NODE_X = [8, 24, 40, 56, 72] // in SVG units out of 80
-const NODE_Y = 20 // SVG height 40, nodes at center
+const NODE_X = [8, 24, 40, 56, 72]
+const NODE_Y = 20
 
-/* Build a curved path string through all node points */
 function buildPath(nodeXArr: number[], y: number): string {
   const pts = nodeXArr.map((x) => ({ x, y }))
   let d = `M ${pts[0].x} ${pts[0].y}`
@@ -92,46 +93,49 @@ function buildPath(nodeXArr: number[], y: number): string {
 }
 
 const PATH_D = buildPath(NODE_X, NODE_Y)
-// Approximate path length for stroke-dashoffset animation
 const PATH_LEN = 750
+
+/* 6 horizontal blind strips — each expands from scaleX(0) to scaleX(1) */
+const STRIP_COUNT = 6
 
 export default function PaintFlow() {
   const sectionRef = useRef<HTMLElement>(null)
-  const pathRef = useRef<SVGPathElement>(null)
   const [drawn, setDrawn] = useState(false)
+  const [blindsOpen, setBlindsOpen] = useState(false)
   const [pulsingNode, setPulsingNode] = useState<number>(-1)
-  const [dotPos, setDotPos] = useState(0) // 0→1 along path
+  const [dotPos, setDotPos] = useState(0)
 
-  /* IntersectionObserver — draw-in on enter */
+  /* IntersectionObserver — trigger blinds + draw on enter */
   useEffect(() => {
     const el = sectionRef.current
     if (!el) return
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setDrawn(true)
+          setBlindsOpen(true)
+          // Slight delay so blinds open before path draws
+          setTimeout(() => setDrawn(true), 400)
         }
       },
-      { threshold: 0.25 }
+      { threshold: 0.2 }
     )
     obs.observe(el)
     return () => obs.disconnect()
   }, [])
 
-  /* Dot animation — runs in rAF loop when drawn */
+  /* Dot animation — rAF loop when drawn */
   useEffect(() => {
     if (!drawn) return
     let start: number | null = null
-    const duration = 3200 // ms for one full trip
+    const duration = 3200
     let raf: number
 
     function tick(ts: number) {
       if (start === null) start = ts
-      const elapsed = (ts - start) % (duration + 1600) // 1.6s pause at end
+      const elapsed = (ts - start) % (duration + 1600)
       const progress = Math.min(elapsed / duration, 1)
       setDotPos(progress)
 
-      // Pulse nodes as dot passes through
       const nodeIdx = Math.round(progress * (NODE_X.length - 1))
       setPulsingNode(nodeIdx)
 
@@ -141,32 +145,29 @@ export default function PaintFlow() {
     return () => cancelAnimationFrame(raf)
   }, [drawn])
 
-  /* Compute dot SVG position from progress (approximate along path) */
   function dotXY(t: number) {
-    // Simple piecewise linear interpolation across node positions
     const segment = t * (NODE_X.length - 1)
     const i = Math.min(Math.floor(segment), NODE_X.length - 2)
     const frac = segment - i
     const x = NODE_X[i] + (NODE_X[i + 1] - NODE_X[i]) * frac
-    const y = NODE_Y
-    return { x, y }
+    return { x, y: NODE_Y }
   }
 
   const dot1 = dotXY(dotPos)
-  const dot2 = dotXY(Math.max(0, dotPos - 0.08)) // trailing dot
+  const dot2 = dotXY(Math.max(0, dotPos - 0.08))
 
   return (
     <section
       id="workflow"
       ref={sectionRef}
       style={{
-        background: 'var(--color-chalk)',
-        padding: '5rem 0 4rem',
+        background: 'var(--color-umber)',
+        padding: '5rem 0 4.5rem',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
-      {/* Warm terracotta top stripe */}
+      {/* Terracotta top stripe */}
       <div
         style={{
           position: 'absolute',
@@ -178,17 +179,39 @@ export default function PaintFlow() {
         }}
       />
 
-      <div className="container-width">
+      {/* Horizontal blind reveal strips — Codrops pattern */}
+      {Array.from({ length: STRIP_COUNT }).map((_, i) => (
+        <div
+          key={i}
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            top: `${(i / STRIP_COUNT) * 100}%`,
+            left: 0,
+            right: 0,
+            height: `${100 / STRIP_COUNT}%`,
+            background: 'var(--color-chalk)',
+            transformOrigin: 'center',
+            transform: blindsOpen ? 'scaleY(0)' : 'scaleY(1)',
+            transition: `transform 0.55s cubic-bezier(0.77,0,0.18,1) ${i * 0.07}s`,
+            pointerEvents: 'none',
+            zIndex: 2,
+          }}
+        />
+      ))}
+
+      <div className="container-width" style={{ position: 'relative', zIndex: 3 }}>
         {/* Header */}
         <div
-          className="scroll-reveal"
           style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'flex-end',
-            marginBottom: '3rem',
+            marginBottom: '3.5rem',
             flexWrap: 'wrap',
             gap: '1.5rem',
+            opacity: blindsOpen ? 1 : 0,
+            transition: 'opacity 0.5s ease 0.5s',
           }}
         >
           <div>
@@ -209,12 +232,12 @@ export default function PaintFlow() {
                 fontFamily: 'var(--font-heading)',
                 fontWeight: 700,
                 fontSize: 'clamp(2rem, 3.5vw, 3rem)',
-                color: 'var(--color-umber)',
+                color: 'var(--color-chalk)',
                 lineHeight: 1.1,
               }}
             >
               Wall to finish —<br />
-              <em>nothing skipped.</em>
+              <em style={{ color: 'var(--color-terra)' }}>nothing skipped.</em>
             </h2>
           </div>
           <p
@@ -222,7 +245,7 @@ export default function PaintFlow() {
               fontFamily: 'var(--font-body)',
               fontSize: '0.9375rem',
               lineHeight: 1.65,
-              color: 'rgba(44,31,22,0.6)',
+              color: 'rgba(245,240,234,0.55)',
               maxWidth: '34ch',
             }}
           >
@@ -236,6 +259,8 @@ export default function PaintFlow() {
           style={{
             position: 'relative',
             width: '100%',
+            opacity: blindsOpen ? 1 : 0,
+            transition: 'opacity 0.5s ease 0.55s',
           }}
         >
           <svg
@@ -245,70 +270,75 @@ export default function PaintFlow() {
               height: 'auto',
               overflow: 'visible',
               display: 'block',
+              /* Glow filter for the lead dot */
+              filter: 'none',
             }}
             preserveAspectRatio="xMidYMid meet"
           >
-            {/* Track path — draws in */}
+            <defs>
+              <linearGradient id="flow-gradient-dark" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#C2603A" />
+                <stop offset="100%" stopColor="#2D7A70" />
+              </linearGradient>
+              <filter id="dot-bloom" x="-200%" y="-200%" width="500%" height="500%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="1.2" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            {/* Track path — subtle dark line */}
             <path
-              ref={pathRef}
               d={PATH_D}
-              stroke="rgba(44,31,22,0.12)"
-              strokeWidth="0.4"
+              stroke="rgba(245,240,234,0.1)"
+              strokeWidth="0.5"
               fill="none"
             />
-            {/* Animated draw-in overlay */}
+
+            {/* Animated draw-in overlay — thicker stroke on dark bg */}
             <path
               d={PATH_D}
-              stroke="url(#flow-gradient)"
-              strokeWidth="0.5"
+              stroke="url(#flow-gradient-dark)"
+              strokeWidth="0.9"
               fill="none"
               strokeLinecap="round"
               style={{
                 strokeDasharray: PATH_LEN,
                 strokeDashoffset: drawn ? 0 : PATH_LEN,
-                transition: drawn ? 'stroke-dashoffset 1.6s cubic-bezier(0.16,1,0.3,1)' : 'none',
+                transition: drawn ? 'stroke-dashoffset 1.8s cubic-bezier(0.16,1,0.3,1)' : 'none',
               }}
             />
 
-            {/* Gradient definition */}
-            <defs>
-              <linearGradient id="flow-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="var(--color-terra)" />
-                <stop offset="100%" stopColor="var(--color-teal)" />
-              </linearGradient>
-              <radialGradient id="dot-glow" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="var(--color-terra)" stopOpacity="0.6" />
-                <stop offset="100%" stopColor="var(--color-terra)" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-
-            {/* Traveling dot 1 (lead) */}
+            {/* Lead dot — terracotta with bloom filter */}
             {drawn && (
-              <>
-                {/* Glow halo */}
+              <g filter="url(#dot-bloom)">
+                {/* Outer bloom ring */}
                 <circle
                   cx={dot1.x}
                   cy={dot1.y}
-                  r="1.8"
-                  fill="url(#dot-glow)"
+                  r="2.4"
+                  fill="rgba(194,96,58,0.25)"
                 />
+                {/* Core dot */}
                 <circle
                   cx={dot1.x}
                   cy={dot1.y}
-                  r="0.7"
-                  fill="var(--color-terra)"
+                  r="0.85"
+                  fill="#C2603A"
                 />
-              </>
+              </g>
             )}
 
-            {/* Traveling dot 2 (trailing, teal) */}
+            {/* Trailing dot — teal */}
             {drawn && dotPos > 0.08 && (
               <circle
                 cx={dot2.x}
                 cy={dot2.y}
-                r="0.45"
-                fill="var(--color-teal)"
-                opacity={0.7}
+                r="0.48"
+                fill="#2D7A70"
+                opacity={0.75}
               />
             )}
 
@@ -317,24 +347,33 @@ export default function PaintFlow() {
               const isPulsing = pulsingNode === i && drawn
               return (
                 <g key={i}>
+                  {/* Outer glow ring on pulse */}
+                  {isPulsing && (
+                    <circle
+                      cx={nx}
+                      cy={NODE_Y}
+                      r="3.8"
+                      fill="rgba(194,96,58,0.12)"
+                    />
+                  )}
                   {/* Node ring */}
                   <circle
                     cx={nx}
                     cy={NODE_Y}
-                    r={isPulsing ? 2.6 : 2.2}
-                    fill="var(--color-chalk)"
-                    stroke={isPulsing ? 'var(--color-terra)' : 'rgba(44,31,22,0.2)'}
-                    strokeWidth={isPulsing ? 0.5 : 0.35}
+                    r={isPulsing ? 2.9 : 2.3}
+                    fill="var(--color-umber)"
+                    stroke={isPulsing ? '#C2603A' : 'rgba(245,240,234,0.25)'}
+                    strokeWidth={isPulsing ? 0.55 : 0.4}
                     style={{
-                      transition: 'r 0.25s ease, stroke 0.25s ease',
+                      transition: 'r 0.25s ease, stroke 0.25s ease, stroke-width 0.25s ease',
                     }}
                   />
-                  {/* Node center dot */}
+                  {/* Node center */}
                   <circle
                     cx={nx}
                     cy={NODE_Y}
-                    r={isPulsing ? 0.9 : 0.6}
-                    fill={isPulsing ? 'var(--color-terra)' : 'rgba(44,31,22,0.35)'}
+                    r={isPulsing ? 1.0 : 0.65}
+                    fill={isPulsing ? '#C2603A' : 'rgba(245,240,234,0.4)'}
                     style={{ transition: 'r 0.25s ease, fill 0.25s ease' }}
                   />
                 </g>
@@ -342,14 +381,12 @@ export default function PaintFlow() {
             })}
           </svg>
 
-          {/* Node labels — positioned below SVG via absolute layout */}
+          {/* Node labels */}
           <div
             style={{
               display: 'flex',
               justifyContent: 'space-between',
-              marginTop: '1.25rem',
-              paddingLeft: '0%',
-              paddingRight: '0%',
+              marginTop: '1.5rem',
             }}
           >
             {NODES.map((node, i) => {
@@ -364,23 +401,24 @@ export default function PaintFlow() {
                     alignItems: 'center',
                     gap: '0.5rem',
                     transition: 'opacity 0.3s ease',
-                    opacity: drawn ? 1 : 0.4,
+                    opacity: drawn ? 1 : 0.3,
                   }}
                 >
-                  {/* Icon */}
+                  {/* Icon circle */}
                   <div
                     style={{
                       width: '48px',
                       height: '48px',
                       borderRadius: '50%',
-                      background: isPulsing ? 'rgba(194,96,58,0.12)' : 'rgba(44,31,22,0.05)',
-                      border: isPulsing ? '1px solid rgba(194,96,58,0.4)' : '1px solid rgba(44,31,22,0.12)',
+                      background: isPulsing ? 'rgba(194,96,58,0.16)' : 'rgba(245,240,234,0.06)',
+                      border: isPulsing ? '1px solid rgba(194,96,58,0.55)' : '1px solid rgba(245,240,234,0.15)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: isPulsing ? 'var(--color-terra)' : 'var(--color-umber)',
+                      color: isPulsing ? '#C2603A' : 'rgba(245,240,234,0.65)',
                       transition: 'all 0.3s ease',
-                      transform: isPulsing ? 'scale(1.1)' : 'scale(1)',
+                      transform: isPulsing ? 'scale(1.18)' : 'scale(1)',
+                      boxShadow: isPulsing ? '0 0 14px rgba(194,96,58,0.35)' : 'none',
                     }}
                   >
                     {node.icon}
@@ -394,7 +432,7 @@ export default function PaintFlow() {
                       fontSize: '0.875rem',
                       letterSpacing: '0.08em',
                       textTransform: 'uppercase',
-                      color: isPulsing ? 'var(--color-terra)' : 'var(--color-umber)',
+                      color: isPulsing ? '#C2603A' : 'rgba(245,240,234,0.8)',
                       transition: 'color 0.3s ease',
                     }}
                   >
@@ -403,8 +441,8 @@ export default function PaintFlow() {
                   <span
                     style={{
                       fontFamily: 'var(--font-body)',
-                      fontSize: '0.875rem',
-                      color: 'rgba(44,31,22,0.5)',
+                      fontSize: '0.8125rem',
+                      color: 'rgba(245,240,234,0.4)',
                       textAlign: 'center',
                       lineHeight: 1.4,
                     }}

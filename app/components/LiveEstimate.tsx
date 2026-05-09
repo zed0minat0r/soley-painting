@@ -3,12 +3,14 @@
 import { useEffect, useRef, useState } from 'react'
 
 /* ── Catalog item #6 — Live auto-typing estimate form ───────────────────
-   A fixed-height mock "Get a Quote" card that auto-types into its fields:
-   project type selects "Interior / 3 rooms", address types character by
-   character ("123 Maple Street"), message fills phrase, then shows a
-   terracotta checkmark "Sent" state. Loops after 8s pause.
-   NO fake phone, NO fake price, NO fake response quote.
-   Ref: Scout catalog row #6 — Penn Tech iMessage → painter estimate form. */
+   Fixed-height card (420px desktop / 380px mobile) — no layout jump.
+   Natural typing rhythm: 50–80ms/char with ±10ms random variation.
+   Blink cursor on active field's last character.
+   "Send" → terracotta checkmark + "We respond within 24 hours."
+   8s loop: type → settle → send → checkmark → fade → restart.
+   NO fake names, NO fake prices, NO fake phone numbers.
+   Ref: Scout catalog row #6 — Penn Tech iMessage → painter estimate form.
+   Frame B: Clarity & Whitespace — editorial two-col layout, generous gutter. */
 
 type Phase =
   | 'idle'
@@ -23,17 +25,18 @@ const PLACEHOLDER_ADDRESS = '123 Maple Street'
 const PLACEHOLDER_MESSAGE =
   'Looking to repaint before spring — light neutrals throughout. Available for a walkthrough anytime.'
 
-/* Type a string character by character, calling cb with each step */
+/* Natural typing: base delay + random jitter (±10ms) */
 async function typeString(
   target: string,
-  delay: number,
+  baseDelay: number,
   setter: (s: string) => void,
   cancelRef: React.MutableRefObject<boolean>
 ) {
   for (let i = 1; i <= target.length; i++) {
     if (cancelRef.current) return
     setter(target.slice(0, i))
-    await new Promise((r) => setTimeout(r, delay))
+    const jitter = Math.random() * 20 - 10 // ±10ms
+    await new Promise((r) => setTimeout(r, Math.max(20, baseDelay + jitter)))
   }
 }
 
@@ -45,62 +48,60 @@ export default function LiveEstimate() {
   const [cursorField, setCursorField] = useState<'type' | 'address' | 'message' | null>(null)
   const cancelRef = useRef(false)
   const sectionRef = useRef<HTMLDivElement>(null)
+  const hasStarted = useRef(false)
 
-  /* Run the typing sequence */
   async function runSequence() {
     cancelRef.current = false
 
-    // Reset
     setTypeValue('')
     setAddressValue('')
     setMessageValue('')
     setPhase('typing-type')
     setCursorField('type')
 
-    await new Promise((r) => setTimeout(r, 400))
-    await typeString(PROJECT_TYPE, 42, setTypeValue, cancelRef)
+    await new Promise((r) => setTimeout(r, 500))
+    await typeString(PROJECT_TYPE, 58, setTypeValue, cancelRef)
     if (cancelRef.current) return
 
-    await new Promise((r) => setTimeout(r, 600))
+    await new Promise((r) => setTimeout(r, 700))
     setPhase('typing-address')
     setCursorField('address')
 
-    await typeString(PLACEHOLDER_ADDRESS, 55, setAddressValue, cancelRef)
+    await typeString(PLACEHOLDER_ADDRESS, 65, setAddressValue, cancelRef)
     if (cancelRef.current) return
 
-    await new Promise((r) => setTimeout(r, 600))
+    await new Promise((r) => setTimeout(r, 700))
     setPhase('typing-message')
     setCursorField('message')
 
-    await typeString(PLACEHOLDER_MESSAGE, 28, setMessageValue, cancelRef)
+    await typeString(PLACEHOLDER_MESSAGE, 32, setMessageValue, cancelRef)
     if (cancelRef.current) return
 
-    await new Promise((r) => setTimeout(r, 800))
+    await new Promise((r) => setTimeout(r, 900))
     setCursorField(null)
     setPhase('sent')
 
-    // Pause at "sent" state
     await new Promise((r) => setTimeout(r, 8000))
     if (cancelRef.current) return
 
     setPhase('pausing')
-    await new Promise((r) => setTimeout(r, 1200))
+    await new Promise((r) => setTimeout(r, 1400))
     if (cancelRef.current) return
 
-    runSequence() // loop
+    runSequence()
   }
 
-  /* Start when in view */
   useEffect(() => {
     const el = sectionRef.current
     if (!el) return
     const obs = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && phase === 'idle') {
+        if (entry.isIntersecting && !hasStarted.current) {
+          hasStarted.current = true
           runSequence()
         }
       },
-      { threshold: 0.35 }
+      { threshold: 0.3 }
     )
     obs.observe(el)
     return () => {
@@ -112,262 +113,342 @@ export default function LiveEstimate() {
 
   const isSent = phase === 'sent'
 
+  /* Shared label style */
+  const labelStyle: React.CSSProperties = {
+    display: 'block',
+    fontFamily: 'var(--font-body)',
+    fontSize: '0.6875rem',
+    letterSpacing: '0.14em',
+    textTransform: 'uppercase',
+    color: 'rgba(245,240,234,0.45)',
+    marginBottom: '0.375rem',
+  }
+
+  /* Shared field box style */
+  const fieldBox = (active: boolean): React.CSSProperties => ({
+    padding: '0.75rem 1rem',
+    background: active ? 'rgba(194,96,58,0.06)' : 'rgba(245,240,234,0.04)',
+    border: `1px solid ${active ? 'rgba(194,96,58,0.7)' : 'rgba(245,240,234,0.12)'}`,
+    fontFamily: 'var(--font-body)',
+    fontSize: '0.9375rem',
+    color: 'var(--color-chalk)',
+    minHeight: '46px',
+    lineHeight: 1.5,
+    transition: 'border-color 0.25s ease, background 0.25s ease',
+    position: 'relative' as const,
+    whiteSpace: 'pre-wrap' as const,
+    wordBreak: 'break-word' as const,
+  })
+
+  const blinkCursor = (
+    <span
+      style={{
+        display: 'inline-block',
+        width: '2px',
+        height: '1em',
+        background: 'var(--color-terra)',
+        marginLeft: '2px',
+        verticalAlign: 'middle',
+        animation: 'blink-cursor 0.8s step-end infinite',
+      }}
+    />
+  )
+
   return (
     <section
       id="live-estimate"
       ref={sectionRef}
       style={{
-        background: 'var(--color-umber)',
-        padding: '5rem 0',
+        background: 'var(--color-chalk)',
+        padding: '5.5rem 0',
         position: 'relative',
       }}
     >
-    <div className="container-width" style={{ maxWidth: '640px' }}>
-    <div
-      style={{
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(245,240,234,0.12)',
-        padding: '2rem',
-        position: 'relative',
-        overflow: 'hidden',
-        /* Fixed height so layout never jumps */
-        minHeight: '420px',
-      }}
-    >
-      {/* Label */}
-      <p
+      {/* Teal top stripe */}
+      <div
         style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: '0.75rem',
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          color: isSent ? 'var(--color-terra)' : 'rgba(245,240,234,0.45)',
-          marginBottom: '1.5rem',
-          transition: 'color 0.4s ease',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '3px',
+          background: 'linear-gradient(90deg, var(--color-teal), var(--color-terra))',
         }}
-      >
-        {isSent ? 'Estimate request sent' : 'Get a free estimate'}
-      </p>
+      />
 
-      {/* Form fields — auto-typed, not real inputs */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-        {/* Project type */}
-        <div>
-          <label
-            style={{
-              display: 'block',
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.75rem',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: 'rgba(245,240,234,0.5)',
-              marginBottom: '0.4rem',
-            }}
-          >
-            Project type
-          </label>
-          <div
-            style={{
-              padding: '0.75rem 1rem',
-              background: 'rgba(245,240,234,0.05)',
-              border: `1px solid ${cursorField === 'type' ? 'var(--color-terra)' : 'rgba(245,240,234,0.15)'}`,
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.9375rem',
-              color: 'var(--color-chalk)',
-              minHeight: '46px',
-              transition: 'border-color 0.2s ease',
-              position: 'relative',
-            }}
-          >
-            {typeValue}
-            {cursorField === 'type' && (
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: '2px',
-                  height: '1em',
-                  background: 'var(--color-terra)',
-                  marginLeft: '1px',
-                  verticalAlign: 'middle',
-                  animation: 'blink-cursor 0.8s step-end infinite',
-                }}
-              />
-            )}
-            {!typeValue && phase === 'idle' && (
-              <span style={{ color: 'rgba(245,240,234,0.3)' }}>Interior, exterior, commercial…</span>
-            )}
-          </div>
-        </div>
-
-        {/* Address */}
-        <div>
-          <label
-            style={{
-              display: 'block',
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.75rem',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: 'rgba(245,240,234,0.5)',
-              marginBottom: '0.4rem',
-            }}
-          >
-            Property address
-          </label>
-          <div
-            style={{
-              padding: '0.75rem 1rem',
-              background: 'rgba(245,240,234,0.05)',
-              border: `1px solid ${cursorField === 'address' ? 'var(--color-terra)' : 'rgba(245,240,234,0.15)'}`,
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.9375rem',
-              color: 'var(--color-chalk)',
-              minHeight: '46px',
-              transition: 'border-color 0.2s ease',
-            }}
-          >
-            {addressValue}
-            {cursorField === 'address' && (
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: '2px',
-                  height: '1em',
-                  background: 'var(--color-terra)',
-                  marginLeft: '1px',
-                  verticalAlign: 'middle',
-                  animation: 'blink-cursor 0.8s step-end infinite',
-                }}
-              />
-            )}
-            {!addressValue && phase === 'idle' && (
-              <span style={{ color: 'rgba(245,240,234,0.3)' }}>Street address…</span>
-            )}
-          </div>
-        </div>
-
-        {/* Message */}
-        <div>
-          <label
-            style={{
-              display: 'block',
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.75rem',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: 'rgba(245,240,234,0.5)',
-              marginBottom: '0.4rem',
-            }}
-          >
-            Project details
-          </label>
-          <div
-            style={{
-              padding: '0.75rem 1rem',
-              background: 'rgba(245,240,234,0.05)',
-              border: `1px solid ${cursorField === 'message' ? 'var(--color-terra)' : 'rgba(245,240,234,0.15)'}`,
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.9375rem',
-              color: 'var(--color-chalk)',
-              minHeight: '80px',
-              lineHeight: 1.6,
-              transition: 'border-color 0.2s ease',
-            }}
-          >
-            {messageValue}
-            {cursorField === 'message' && (
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: '2px',
-                  height: '1em',
-                  background: 'var(--color-terra)',
-                  marginLeft: '1px',
-                  verticalAlign: 'middle',
-                  animation: 'blink-cursor 0.8s step-end infinite',
-                }}
-              />
-            )}
-            {!messageValue && phase === 'idle' && (
-              <span style={{ color: 'rgba(245,240,234,0.3)' }}>Tell us about your project…</span>
-            )}
-          </div>
-        </div>
-
-        {/* Send button / Sent state */}
+      <div className="container-width">
+        {/* Two-column layout: left = copy / right = animated card */}
         <div
           style={{
-            display: 'flex',
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
+            gap: '4rem',
             alignItems: 'center',
-            gap: '0.875rem',
-            marginTop: '0.25rem',
-            transition: 'opacity 0.4s ease',
           }}
+          className="estimate-grid"
         >
-          {isSent ? (
-            /* Sent state — terracotta checkmark */
-            <>
-              <div
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '50%',
-                  background: 'rgba(194,96,58,0.18)',
-                  border: '1px solid var(--color-terra)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  animation: 'pop-in 0.35s cubic-bezier(0.16,1,0.3,1) both',
-                }}
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M3 8 L6.5 12 L13 4"
-                    stroke="var(--color-terra)"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <span
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '0.875rem',
-                  color: 'var(--color-terra)',
-                  animation: 'pop-in 0.35s cubic-bezier(0.16,1,0.3,1) 0.1s both',
-                }}
-              >
-                Request sent — we respond within 24 hours.
-              </span>
-            </>
-          ) : (
-            /* Inactive submit button */
-            <div
+          {/* Left: editorial copy */}
+          <div className="scroll-reveal">
+            <p
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.875rem 1.75rem',
-                background: phase === 'idle' ? 'transparent' : 'rgba(194,96,58,0.35)',
-                border: '1px solid rgba(194,96,58,0.4)',
                 fontFamily: 'var(--font-body)',
-                fontSize: '0.8125rem',
-                letterSpacing: '0.1em',
+                fontSize: '0.875rem',
+                letterSpacing: '0.22em',
                 textTransform: 'uppercase',
-                color: 'rgba(245,240,234,0.6)',
-                transition: 'background 0.4s ease',
-                userSelect: 'none',
+                color: 'var(--color-terra)',
+                marginBottom: '1rem',
               }}
             >
-              Send estimate request
+              Free estimate
+            </p>
+            <h2
+              style={{
+                fontFamily: 'var(--font-heading)',
+                fontWeight: 700,
+                fontSize: 'clamp(1.875rem, 3vw, 2.75rem)',
+                color: 'var(--color-umber)',
+                lineHeight: 1.1,
+                marginBottom: '1.5rem',
+              }}
+            >
+              A written quote —<br />
+              <em>no ballpark ranges.</em>
+            </h2>
+            <p
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '1rem',
+                lineHeight: 1.7,
+                color: 'rgba(44,31,22,0.65)',
+                marginBottom: '2rem',
+                maxWidth: '38ch',
+              }}
+            >
+              We measure, assess surfaces, and send a line-item written quote
+              within 24 hours of your walkthrough. No surprises.
+            </p>
+
+            {/* Honest commitment bullets */}
+            <ul
+              style={{
+                listStyle: 'none',
+                margin: 0,
+                padding: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem',
+              }}
+            >
+              {[
+                'Free in-home walkthrough',
+                'Written quote within 24 hours',
+                'Single point of contact, start to finish',
+              ].map((item) => (
+                <li
+                  key={item}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '0.9375rem',
+                    color: 'rgba(44,31,22,0.75)',
+                  }}
+                >
+                  <span
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
+                      background: 'rgba(194,96,58,0.1)',
+                      border: '1px solid rgba(194,96,58,0.3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M2 5L4.2 7.5L8 3" stroke="#C2603A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Right: animated form card */}
+          <div
+            style={{
+              background: 'var(--color-umber)',
+              border: '1px solid rgba(245,240,234,0.08)',
+              padding: '2rem 2rem 1.75rem',
+              position: 'relative',
+              /* Fixed height: no layout jump as fields fill */
+              height: '420px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              boxShadow: '0 24px 64px rgba(44,31,22,0.18)',
+            }}
+          >
+            {/* Card label row */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '1.25rem',
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '0.6875rem',
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: isSent ? 'var(--color-terra)' : 'rgba(245,240,234,0.4)',
+                  transition: 'color 0.4s ease',
+                  margin: 0,
+                }}
+              >
+                {isSent ? 'Estimate request sent' : 'Get a free estimate'}
+              </p>
+              {/* Live indicator dot */}
+              <span
+                style={{
+                  width: '7px',
+                  height: '7px',
+                  borderRadius: '50%',
+                  background: isSent ? 'var(--color-terra)' : 'rgba(45,122,112,0.6)',
+                  boxShadow: isSent ? '0 0 8px rgba(194,96,58,0.6)' : '0 0 6px rgba(45,122,112,0.4)',
+                  transition: 'all 0.4s ease',
+                  flexShrink: 0,
+                }}
+              />
             </div>
-          )}
+
+            {/* Fields */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1, justifyContent: 'center' }}>
+              {/* Project type */}
+              <div>
+                <label style={labelStyle}>Project type</label>
+                <div style={fieldBox(cursorField === 'type')}>
+                  {typeValue || (phase === 'idle' && <span style={{ color: 'rgba(245,240,234,0.28)' }}>Interior, exterior, commercial…</span>)}
+                  {cursorField === 'type' && blinkCursor}
+                </div>
+              </div>
+
+              {/* Address */}
+              <div>
+                <label style={labelStyle}>Property address</label>
+                <div style={fieldBox(cursorField === 'address')}>
+                  {addressValue || (phase === 'idle' && <span style={{ color: 'rgba(245,240,234,0.28)' }}>Street address…</span>)}
+                  {cursorField === 'address' && blinkCursor}
+                </div>
+              </div>
+
+              {/* Message */}
+              <div>
+                <label style={labelStyle}>Project details</label>
+                <div
+                  style={{
+                    ...fieldBox(cursorField === 'message'),
+                    minHeight: '72px',
+                  }}
+                >
+                  {messageValue || (phase === 'idle' && <span style={{ color: 'rgba(245,240,234,0.28)' }}>Tell us about your project…</span>)}
+                  {cursorField === 'message' && blinkCursor}
+                </div>
+              </div>
+            </div>
+
+            {/* Send / Sent row */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.875rem',
+                marginTop: '1.25rem',
+                minHeight: '44px',
+              }}
+            >
+              {isSent ? (
+                <>
+                  <div
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      background: 'rgba(194,96,58,0.18)',
+                      border: '1px solid var(--color-terra)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      animation: 'pop-in 0.35s cubic-bezier(0.16,1,0.3,1) both',
+                    }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path
+                        d="M3 8 L6.5 12 L13 4"
+                        stroke="var(--color-terra)"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '0.875rem',
+                      color: 'var(--color-terra)',
+                      animation: 'pop-in 0.35s cubic-bezier(0.16,1,0.3,1) 0.1s both',
+                    }}
+                  >
+                    Request sent — we respond within 24 hours.
+                  </span>
+                </>
+              ) : (
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.75rem 1.5rem',
+                    background: phase === 'idle' ? 'transparent' : 'rgba(194,96,58,0.3)',
+                    border: '1px solid rgba(194,96,58,0.35)',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '0.8125rem',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(245,240,234,0.55)',
+                    transition: 'background 0.4s ease',
+                    userSelect: 'none',
+                  }}
+                >
+                  Send estimate request
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    </div>
+
+      {/* Mobile: stack grid to single col */}
+      <style>{`
+        @media (max-width: 767px) {
+          .estimate-grid {
+            grid-template-columns: 1fr !important;
+            gap: 2.5rem !important;
+          }
+          .estimate-grid > div:last-child {
+            height: 380px !important;
+          }
+        }
+      `}</style>
     </section>
   )
 }
