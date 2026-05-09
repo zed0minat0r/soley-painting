@@ -23,7 +23,7 @@ type Phase =
 const PROJECT_TYPE = 'Interior — 3 rooms'
 const PLACEHOLDER_ADDRESS = '123 Maple Street'
 const PLACEHOLDER_MESSAGE =
-  'Looking to repaint before spring — light neutrals throughout. Available for a walkthrough anytime.'
+  'Repaint primary bedroom + en-suite, ~280 sq ft. Want low-VOC throughout and clean lines on the trim. Flexible on timing — can do a walkthrough any weekday morning.'
 
 /* Natural typing: base delay + random jitter (±10ms) */
 async function typeString(
@@ -199,7 +199,7 @@ export default function LiveEstimate() {
                 marginBottom: '1rem',
               }}
             >
-              Free estimate
+              See how an estimate comes together
             </p>
             <h2
               style={{
@@ -224,8 +224,9 @@ export default function LiveEstimate() {
                 maxWidth: '38ch',
               }}
             >
-              We measure, assess surfaces, and send a line-item written quote
-              within 24 hours of your walkthrough. No surprises.
+              The demo below shows what filling out a real estimate request looks like.
+              We measure every surface ourselves, then send a line-item written quote
+              within 24 hours — no ballpark ranges, no surprises.
             </p>
 
             {/* Honest commitment bullets */}
@@ -240,9 +241,9 @@ export default function LiveEstimate() {
               }}
             >
               {[
-                'Free in-home walkthrough',
-                'Written quote within 24 hours',
-                'Single point of contact, start to finish',
+                'Free in-home walkthrough — we measure every surface ourselves',
+                'Itemized written quote within 24 hours, no ballpark ranges',
+                'Same person from estimate to final walkthrough — no crew-lead handoffs',
               ].map((item) => (
                 <li
                   key={item}
@@ -313,7 +314,7 @@ export default function LiveEstimate() {
                   margin: 0,
                 }}
               >
-                {isSent ? 'Estimate request sent' : 'Get a free estimate'}
+                {isSent ? 'Estimate request sent' : 'Example — how your request looks'}
               </p>
               {/* Live indicator dot */}
               <span
