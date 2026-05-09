@@ -7,8 +7,17 @@ import { useEffect, useRef, useState } from 'react'
    Codrops "horizontal blind" reveal strips — expand from center on entry.
    SVG path draws in on IntersectionObserver entry.
    Dots travel path with rAF, nodes pulse terracotta on arrival.
-   Ref: Codrops SVG mask transitions + horizontal blind entry (Scout Round 3 finding 6).
-   Frame B: Clarity & Whitespace — premium dark panel contrasts chalk sections.  */
+   Frame A additions:
+   (1) Animated paint-stroke border around the panel — chalk border draws itself in on entry
+   (2) Node-pulse splatter burst — radial dots fanning out when lead dot arrives
+   (3) Lead-dot motion-blur ghost trail — translucent copies at decreasing opacity
+   (4) Distinct swatch tile per node — each shows which brand color applies at that step
+   Ref: Codrops SVG mask transitions + horizontal blind entry (Scout Round 3 finding 6)
+       + Scout Site C (Mills) dark premium panel with warm accent rhythm.
+   Replaced: simple feGaussianBlur bloom ring on lead dot (was outer glow ring, now splatter) */
+
+const NODE_SWATCHES = ['#C2603A', '#B8935A', '#F5F0EA', '#2D7A70', '#B8935A']
+const NODE_SWATCH_LABELS = ['Terra', 'Gold', 'Chalk', 'Teal', 'Finish']
 
 const NODES = [
   {
@@ -93,13 +102,17 @@ function buildPath(nodeXArr: number[], y: number): string {
 }
 
 const PATH_D = buildPath(NODE_X, NODE_Y)
-/* BUG-018 fix: SVG viewBox is 80×40 user units; path spans ~64 user units.
-   Using pathLength="1" normalises the path to 1 unit regardless of geometry,
-   so strokeDasharray="1" + strokeDashoffset 1→0 gives a clean draw-in. */
 const PATH_LEN = 1
 
-/* 6 horizontal blind strips — each expands from scaleX(0) to scaleX(1) */
 const STRIP_COUNT = 6
+
+/* Splatter burst — 7 micro-dots fan out from node on arrival */
+const SPLATTER_ANGLES = [0, 51, 103, 154, 205, 257, 308]
+const SPLATTER_RADIUS = 4.5
+
+/* Ghost trail — 5 copies at decreasing opacity behind the lead dot */
+const GHOST_OFFSETS = [0.018, 0.035, 0.052, 0.068, 0.082]
+const GHOST_OPACITIES = [0.5, 0.35, 0.22, 0.13, 0.06]
 
 export default function PaintFlow() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -107,12 +120,9 @@ export default function PaintFlow() {
   const [blindsOpen, setBlindsOpen] = useState(false)
   const [pulsingNode, setPulsingNode] = useState<number>(-1)
   const [dotPos, setDotPos] = useState(0)
+  const [borderDrawn, setBorderDrawn] = useState(false)
 
-  /* IntersectionObserver — trigger blinds + draw on enter.
-     BUG-014 fix: threshold 0.05 fires when just 5% is visible (fires much
-     earlier than 0.2, before iOS momentum scroll can blow past the section).
-     rootMargin '-20px 0px' provides a small buffer to fire before full entry.
-     Opacity transitions have 0s delay so content is visible immediately. */
+  /* IntersectionObserver */
   useEffect(() => {
     const el = sectionRef.current
     if (!el) return
@@ -120,8 +130,8 @@ export default function PaintFlow() {
       ([entry]) => {
         if (entry.isIntersecting) {
           setBlindsOpen(true)
-          // Minimal delay (100ms) for blinds to start before path draws
           setTimeout(() => setDrawn(true), 100)
+          setTimeout(() => setBorderDrawn(true), 250)
         }
       },
       { threshold: 0.05, rootMargin: '-20px 0px' }
@@ -161,7 +171,6 @@ export default function PaintFlow() {
   }
 
   const dot1 = dotXY(dotPos)
-  const dot2 = dotXY(Math.max(0, dotPos - 0.08))
 
   return (
     <section
@@ -174,6 +183,46 @@ export default function PaintFlow() {
         overflow: 'hidden',
       }}
     >
+      {/* Animated paint-stroke border — chalk border draws itself in on entry.
+          Uses 4 pseudo-border lines (top, right, bottom, left) each animating
+          their scaleX/scaleY from 0→1 with staggered delays. */}
+      {/* Top border stroke */}
+      <div style={{
+        position: 'absolute', top: '6px', left: '6px', right: '6px', height: '2px',
+        background: 'rgba(245,240,234,0.18)',
+        transformOrigin: 'left center',
+        transform: borderDrawn ? 'scaleX(1)' : 'scaleX(0)',
+        transition: 'transform 0.6s cubic-bezier(0.16,1,0.3,1) 0s',
+        pointerEvents: 'none',
+      }} />
+      {/* Right border stroke */}
+      <div style={{
+        position: 'absolute', top: '6px', right: '6px', bottom: '6px', width: '2px',
+        background: 'rgba(245,240,234,0.18)',
+        transformOrigin: 'top center',
+        transform: borderDrawn ? 'scaleY(1)' : 'scaleY(0)',
+        transition: 'transform 0.5s cubic-bezier(0.16,1,0.3,1) 0.55s',
+        pointerEvents: 'none',
+      }} />
+      {/* Bottom border stroke */}
+      <div style={{
+        position: 'absolute', bottom: '6px', left: '6px', right: '6px', height: '2px',
+        background: 'rgba(245,240,234,0.18)',
+        transformOrigin: 'right center',
+        transform: borderDrawn ? 'scaleX(1)' : 'scaleX(0)',
+        transition: 'transform 0.5s cubic-bezier(0.16,1,0.3,1) 1.0s',
+        pointerEvents: 'none',
+      }} />
+      {/* Left border stroke */}
+      <div style={{
+        position: 'absolute', top: '6px', left: '6px', bottom: '6px', width: '2px',
+        background: 'rgba(245,240,234,0.18)',
+        transformOrigin: 'bottom center',
+        transform: borderDrawn ? 'scaleY(1)' : 'scaleY(0)',
+        transition: 'transform 0.5s cubic-bezier(0.16,1,0.3,1) 1.45s',
+        pointerEvents: 'none',
+      }} />
+
       {/* Terracotta top stripe */}
       <div
         style={{
@@ -277,8 +326,6 @@ export default function PaintFlow() {
               height: 'auto',
               overflow: 'visible',
               display: 'block',
-              /* Glow filter for the lead dot */
-              filter: 'none',
             }}
             preserveAspectRatio="xMidYMid meet"
           >
@@ -287,13 +334,6 @@ export default function PaintFlow() {
                 <stop offset="0%" stopColor="#C2603A" />
                 <stop offset="100%" stopColor="#2D7A70" />
               </linearGradient>
-              <filter id="dot-bloom" x="-200%" y="-200%" width="500%" height="500%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="1.2" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
             </defs>
 
             {/* Track path — subtle dark line */}
@@ -304,9 +344,7 @@ export default function PaintFlow() {
               fill="none"
             />
 
-            {/* Animated draw-in overlay — thicker stroke on dark bg.
-                pathLength="1" normalises path to 1 unit — dasharray/dashoffset
-                values of 1 and 0 map cleanly regardless of viewBox geometry. */}
+            {/* Animated draw-in overlay */}
             <path
               d={PATH_D}
               stroke="url(#flow-gradient-dark)"
@@ -321,15 +359,32 @@ export default function PaintFlow() {
               }}
             />
 
-            {/* Lead dot — terracotta with bloom filter */}
+            {/* Ghost trail — 5 translucent copies trailing behind lead dot */}
+            {drawn && GHOST_OFFSETS.map((offset, gi) => {
+              const ghostT = Math.max(0, dotPos - offset)
+              const ghostPos = dotXY(ghostT)
+              const ghostRadius = 0.85 * (1 - gi * 0.12)
+              return (
+                <circle
+                  key={`ghost-${gi}`}
+                  cx={ghostPos.x}
+                  cy={ghostPos.y}
+                  r={ghostRadius}
+                  fill="#C2603A"
+                  opacity={GHOST_OPACITIES[gi]}
+                />
+              )
+            })}
+
+            {/* Lead dot — terracotta, no bloom filter (replaced by ghost trail + splatter) */}
             {drawn && (
-              <g filter="url(#dot-bloom)">
-                {/* Outer bloom ring */}
+              <>
+                {/* Warm glow ring */}
                 <circle
                   cx={dot1.x}
                   cy={dot1.y}
-                  r="2.4"
-                  fill="rgba(194,96,58,0.25)"
+                  r="2.0"
+                  fill="rgba(194,96,58,0.20)"
                 />
                 {/* Core dot */}
                 <circle
@@ -338,18 +393,7 @@ export default function PaintFlow() {
                   r="0.85"
                   fill="#C2603A"
                 />
-              </g>
-            )}
-
-            {/* Trailing dot — teal */}
-            {drawn && dotPos > 0.08 && (
-              <circle
-                cx={dot2.x}
-                cy={dot2.y}
-                r="0.48"
-                fill="#2D7A70"
-                opacity={0.75}
-              />
+              </>
             )}
 
             {/* Nodes */}
@@ -357,15 +401,23 @@ export default function PaintFlow() {
               const isPulsing = pulsingNode === i && drawn
               return (
                 <g key={i}>
-                  {/* Outer glow ring on pulse */}
-                  {isPulsing && (
-                    <circle
-                      cx={nx}
-                      cy={NODE_Y}
-                      r="3.8"
-                      fill="rgba(194,96,58,0.12)"
-                    />
-                  )}
+                  {/* Splatter burst — 7 micro-dots radiate outward on node pulse */}
+                  {isPulsing && SPLATTER_ANGLES.map((angle, si) => {
+                    const rad = (angle * Math.PI) / 180
+                    const dx = Math.cos(rad) * SPLATTER_RADIUS
+                    const dy = Math.sin(rad) * SPLATTER_RADIUS
+                    const splatterR = 0.25 + (si % 3) * 0.1
+                    return (
+                      <circle
+                        key={`splat-${si}`}
+                        cx={nx + dx}
+                        cy={NODE_Y + dy}
+                        r={splatterR}
+                        fill="#C2603A"
+                        opacity={0.55}
+                      />
+                    )
+                  })}
                   {/* Node ring */}
                   <circle
                     cx={nx}
@@ -391,7 +443,7 @@ export default function PaintFlow() {
             })}
           </svg>
 
-          {/* Node labels */}
+          {/* Node labels + swatch tiles */}
           <div
             style={{
               display: 'flex',
@@ -414,6 +466,21 @@ export default function PaintFlow() {
                     opacity: drawn ? 1 : 0.3,
                   }}
                 >
+                  {/* Color swatch tile — distinct per node */}
+                  <div
+                    style={{
+                      width: '28px',
+                      height: '8px',
+                      borderRadius: '2px',
+                      background: NODE_SWATCHES[i],
+                      opacity: isPulsing ? 1 : 0.4,
+                      transition: 'opacity 0.3s ease',
+                      marginBottom: '2px',
+                      boxShadow: isPulsing ? `0 0 10px ${NODE_SWATCHES[i]}80` : 'none',
+                    }}
+                    title={NODE_SWATCH_LABELS[i]}
+                  />
+
                   {/* Icon circle */}
                   <div
                     style={{
