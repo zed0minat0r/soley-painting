@@ -60,7 +60,7 @@ export default function Contact() {
               className="scroll-reveal-left"
               style={{
                 fontFamily: 'var(--font-body)',
-                fontSize: '0.8125rem',
+                fontSize: '0.875rem',
                 letterSpacing: '0.3em',
                 textTransform: 'uppercase',
                 color: 'var(--color-terra)',
@@ -312,7 +312,7 @@ export default function Contact() {
                         htmlFor="name"
                         style={{
                           fontFamily: 'var(--font-body)',
-                          fontSize: '0.8125rem', /* Pixel cycle 8: bumped from 0.6875rem (11px) → 13px floor */
+                          fontSize: '0.875rem', /* Pixel cycle 8: bumped from 0.6875rem (11px) → 13px floor */
                           letterSpacing: '0.12em',
                           textTransform: 'uppercase',
                           color: 'rgba(245,240,234,0.45)',
@@ -337,7 +337,7 @@ export default function Contact() {
                         htmlFor="phone"
                         style={{
                           fontFamily: 'var(--font-body)',
-                          fontSize: '0.8125rem', /* Pixel cycle 8: bumped from 0.6875rem (11px) → 13px floor */
+                          fontSize: '0.875rem', /* Pixel cycle 8: bumped from 0.6875rem (11px) → 13px floor */
                           letterSpacing: '0.12em',
                           textTransform: 'uppercase',
                           color: 'rgba(245,240,234,0.45)',
@@ -363,7 +363,7 @@ export default function Contact() {
                       htmlFor="email"
                       style={{
                         fontFamily: 'var(--font-body)',
-                        fontSize: '0.8125rem', /* Pixel cycle 8: bumped from 0.6875rem (11px) → 13px floor */
+                        fontSize: '0.875rem', /* Pixel cycle 8: bumped from 0.6875rem (11px) → 13px floor */
                         letterSpacing: '0.12em',
                         textTransform: 'uppercase',
                         color: 'rgba(245,240,234,0.45)',
@@ -389,7 +389,7 @@ export default function Contact() {
                       htmlFor="message"
                       style={{
                         fontFamily: 'var(--font-body)',
-                        fontSize: '0.8125rem', /* Pixel cycle 8: bumped from 0.6875rem (11px) → 13px floor */
+                        fontSize: '0.875rem', /* Pixel cycle 8: bumped from 0.6875rem (11px) → 13px floor */
                         letterSpacing: '0.12em',
                         textTransform: 'uppercase',
                         color: 'rgba(245,240,234,0.45)',

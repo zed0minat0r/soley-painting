@@ -117,7 +117,7 @@ export default function LiveEstimate() {
   const labelStyle: React.CSSProperties = {
     display: 'block',
     fontFamily: 'var(--font-body)',
-    fontSize: '0.6875rem',
+    fontSize: '0.875rem',
     letterSpacing: '0.14em',
     textTransform: 'uppercase',
     color: 'rgba(245,240,234,0.45)',
@@ -192,7 +192,7 @@ export default function LiveEstimate() {
             <p
               style={{
                 fontFamily: 'var(--font-body)',
-                fontSize: '0.8125rem',
+                fontSize: '0.875rem',
                 letterSpacing: '0.3em',
                 textTransform: 'uppercase',
                 color: 'var(--color-terra)',
@@ -306,7 +306,7 @@ export default function LiveEstimate() {
               <p
                 style={{
                   fontFamily: 'var(--font-body)',
-                  fontSize: '0.6875rem',
+                  fontSize: '0.875rem',
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
                   color: isSent ? 'var(--color-terra)' : 'rgba(245,240,234,0.4)',
@@ -422,7 +422,7 @@ export default function LiveEstimate() {
                     background: phase === 'idle' ? 'transparent' : 'rgba(194,96,58,0.3)',
                     border: '1px solid rgba(194,96,58,0.35)',
                     fontFamily: 'var(--font-body)',
-                    fontSize: '0.8125rem',
+                    fontSize: '0.875rem',
                     letterSpacing: '0.1em',
                     textTransform: 'uppercase',
                     color: 'rgba(245,240,234,0.55)',

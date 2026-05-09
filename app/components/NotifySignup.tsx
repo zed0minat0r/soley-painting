@@ -52,7 +52,7 @@ export default function NotifySignup() {
           style={{
             fontFamily: 'var(--font-body)',
             fontWeight: 600,
-            fontSize: '0.8125rem',
+            fontSize: '0.875rem',
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
             color: 'var(--color-rust)',

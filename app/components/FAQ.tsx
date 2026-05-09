@@ -241,7 +241,7 @@ export default function FAQ() {
             <p
               style={{
                 fontFamily: 'var(--font-body)',
-                fontSize: '0.8125rem',
+                fontSize: '0.875rem',
                 letterSpacing: '0.3em',
                 textTransform: 'uppercase',
                 color: 'var(--color-terra)',

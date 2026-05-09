@@ -462,7 +462,7 @@ export default function Hero3D() {
         style={{
           fontFamily: 'var(--font-body)',
           fontWeight: 500,
-          fontSize: '0.8125rem',
+          fontSize: '0.875rem',
           letterSpacing: '0.3em',
           textTransform: 'uppercase',
           color: 'var(--color-rust)',
@@ -654,7 +654,7 @@ export default function Hero3D() {
             bottom: '0.625rem',
             right: '0.75rem',
             fontFamily: 'var(--font-body)',
-            fontSize: '0.8125rem',
+            fontSize: '0.875rem',
             letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: 'rgba(34, 24, 16, 0.35)',
@@ -732,7 +732,7 @@ export default function Hero3D() {
             <p
               style={{
                 fontFamily: 'var(--font-body)',
-                fontSize: '0.8125rem',
+                fontSize: '0.875rem',
                 color: 'rgba(244, 237, 227, 0.5)',
               }}
             >
@@ -759,7 +759,7 @@ export default function Hero3D() {
         <span
           style={{
             fontFamily: 'var(--font-body)',
-            fontSize: '0.8125rem',
+            fontSize: '0.875rem',
             letterSpacing: '0.3em',
             textTransform: 'uppercase',
             color: 'rgba(244, 237, 227, 0.35)',

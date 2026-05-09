@@ -88,7 +88,7 @@ export default function Footer() {
             <a
               href="#contact"
               className="btn-primary"
-              style={{ padding: '0.75rem 1.5rem', fontSize: '0.8125rem' }}
+              style={{ padding: '0.75rem 1.5rem', fontSize: '0.875rem' }}
             >
               Get a Free Estimate
             </a>
@@ -157,7 +157,7 @@ export default function Footer() {
           <p
             style={{
               fontFamily: 'var(--font-body)',
-              fontSize: '0.8125rem',
+              fontSize: '0.875rem',
               color: 'rgba(245,240,234,0.3)',
             }}
           >
@@ -168,7 +168,7 @@ export default function Footer() {
           <span
             style={{
               fontFamily: 'var(--font-body)',
-              fontSize: '0.8125rem', /* Pixel cycle 8: bumped from 0.7rem (11.2px) → 13px floor */
+              fontSize: '0.875rem', /* Pixel cycle 8: bumped from 0.7rem (11.2px) → 13px floor */
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'rgba(245,240,234,0.28)',
