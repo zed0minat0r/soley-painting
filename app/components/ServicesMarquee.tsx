@@ -5,15 +5,17 @@
 
 import { useScroll, useVelocity, useTransform, useSpring, motion } from 'framer-motion'
 
+// Drop Cloth & Rust palette — rust / ochre / linen / stone rotation.
+// No teal. Stone (#EAE0D4) added as warm mid-tone contrast.
 const ITEMS = [
-  { label: 'Interior Painting', color: '#F4EDE3' },   // linen
-  { label: 'Exterior Painting', color: '#B8884A' },   // ochre (was teal)
-  { label: 'Commercial', color: '#BF5B38' },          // rust
-  { label: 'Cabinet & Trim', color: '#B8884A' },      // ochre
-  { label: 'Specialty Coatings', color: '#BF5B38' },  // rust
-  { label: 'Surface Prep', color: '#F4EDE3' },        // linen
-  { label: 'Color Consultation', color: '#B8884A' },  // ochre (was teal)
-  { label: 'Free Estimate', color: '#B8884A' },       // ochre
+  { label: 'Interior Painting',   color: '#F4EDE3' },   // linen
+  { label: 'Exterior Painting',   color: '#BF5B38' },   // rust
+  { label: 'Commercial',          color: '#B8884A' },   // ochre
+  { label: 'Cabinet & Trim',      color: '#EAE0D4' },   // stone
+  { label: 'Specialty Coatings',  color: '#BF5B38' },   // rust
+  { label: 'Surface Prep',        color: '#B8884A' },   // ochre
+  { label: 'Color Consultation',  color: '#F4EDE3' },   // linen
+  { label: 'Free Estimate',       color: '#EAE0D4' },   // stone
 ]
 
 // Duplicate for seamless loop

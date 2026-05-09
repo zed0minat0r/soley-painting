@@ -8,6 +8,7 @@ import WhySoley from './components/WhySoley'
 import FounderBlock from './components/FounderBlock'
 import PortfolioGallery from './components/PortfolioGallery'
 import FAQ from './components/FAQ'
+import NotifySignup from './components/NotifySignup'
 import Process from './components/Process'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
@@ -32,6 +33,8 @@ export default function Home() {
       <PortfolioGallery />
       <SectionDivider />
       <FAQ />
+      <SectionDivider />
+      <NotifySignup />
       <SectionDivider />
       <Process />
       <Contact />
