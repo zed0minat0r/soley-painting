@@ -107,7 +107,7 @@
     position: relative;
     cursor: pointer;
     text-decoration: none;
-    transition: border-color 0.25s ease, color 0.25s ease, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   }
   /* Bottom stroke: grows scaleX 0→1 from left, terracotta, 2px */
   .btn-secondary::after {
@@ -260,7 +260,7 @@
   font-size: 0.9375rem;
   /* outline:none only for mouse users — keyboard gets :focus-visible ring */
   outline: none;
-  transition: border-color 0.2s ease, background 0.2s ease;
+  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .form-field::placeholder {
   color: rgba(245, 240, 234, 0.35);
@@ -649,7 +649,7 @@ a:focus-visible {
   background: transparent;
   cursor: pointer;
   border-radius: 2px;
-  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  transition: background 0.18s cubic-bezier(0.16, 1, 0.3, 1), color 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .portfolio-chip:hover {
@@ -675,7 +675,7 @@ a:focus-visible {
 .portfolio-grid--exit .portfolio-tile {
   opacity: 0;
   transform: translateY(6px);
-  transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ── Filter enter phase: tiles stagger in via CSS custom prop ──────────── */
@@ -704,7 +704,7 @@ a:focus-visible {
   background: var(--color-chalk);
   box-shadow: 0 2px 14px rgba(44, 44, 44, 0.08);
   /* lift + shadow on hover — see ::before for brand-accent left-rail */
-  transition: box-shadow 0.28s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Brand-accent left-rail draws in on hover (scaleY 0→1, top-origin) */

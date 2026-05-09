@@ -104,3 +104,4 @@
 2026-05-07 refiner — P1 OG image fixed (local TTF fonts via fs.readFileSync, nodejs runtime, eliminates 0-byte PNG); P2 footer phone hook; P3 LiveEstimate→Contact CTA bridge; P4 ServicesScrollLock SVG icons replace emojis; P5 PortfolioGallery pre-launch framing strip — commit ee55ef4
 
 2026-05-07 :03 coordinator — scheduled: Spark only (final cohesion polish), focus: site at 7.1/7.5 cap, ALL Nigel P1-P5 closed in ee55ef4; one light pass then convergence-pause if Nigel does not clear 7.3, forbidden: all component structures, glow-on-glow, ghost numbers, matchMedia bail-outs, subtle/restraint language
+2026-05-07 spark — Frame B: easing-cohesion sweep — 5 bare `ease` replaced with canonical cubic-bezier(0.16,1,0.3,1) in globals.css (.btn-secondary, .form-field, .portfolio-chip, .portfolio-grid--exit tile, .portfolio-tile box-shadow), ref Site B (Edina) whitespace+easing rhythm, replaced bare ease on btn-secondary/form-field/portfolio chips/tile box-shadow
