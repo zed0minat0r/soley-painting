@@ -1,32 +1,39 @@
-# PLAN.md — Builder Cycle 9: FAQ scope-clarity extension
+# PLAN.md — Cycle 10 Builder: SEO Foundation Layer
 
 **Date:** 2026-05-07
-**Scope:** Extend existing `app/components/FAQ.tsx` — add 3 scope-clarity Q&A items to the `ITEMS` array. No structural changes to the component.
+**Target:** Zero fabrication. Mirror only what is actually on the page.
 
-## Files changing
+## Files to change
 
-| File | Change |
-|---|---|
-| `app/components/FAQ.tsx` | Append 3 items to `ITEMS` array only — no component restructure |
-| `PLAN.md` | This file |
-| `CHANGELOG-AGENT.md` | Append one line |
+1. `app/layout.tsx` — Replace thin metadata export with expanded version:
+   - `metadataBase`, `alternates.canonical`, `keywords`, `authors`, `creator`
+   - Full `openGraph` block (title, description, type, locale) — no og:image
+   - `twitter` card block (summary_large_image, title, description)
+   - Add JSON-LD `<script>` tag via `dangerouslySetInnerHTML` inline in RootLayout
+   - JSON-LD payload: LocalBusiness + Service (5 panels) + FAQPage (9 items)
 
-## What ships
+2. `app/robots.ts` — NEW. Next.js App Router robots config.
+   - Allow all crawlers, point to sitemap URL.
 
-3 honest scope-clarity questions buyers ask before booking a painter:
+3. `app/sitemap.ts` — NEW. Next.js App Router sitemap config.
+   - Single homepage entry with lastModified + priority + changefreq.
 
-1. "Do you handle drywall repairs, or just paint?" — scope of surface prep; honest that major structural drywall is a separate trade
-2. "Do you remove existing wallpaper?" — honest that it's in scope; complexity depends on layers and adhesive
-3. "Do you match colors from an existing paint job?" — honest answer about color matching from chips and can labels
+## Data sources (no fabrication)
 
-All three use the existing `accent` color cycle (terra / teal / gold continuing from item 6).
-No fabricated partner names, no fabricated pricing, no fabricated square-footage minimums.
-`aria-expanded` / `aria-controls` ARIA is inherited from the existing `FAQItem` component.
+- Business name: "Soley Painting" (from live site)
+- Description: from existing `metadata.description` in layout.tsx
+- Services: 5 panels verbatim from `ServicesScrollLock.tsx` PANELS array
+- FAQ: 9 items verbatim from `FAQ.tsx` ITEMS array
+- NO address, NO phone, NO hours, NO priceRange, NO aggregateRating
 
 ## Success criterion
 
-`npx next build` passes clean. 9 total FAQ items render. Honest content only.
+`npx next build` passes clean. Three JSON-LD script tags in HTML output.
+No TypeScript errors. No fabricated business data.
 
-## Diff scope
+## Scope limit
 
-~24 lines added to `ITEMS` array. Zero component restructure.
+Touch ONLY `app/layout.tsx`, create `app/robots.ts`, create `app/sitemap.ts`.
+Zero changes to any existing component.
+
+**Word count: ~160**
