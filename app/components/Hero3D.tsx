@@ -56,9 +56,9 @@ const BRAND_COLORS = [
 ]
 
 // ── 5 painter icons — viewBox 0 0 280 200 ──────────────────────────────────
-// Each icon: array of path d-strings (each drawn in sequence as one stroke if possible)
-// Single continuous paths preferred — allows one brush stroke per path segment.
-// Stroke-only, no fill. Simple Bézier geometry at ~80–180px scale.
+// Redesigned for instant readability: 1-3 paths max, icon legible within 1-2s.
+// Strategy: single continuous paths that read as complete silhouettes early.
+// strokeWidth 4.5 for visibility on small canvas.
 
 interface IconDef {
   label: string
@@ -67,80 +67,64 @@ interface IconDef {
 
 const ICONS: IconDef[] = [
   {
-    // 0 — Smiley face: circle outline → left eye dot arc → right eye dot arc → smile arc
+    // 0 — Smiley face: big face circle → smile arc → left eye arc → right eye arc
+    // Face circle is ONE unbroken path so silhouette reads in first second.
     label: 'smiley face',
     paths: [
-      // Outer circle (large arc, drawn as open path that approximates a circle)
-      'M 140 70 m -55 0 a 55 55 0 1 0 110 0 a 55 55 0 1 0 -110 0',
-      // Left eye (small circle arc)
-      'M 122 88 m -7 0 a 7 7 0 1 0 14 0 a 7 7 0 1 0 -14 0',
-      // Right eye (small circle arc)
-      'M 158 88 m -7 0 a 7 7 0 1 0 14 0 a 7 7 0 1 0 -14 0',
-      // Smile arc
-      'M 118 112 Q 140 134 162 112',
+      // Face circle — single full loop (legible in first 500ms = you see a circle forming)
+      'M 140 58 a 62 62 0 1 0 0.01 0 Z',
+      // Smile arc — generous curve in lower third
+      'M 108 118 Q 140 148 172 118',
+      // Left eye — small arc (fast draw, ~6px circle)
+      'M 116 88 a 8 8 0 1 0 0.01 0 Z',
+      // Right eye — small arc
+      'M 164 88 a 8 8 0 1 0 0.01 0 Z',
     ],
   },
   {
-    // 1 — Paint can: rectangle body → handle arc → drip line
-    label: 'paint can',
-    paths: [
-      // Can body — rectangle outline, drawn as a single open path
-      'M 95 80 L 185 80 L 185 165 L 95 165 Z',
-      // Handle arc — parabola arc over the top of the can
-      'M 110 80 Q 140 48 170 80',
-      // Drip from bottom of can — 3-segment trickle
-      'M 152 165 Q 154 178 150 188 Q 148 195 153 200',
-      // Label line on can (horizontal stripe)
-      'M 100 118 L 180 118',
-    ],
-  },
-  {
-    // 2 — Paintbrush: long handle → ferrule box → bristle V-fan
-    label: 'paintbrush',
-    paths: [
-      // Handle — long diagonal line from top-right to center
-      'M 200 50 L 140 120',
-      // Ferrule — small box around the ferrule area
-      'M 133 117 L 147 103 L 153 109 L 139 123 Z',
-      // Bristle fan — 5 lines radiating from bristle base
-      'M 133 117 L 115 132',
-      'M 137 120 L 122 140',
-      'M 140 123 L 128 145',
-      'M 143 122 L 134 146',
-      'M 146 120 L 140 142',
-    ],
-  },
-  {
-    // 3 — Paint roller: handle line → roller cylinder → drip
-    label: 'paint roller',
-    paths: [
-      // Handle — L-shaped rod
-      'M 100 55 L 140 95 L 140 145',
-      // Roller cylinder — elongated rounded rect, drawn as path
-      'M 155 95 L 200 95 Q 210 95 210 110 L 210 130 Q 210 145 200 145 L 155 145 Q 145 145 145 130 L 145 110 Q 145 95 155 95 Z',
-      // Drip from bottom of roller
-      'M 175 145 Q 177 158 173 170 Q 171 177 176 180',
-    ],
-  },
-  {
-    // 4 — House outline: square base → triangle roof → door → window
+    // 1 — House: single continuous path traces walls+roof in one stroke → instantly house-shaped
+    // Door drawn second. Two paths total.
     label: 'house',
     paths: [
-      // House base — square
-      'M 85 120 L 85 175 L 195 175 L 195 120',
-      // Roof — triangle (two slanted lines meeting at peak)
-      'M 80 122 L 140 68 L 200 122',
-      // Door — rectangle centered bottom
-      'M 125 175 L 125 148 L 155 148 L 155 175',
-      // Window — small square upper left
-      'M 93 130 L 93 150 L 113 150 L 113 130 Z',
+      // One continuous path: up-left wall → apex → down-right wall → right wall → floor →
+      // left wall back → close. Reads as house silhouette by the time roof apex is reached (~30% in).
+      'M 80 168 L 80 120 L 140 62 L 200 120 L 200 168 L 80 168 Z',
+      // Door — centered, open-top rectangle (3 sides, bottom is floor line)
+      'M 120 168 L 120 140 L 160 140 L 160 168',
+    ],
+  },
+  {
+    // 2 — Paint roller: handle L + roller cylinder in 2 paths
+    label: 'paint roller',
+    paths: [
+      // Handle — angled L-shape, reads as roller handle immediately
+      'M 90 52 L 140 98 L 140 150',
+      // Roller body — wide rounded rectangle
+      'M 150 98 L 205 98 Q 215 98 215 115 L 215 135 Q 215 150 205 150 L 150 150 Q 140 150 140 135 L 140 115 Q 140 98 150 98 Z',
+    ],
+  },
+  {
+    // 3 — Star: 5-pointed star drawn as single continuous path (children's art style)
+    // Path: start at top tip, draw each point in sequence — instantly a star.
+    label: 'star',
+    paths: [
+      // 5-point star, one closed path, counter-clockwise from top
+      'M 140 52 L 151 85 L 188 85 L 158 106 L 169 140 L 140 119 L 111 140 L 122 106 L 92 85 L 129 85 Z',
+    ],
+  },
+  {
+    // 4 — Heart: single closed path, 2 cubic Béziers — reads as heart in first 40% of draw
+    label: 'heart',
+    paths: [
+      // Heart: start at bottom tip, sweep up-left lobe, over top, down-right lobe, back to tip
+      'M 140 165 C 80 130 68 75 100 68 C 115 65 130 75 140 92 C 150 75 165 65 180 68 C 212 75 200 130 140 165 Z',
     ],
   },
 ]
 
-const STROKE_DURATION_MS = 3500  // ~constant velocity draw
+const STROKE_DURATION_MS = 1200  // fast constant-velocity draw (~1.2s per path)
 const HOLD_DURATION_MS   = 1500  // hold after complete
-const FADE_DURATION_MS   = 700   // fade out
+const FADE_DURATION_MS   = 600   // fade out
 
 type Phase = 'painting' | 'holding' | 'fading' | 'idle'
 
@@ -569,7 +553,7 @@ export default function Hero3D() {
                 d={d}
                 fill="none"
                 stroke={color}
-                strokeWidth={2.8}
+                strokeWidth={4.5}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeDasharray={state.totalLen}
@@ -586,7 +570,7 @@ export default function Hero3D() {
               d={d}
               fill="none"
               stroke={color}
-              strokeWidth={2.8}
+              strokeWidth={4.5}
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeDasharray={pathStates[pi]?.totalLen ?? 10000}
@@ -595,53 +579,53 @@ export default function Hero3D() {
             />
           ))}
 
-          {/* ── Paintbrush sprite — tracks leading edge ── */}
+          {/* ── Paintbrush sprite — tracks leading edge (50% smaller than original) ── */}
           {brushX > -50 && (
             <g
               transform={`translate(${brushX}, ${brushY}) rotate(${brushAngle})`}
               style={{ pointerEvents: 'none' }}
             >
-              {/* Bristles — fan behind the tip */}
-              {[-6, -3.5, -1, 1.5, 4, 6.5].map((offset, i) => (
+              {/* Bristles — compact fan behind tip */}
+              {[-3, -1.5, 0, 1.5, 3].map((offset, i) => (
                 <line
                   key={i}
-                  x1={-3}
-                  y1={offset * 0.55}
-                  x2={-20 - (i % 3) * 2.5}
-                  y2={offset * 0.22}
+                  x1={-2}
+                  y1={offset * 0.5}
+                  x2={-10 - (i % 3) * 1.5}
+                  y2={offset * 0.2}
                   stroke={color}
-                  strokeWidth={1.4}
+                  strokeWidth={0.9}
                   strokeLinecap="round"
                   opacity={0.82}
                 />
               ))}
-              {/* Ferrule */}
+              {/* Ferrule — narrow */}
               <rect
-                x={-5}
-                y={-5.5}
-                width={11}
-                height={11}
-                rx={2.5}
+                x={-3}
+                y={-3}
+                width={6}
+                height={6}
+                rx={1.5}
                 fill="#C8B8A2"
                 stroke="#A8947E"
-                strokeWidth={0.6}
+                strokeWidth={0.4}
               />
-              {/* Handle */}
+              {/* Handle — slender */}
               <rect
-                x={6}
-                y={-4.5}
-                width={40}
-                height={9}
-                rx={4.5}
+                x={3}
+                y={-2.5}
+                width={22}
+                height={5}
+                rx={2.5}
                 fill="#3D2314"
               />
               {/* End cap */}
-              <circle cx={49} cy={0} r={4} fill="#3D2314" />
+              <circle cx={26} cy={0} r={2.5} fill="#3D2314" />
               {/* Wet paint bead at bristle tip */}
               <circle
-                cx={-20}
+                cx={-10}
                 cy={0}
-                r={3}
+                r={1.8}
                 fill={color}
                 opacity={0.92}
               />
