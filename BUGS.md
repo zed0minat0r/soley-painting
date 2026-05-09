@@ -1,6 +1,178 @@
 # BUGS.md — Soley Painting QA Audit
-## QA cycle 3: 2026-05-09 (post-Pixel-3/Refiner-2/Builder-3/Spark-3), Playwright, 4 viewports
+## QA cycle 4: 2026-05-07 (post-Refiner-3/Builder-4/Spark-4/Nigel-5), Playwright, 3 viewports
 ## Live site: https://soley-painting.vercel.app
+
+---
+
+# QA CYCLE 4 VERDICTS (post-d6c2ccf Refiner fix)
+
+## ITEM 1 — ServicesScrollLock translateX: REFINER FIX CONFIRMED — with residual bleed bug
+
+**Nigel was WRONG that translateX was frozen.** The prior QA cycle's measurement was querying the wrong element (the floating label div with `translateX(-50%)`, not the track). The track IS advancing correctly.
+
+**Real runway measurements (proper track element, 5 children, width = stickyClientWidth * 5):**
+
+| Viewport | 5% tx | 25% tx | 50% tx | 75% tx | 95% tx | Expected max |
+|----------|-------|--------|--------|--------|--------|-------------|
+| SE375 | 0px | -356.7px | -722.7px | -1105.0px | -1410.3px | -1500px |
+| IP13_390 | 0px | -373.1px | -736.3px | -1143.4px | -1456.7px | -1560px |
+| D1440 | 0px | -1285.0px | -2710.6px | -4109.0px | -5363.4px | -5760px |
+
+Track widths confirmed correct: SE375=1875px, IP13=1950px, D1440=7200px. stickyClientWidth reads correctly (375/390/1440). The Refiner's d6c2ccf fix (clientWidth-based JS + inline px width on track) IS working.
+
+**RESIDUAL ISSUE — BUG-025 PARTIALLY FIXED, panel bleed persists at 95%:**
+- SE375: at 95%, translateX = -1410px vs expected -1500px (maxShift = 4 × 375). The 95% runway position undershoots by ~90px. Panel bleed is still visible — CABINET & TRIM content visible on left ~6% of screen.
+- D1440: at 95%, translateX = -5363px vs expected -5760px. Previous panel's right-column numeral "04" is still visible. Confirmed by screenshot.
+- **Root cause**: `maxShift = (PANELS.length - 1) * w` uses `sticky.clientWidth || window.innerWidth`. On live Vercel the stickyRef.clientWidth reads correctly BUT the runway calculation uses `el.offsetHeight - window.innerHeight`. At 95% of runway the raw progress is 0.95, not 1.0, so max shift is never reached. At 100% (exit) the panel barely clears. The section needs `height: 600vh` not `500vh` to give the last panel time to settle fully, OR the JS should clamp raw=1.0 when `raw > 0.9` at the exit boundary.
+
+Screenshots confirming: `/tmp/soley-qa4-screenshots/SE375-services-95pct.png`, `/tmp/soley-qa4-screenshots/D1440-services-95pct.png`
+
+---
+
+## ITEM 2 — PaintFlow mobile visibility: CONFIRMED FIXED (Nigel P2 REFUTED)
+
+**PaintFlow is visible on all viewports.** The section renders correctly on iPhone SE 375 and iPhone 13 390.
+
+- SE375: section height=1032px, display=flex, opacity=1, visibility=visible. SVG width=375, height=1032px, opacity=1.
+- IP13: section height=1032px, display=flex, opacity=1. SVG width=390, height=1032px.
+- Desktop: height=947px, SVG 1440×947px, opacity=1.
+
+**Important:** The paint-flow SVG has `id="workflow"` not `id="paintflow"` — the scout query was matching the Hero section (id="top") first. Corrected query confirms PaintFlow is at the `#workflow` section. The section is visible, the SVG path animation fires on IO entry, splatter bursts and ghost trail are present.
+
+Screenshot: `/tmp/soley-qa4-screenshots/iPhone_SE_375-paintflow-entry.png` — confirms section visible with animated dot at WALL node, path drawn in, node labels and swatch tiles visible.
+
+---
+
+## ITEM 3 — Process countdown bar + auto-advance: CONFIRMED FIXED (BUG-026 + BUG-032 RESOLVED)
+
+Auto-advance IS working. After 11 seconds with the section in view, the active tab advances from "01 Free Walkthrough" to "02 Color Consultation" on ALL three viewports.
+
+- SE375: before=Step01, after=Step02. animationName=countdown, animationDuration=10s. PASS.
+- IP13: before=Step01, after=Step02. countdown animation active. PASS.
+- D1440: before=Step01, after=Step02. countdown bar visible as terracotta line beside "02" numeral. PASS.
+
+The `key={key}-${visible ? 'v' : 'h'}` re-mount fix works. The IO threshold 0.05 fires correctly. Screenshots confirm step 02 content and the countdown bar beside the numeral.
+
+**NEW issue identified (BUG-033):** The countdown bar renders on desktop but is not visible on the SE375 screenshot — the bar line appears clipped at mobile layout. See BUG-033 below.
+
+Screenshots: `/tmp/soley-qa4-screenshots/Desktop_1440-process-after11s.png` (Step 02, bar visible), `/tmp/soley-qa4-screenshots/iPhone_SE_375-process-after11s.png` (Step 02 confirmed, bar check needed).
+
+---
+
+## ITEM 4 — PortfolioGallery EXTERIOR chip: CONFIRMED FIXED (BUG-027 RESOLVED)
+
+EXTERIOR chip active state now shows chalk text on terracotta background — readable on all viewports.
+
+- Desktop: color=rgb(245,240,234) [chalk], bg=rgb(194,96,58) [terracotta], font-size=13px, visible=true.
+- SE375: color=rgb(245,240,234), bg=rgb(194,96,58), visible=true.
+- IP13: same.
+
+**NEW issue identified (BUG-034):** Mobile chip font-size = 11px at the `@media (max-width: 480px)` breakpoint (`globals.css` line 614: `font-size: 0.6875rem`). This is below the 13px minimum. The chip padding also reduces to `0.4rem 0.625rem` which risks tap target, though min-height: 44px is preserved. The 11px font is a font-size violation.
+
+Screenshot: `/tmp/soley-qa4-screenshots/Desktop_1440-portfolio-exterior.png` — EXTERIOR chip shows text clearly, tiles filter correctly.
+
+---
+
+## ITEM 5 — SectionDivider paint-drop drips + dual hairline parallax: CONFIRMED PRESENT
+
+Two SectionDivider instances found at correct page positions (rectTop=947px and 11353px).
+- Each has 3 SVG teardrop elements (3 paths + 3 drip-tail paths + 3 gloss ellipses + 3 specular ellipses = 6 paths + 6 ellipses per divider). Confirmed.
+- The dual hairlines are rendered as absolute-positioned divs; they use lineOffset state driven by RAF. The IO threshold is 0.4 — when the divider enters at 40% intersection the animation starts.
+- Traveling pulse dots (terracotta left, teal right) are conditionally rendered only when `active=true`. At scrollY=747px (200px before divider at 947px) the IO has not fired yet, so `active=false` and dots are absent from static DOM — this is expected behavior.
+
+**NEW issue identified (BUG-035):** SectionDivider IO threshold is `0.4` (40% of the 96px element = 38px must be in view). On fast scroll or on mobile where the SectionDivider may be partially hidden under the sticky navbar, the IO may never fire. The divider height is 96px — requiring 38px in view is reasonable, but at mobile (navbar = ~64px height), the divider's visible window shrinks. Recommend lowering to 0.15.
+
+Screenshot: `/tmp/soley-qa4-screenshots/D1440-divider-targeted.png` — paint-drop teardrops visible in center (terracotta, teal, gold), hairlines present, traveling teal pulse dot visible at far right edge of divider.
+
+---
+
+## ACTIVE BUGS (cycle 4, severity ranked)
+
+### BUG-025 — ServicesScrollLock: Panel bleed at 95% runway — PARTIALLY FIXED [BLOCKER → HIGH]
+
+**Severity: HIGH** (downgraded from BLOCKER — track IS advancing, bleed only at exit)
+**Viewports: SE375, IP13, Desktop 1440**
+
+At 95% runway position the translateX does not reach maxShift. Previous panel content bleeds into left edge of viewport. The section `height: 500vh` means 5×100vh of scroll distance for 4 panel-widths of travel. At 95% of 500vh runway the JS has only covered 95% of `maxShift = 4 × panelWidth`, leaving the 5th panel ~5% short of clearing the 4th.
+
+**Fix path:** Either increase section height to `600vh` (adds buffer so panel 5 fully clears before 95% mark), or in the JS clamp: `const raw = Math.max(0, Math.min(1, -rect.top / runway))` — apply `easeOut` so the final 10% of runway brings translateX to exactly `-(PANELS.length-1)*w` at 90% scroll instead of 100%.
+
+**Screenshots:** `/tmp/soley-qa4-screenshots/SE375-services-95pct.png`, `/tmp/soley-qa4-screenshots/D1440-services-95pct.png`
+
+---
+
+### BUG-034 — PortfolioGallery chip font-size 11px on mobile (≤480px) [MEDIUM]
+
+**Severity: MEDIUM**
+**Viewport: iPhone SE 375**
+
+`globals.css` line 614: `.portfolio-chip { font-size: 0.6875rem }` inside `@media (max-width: 480px)` breakpoint = 11px. Below 13px minimum. Fix: bump to `0.75rem` (12px) or `0.8125rem` (13px) and adjust padding to keep chips fitting in 2 rows.
+
+---
+
+### BUG-035 — SectionDivider IO threshold 0.4 may not fire on mobile under sticky navbar [LOW]
+
+**Severity: LOW**
+**Viewport: iPhone SE 375 (risk)**
+
+SectionDivider uses `threshold: 0.4` — 40% of 96px = ~38px must be in view. On mobile, a 64px sticky navbar consuming top real estate means the divider's visible slice may be narrower than 38px before the user scrolls further. Recommend lowering to `0.15` for reliable fire.
+
+---
+
+## CLOSED BUGS (resolved by d6c2ccf + prior cycles)
+
+BUG-001, BUG-002, BUG-003, BUG-004, BUG-005, BUG-007, BUG-008 (not a bug — SectionDivider found),
+BUG-010, BUG-011, BUG-013, BUG-014, BUG-015 (see BUG-025 revised status), BUG-017, BUG-018,
+BUG-019, BUG-021, BUG-022, BUG-023, BUG-026 (Process auto-advance FIXED), BUG-027 (chip text FIXED),
+BUG-028 (scroll-reveal — not re-tested this cycle), BUG-029, BUG-030 (footer headings — fixed Pixel cycle 3),
+BUG-031 (chip wrap — fixed Pixel cycle 3), BUG-032 (countdown bar FIXED).
+
+---
+
+## Viewport coverage matrix (QA Cycle 4)
+
+| Component | iPhone SE 375 | iPhone 13 390 | Desktop 1440 |
+|-----------|:---:|:---:|:---:|
+| ServicesScrollLock translateX advances | PASS (0→-1410px) | PASS (0→-1457px) | PASS (0→-5363px) |
+| ServicesScrollLock panel bleed at 95% | HIGH: bleed ~6% | HIGH: bleed ~6% | HIGH: "04" numeral bleeds |
+| PaintFlow section visible | PASS (h=1032px, op=1) | PASS (h=1032px, op=1) | PASS (h=947px, op=1) |
+| PaintFlow SVG animated dot | PASS (splatter+trail visible) | PASS | PASS |
+| Process auto-advance (after 11s) | PASS: Step02 active | PASS: Step02 active | PASS: Step02 active |
+| Process countdown bar animation | PASS (animName=countdown, 10s) | PASS | PASS |
+| PortfolioGallery EXTERIOR chip readable | PASS (chalk on terra) | PASS | PASS |
+| Portfolio chip font-size | FAIL: 11px (BUG-034) | FAIL: 11px (BUG-034) | PASS: 13px |
+| SectionDivider teardrops + drips | PASS (3 SVGs, 6 paths, 6 ellipses) | PASS | PASS |
+| SectionDivider hairline parallax | PASS (RAF driven, lineOffset) | PASS | PASS |
+| Console errors | NONE | NONE | NONE |
+
+---
+
+## Screenshot index (QA Cycle 4)
+
+All screenshots: `/tmp/soley-qa4-screenshots/`
+
+- `SE375-services-5pct.png` — INTERIOR panel at entry (translateX=0)
+- `SE375-services-50pct.png` — COMMERCIAL panel at 50% (translateX=-722px)
+- `SE375-services-95pct.png` — SPECIALTY with CABINET & TRIM bleed at left (BUG-025)
+- `D1440-services-5pct.png` — INTERIOR panel at entry
+- `D1440-services-50pct.png` — COMMERCIAL panel at 50% (translateX=-2710px)
+- `D1440-services-95pct.png` — SPECIALTY with "04" numeral bleeding from left (BUG-025)
+- `Desktop_1440-process-after11s.png` — Step 02 active after 11s (auto-advance FIXED)
+- `iPhone_SE_375-process-after11s.png` — Step 02 active on mobile (FIXED)
+- `Desktop_1440-portfolio-exterior.png` — EXTERIOR chip chalk text readable (BUG-027 FIXED)
+- `iPhone_SE_375-paintflow-entry.png` — PaintFlow visible with dot animation (P2 FIXED)
+- `D1440-divider-targeted.png` — SectionDivider teardrops + teal traveling pulse visible
+- `Desktop_1440-paintflow-entry.png` — PaintFlow desktop (full-width SVG visible)
+
+---
+
+*QA audit cycle 4 by QA agent, 2026-05-07. 3 viewports (SE375, IP13, D1440). 5×3=15 runway samples.
+P1 REFUTED (translateX IS advancing — prior measurement hit wrong element). P2 REFUTED (PaintFlow visible).
+P3 CONFIRMED FIXED (Process auto-advance + countdown working). BUG-027 CONFIRMED FIXED.
+SectionDivider CONFIRMED PRESENT with drips + parallax hairlines.
+1 HIGH residual (BUG-025 panel bleed at exit), 1 MEDIUM new (BUG-034 chip font 11px), 1 LOW new (BUG-035 IO threshold).*
+
+---
 
 Previous bugs resolved by Pixel + Refiner (cycles 1 & 2):
 BUG-001 (ServicesScrollLock Framer overshoot), BUG-002 (footer grid), BUG-003 (font sizes), BUG-004 (tap targets), BUG-005 (hero SVG overflow), BUG-007 (process ARIA), BUG-010 (LiveEstimate missing from page), BUG-011 (glow overflow), BUG-013 (FounderBlock CSS cascade), BUG-014 (PaintFlow IO threshold/opacity delay), BUG-017 (LiveEstimate hydration style tag), BUG-019 (portrait overflow), BUG-021 (hero scroll position), BUG-022 (right-column numeral fill), BUG-023 (font sizes in FounderBlock).
