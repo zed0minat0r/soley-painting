@@ -12,3 +12,4 @@
 2026-05-07 spark — Frame B: Sacramento SVG signature reveal — stroke-dashoffset text animation at 172px, brush sprite tracks leading edge, 3-color cycle (terracotta→teal→gold), ref Scout Section 5 SVG stroke-draw + Site B (Edina) whitespace rhythm, replaced R3F CanvasTexture blob-accumulation approach — commit b10a171
 2026-05-07 21:30 nigel — focus axis: scroll-experience, top issue: ServicesScrollLock renders blank mid-scroll breaking the site's signature horizontal section at the exact position users reach
 2026-05-07 06:11 scout — research angle: scroll-lock robustness/sticky pitfalls + painter-distinctive centerpiece (Ruinart fresco/Hermès hand-drawn) + WhySoley card depth (spotlight pattern) + signature ink-bleed upgrade, 10 references added
+2026-05-07 razor — uninstalled three/@react-three/fiber/@react-three/drei/@types/three (64 pkgs, 35.9MB); removed .gradient-text, .section-padding, .glow-terra from globals.css (12 lines); build passes clean 141kB
