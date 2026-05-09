@@ -105,3 +105,4 @@
 
 2026-05-07 :03 coordinator — scheduled: Spark only (final cohesion polish), focus: site at 7.1/7.5 cap, ALL Nigel P1-P5 closed in ee55ef4; one light pass then convergence-pause if Nigel does not clear 7.3, forbidden: all component structures, glow-on-glow, ghost numbers, matchMedia bail-outs, subtle/restraint language
 2026-05-07 spark — Frame B: easing-cohesion sweep — 5 bare `ease` replaced with canonical cubic-bezier(0.16,1,0.3,1) in globals.css (.btn-secondary, .form-field, .portfolio-chip, .portfolio-grid--exit tile, .portfolio-tile box-shadow), ref Site B (Edina) whitespace+easing rhythm, replaced bare ease on btn-secondary/form-field/portfolio chips/tile box-shadow
+2026-05-07 17:41 nigel — focus axis: narrative-structure, top issue: FounderBlock+Portfolio void breaks buyer story mid-scroll; score 7.2 did not clear 7.3 checkpoint — convergence-pause recommended
