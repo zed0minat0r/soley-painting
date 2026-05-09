@@ -671,19 +671,64 @@ a:focus-visible {
   gap: 1.75rem;
 }
 
+/* ── Filter exit phase: all tiles fade out simultaneously ──────────────── */
+.portfolio-grid--exit .portfolio-tile {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+/* ── Filter enter phase: tiles stagger in via CSS custom prop ──────────── */
+/* @keyframes defined further down in the file */
+.portfolio-grid--enter .portfolio-tile {
+  animation: tileFadeUp 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--tile-delay, 0s);
+}
+
+@keyframes tileFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ── Individual tile ────────────────────────────────────────────────────── */
 .portfolio-tile {
+  position: relative;
   border-radius: 3px;
   overflow: hidden;
   background: var(--color-chalk);
   box-shadow: 0 2px 14px rgba(44, 44, 44, 0.08);
-  transition: box-shadow 0.25s ease, transform 0.25s ease,
-              opacity 0.2s ease;
+  /* lift + shadow on hover — see ::before for brand-accent left-rail */
+  transition: box-shadow 0.28s ease, transform 0.28s ease;
+}
+
+/* Brand-accent left-rail draws in on hover (scaleY 0→1, top-origin) */
+.portfolio-tile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--tile-accent, var(--color-rust));
+  transform: scaleY(0);
+  transform-origin: top center;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 2;
+}
+
+.portfolio-tile:hover::before {
+  transform: scaleY(1);
 }
 
 .portfolio-tile:hover {
-  box-shadow: 0 6px 32px rgba(44, 44, 44, 0.14);
-  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(44, 44, 44, 0.13);
+  transform: translateY(-4px);
 }
 
 /* 4:3 aspect ratio image zone */

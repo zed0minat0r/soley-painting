@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 /* ── Category type ──────────────────────────────────────────────────────── */
 type Category = 'ALL' | 'INTERIOR' | 'EXTERIOR' | 'COMMERCIAL' | 'CABINET & TRIM' | 'SPECIALTY'
@@ -9,15 +9,23 @@ const CHIPS: Category[] = ['ALL', 'INTERIOR', 'EXTERIOR', 'COMMERCIAL', 'CABINET
 
 /* ── Swatch colors per category (brand tokens) ──────────────────────────── */
 const SWATCH: Record<Exclude<Category, 'ALL'>, string> = {
-  INTERIOR:        '#BF5B38', // rust
-  EXTERIOR:        '#B8884A', // ochre (was teal)
-  COMMERCIAL:      '#B8884A', // ochre
-  'CABINET & TRIM': '#EAE0D4', // stone (was deep teal)
-  SPECIALTY:       '#8C4A2F', // dark terra
+  INTERIOR:         '#BF5B38', // rust
+  EXTERIOR:         '#B8884A', // ochre
+  COMMERCIAL:       '#B8884A', // ochre
+  'CABINET & TRIM': '#EAE0D4', // stone
+  SPECIALTY:        '#8C4A2F', // dark terra
+}
+
+/* ── Border accent per category (used for hover left-rail) ─────────────── */
+const ACCENT: Record<Exclude<Category, 'ALL'>, string> = {
+  INTERIOR:         '#BF5B38',
+  EXTERIOR:         '#B8884A',
+  COMMERCIAL:       '#B8884A',
+  'CABINET & TRIM': '#8C7B72',
+  SPECIALTY:        '#8C4A2F',
 }
 
 /* ── SVG painted swatches per category ─────────────────────────────────── */
-/* Each swatch is a unique abstract brushstroke mark on an umber background */
 const SWATCH_SVG: Record<Exclude<Category, 'ALL'>, string> = {
   INTERIOR: `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
@@ -86,6 +94,9 @@ const TILES: Tile[] = [
   { id: 9, category: 'CABINET & TRIM',   line1: 'Built-in bookcase + crown molding',  line2: 'Full refinish' },
 ]
 
+/* ── Filter animation phases ────────────────────────────────────────────── */
+type Phase = 'idle' | 'exiting' | 'entering'
+
 /* ── Painted swatch tile ────────────────────────────────────────────────── */
 function PaintedSwatch({ category }: { category: Exclude<Category, 'ALL'> }) {
   const svgStr = SWATCH_SVG[category]
@@ -101,11 +112,44 @@ function PaintedSwatch({ category }: { category: Exclude<Category, 'ALL'> }) {
 
 /* ── Main component ─────────────────────────────────────────────────────── */
 export default function PortfolioGallery() {
-  const [active, setActive] = useState<Category>('ALL')
+  const [active, setActive]       = useState<Category>('ALL')
+  const [displayed, setDisplayed] = useState<Category>('ALL')
+  const [phase, setPhase]         = useState<Phase>('idle')
+  const pendingRef                = useRef<Category | null>(null)
+  const timerRef                  = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const visible = active === 'ALL'
+  const handleChipClick = useCallback((chip: Category) => {
+    if (chip === active && phase === 'idle') return
+
+    // cancel any in-flight transition
+    if (timerRef.current) clearTimeout(timerRef.current)
+    pendingRef.current = chip
+
+    setPhase('exiting')
+    // exit takes 200ms — then swap content and enter
+    timerRef.current = setTimeout(() => {
+      setActive(pendingRef.current!)
+      setDisplayed(pendingRef.current!)
+      setPhase('entering')
+      // entering phase drives per-tile stagger; mark idle after all tiles finish
+      timerRef.current = setTimeout(() => setPhase('idle'), 600)
+    }, 200)
+  }, [active, phase])
+
+  // clean up on unmount
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current) }, [])
+
+  const visible = displayed === 'ALL'
     ? TILES
-    : TILES.filter(t => t.category === active)
+    : TILES.filter(t => t.category === displayed)
+
+  /* derive CSS class for the grid wrapper */
+  const gridClass = [
+    'portfolio-grid',
+    'scroll-reveal',
+    phase === 'exiting'  ? 'portfolio-grid--exit'   : '',
+    phase === 'entering' ? 'portfolio-grid--enter'  : '',
+  ].filter(Boolean).join(' ')
 
   return (
     <section id="portfolio" className="portfolio-section">
@@ -125,7 +169,7 @@ export default function PortfolioGallery() {
           <button
             key={chip}
             className={`portfolio-chip${active === chip ? ' portfolio-chip--active' : ''}`}
-            onClick={() => setActive(chip)}
+            onClick={() => handleChipClick(chip)}
             aria-pressed={active === chip}
           >
             {chip}
@@ -139,12 +183,17 @@ export default function PortfolioGallery() {
           <p>More {active.charAt(0) + active.slice(1).toLowerCase()} work coming soon.</p>
         </div>
       ) : (
-        <div className="portfolio-grid">
+        <div className={gridClass}>
           {visible.map((tile, i) => (
             <article
-              key={tile.id}
-              className="portfolio-tile scroll-reveal"
-              style={{ transitionDelay: `${i * 0.07}s` }}
+              key={`${tile.id}-${displayed}`}
+              className="portfolio-tile"
+              style={
+                {
+                  '--tile-accent': ACCENT[tile.category],
+                  ...(phase === 'entering' ? { '--tile-delay': `${i * 0.07}s` } : {}),
+                } as React.CSSProperties
+              }
             >
               {/* painted swatch fills the 4:3 area */}
               <div className="portfolio-tile-img">
