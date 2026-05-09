@@ -113,8 +113,17 @@ export default function LiveEstimate() {
   const isSent = phase === 'sent'
 
   return (
-    <div
+    <section
+      id="live-estimate"
       ref={sectionRef}
+      style={{
+        background: 'var(--color-umber)',
+        padding: '5rem 0',
+        position: 'relative',
+      }}
+    >
+    <div className="container-width" style={{ maxWidth: '640px' }}>
+    <div
       style={{
         background: 'rgba(255,255,255,0.04)',
         border: '1px solid rgba(245,240,234,0.12)',
@@ -358,5 +367,7 @@ export default function LiveEstimate() {
         </div>
       </div>
     </div>
+    </div>
+    </section>
   )
 }

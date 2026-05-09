@@ -151,6 +151,8 @@ export default function Process() {
             {STEPS.map((s, i) => (
               <button
                 key={s.id}
+                role="tab"
+                aria-selected={i === activeStep}
                 onClick={() => {
                   setActiveStep(i)
                   setKey(prev => prev + 1)

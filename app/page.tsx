@@ -6,6 +6,7 @@ import ServicesScrollLock from './components/ServicesScrollLock'
 import PaintFlow from './components/PaintFlow'
 import WhySoley from './components/WhySoley'
 import Process from './components/Process'
+import LiveEstimate from './components/LiveEstimate'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
 import ScrollRevealObserver from './components/ScrollRevealObserver'
@@ -22,6 +23,7 @@ export default function Home() {
       <PaintFlow />
       <WhySoley />
       <Process />
+      <LiveEstimate />
       <SectionDivider />
       <Contact />
       <Footer />

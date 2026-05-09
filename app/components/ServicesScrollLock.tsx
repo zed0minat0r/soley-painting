@@ -1,7 +1,6 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { useRef, useEffect, useState } from 'react'
 
 /* ── Panel data (Scout catalog item #4 + #2 palette) ─────────────────── */
 const PANELS = [
@@ -107,28 +106,45 @@ const BG_COLORS = PANELS.map(p => p.bg)
 
 export default function ServicesScrollLock() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start start', 'end end'],
-  })
+  const [translateX, setTranslateX] = useState(0) // px offset for track
 
-  // Translate the track from 0% → -400% (5 panels × 100vw)
-  const x = useTransform(scrollYProgress, [0, 1], ['0%', '-400%'])
-
-  // Mood-lerp background during scroll
   useEffect(() => {
-    const unsub = scrollYProgress.on('change', (v: number) => {
-      const progress = v * 4 // 0→4 across 5 panels
-      const idx = Math.min(Math.floor(progress), 3)
+    const onScroll = () => {
+      const el = containerRef.current
+      if (!el) return
+
+      // getBoundingClientRect is LIVE — never stale from mount-time cache
+      const rect = el.getBoundingClientRect()
+      const sectionHeight = el.offsetHeight
+      const runway = sectionHeight - window.innerHeight
+
+      // -rect.top = how far we've scrolled INTO the section (0 at entry, runway at exit)
+      const raw = Math.max(0, Math.min(1, -rect.top / runway))
+
+      // translateX: 0 (panel 1 in view) → -(PANELS.length-1)*100vw (panel 5 in view)
+      // We want to move (PANELS.length - 1) full viewport widths
+      const maxShift = (PANELS.length - 1) * window.innerWidth
+      setTranslateX(-(raw * maxShift))
+
+      // Mood-lerp background
+      const progress = raw * (PANELS.length - 1) // 0 → 4
+      const idx = Math.min(Math.floor(progress), BG_COLORS.length - 2)
       const blend = progress - idx
       const color = lerpHex(BG_COLORS[idx], BG_COLORS[idx + 1], blend)
       document.documentElement.style.setProperty('--page-bg', color)
-    })
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    // Run once immediately so initial position is correct
+    onScroll()
+
     return () => {
-      unsub()
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
       document.documentElement.style.setProperty('--page-bg', 'var(--color-chalk)')
     }
-  }, [scrollYProgress])
+  }, [])
 
   return (
     <section
@@ -179,14 +195,14 @@ export default function ServicesScrollLock() {
           />
         </div>
 
-        {/* Horizontal track */}
-        <motion.div
+        {/* Horizontal track — driven by pure-JS computed translateX */}
+        <div
           style={{
-            x,
+            transform: `translateX(${translateX}px)`,
+            willChange: 'transform',
             display: 'flex',
             width: `${PANELS.length * 100}vw`,
             height: '100vh',
-            willChange: 'transform',
           }}
         >
           {PANELS.map((panel, i) => (
@@ -235,7 +251,7 @@ export default function ServicesScrollLock() {
               <div
                 style={{
                   maxWidth: '720px',
-                  padding: '0 3rem',
+                  padding: '0 clamp(1rem, 5vw, 3rem)',
                   width: '100%',
                 }}
               >
@@ -374,7 +390,7 @@ export default function ServicesScrollLock() {
               </div>
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useCallback } from 'react'
 import { motion, useSpring } from 'framer-motion'
 
 /* ── Catalog item #10 — 3D tilt cards with framer-motion useSpring ──────
@@ -208,6 +208,25 @@ function TiltCard({ card, index }: { card: typeof CARDS[0]; index: number }) {
 }
 
 export default function WhySoley() {
+  const gridRef = useRef<HTMLDivElement>(null)
+
+  const handleGridMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const grid = gridRef.current
+    if (!grid) return
+    const rect = grid.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    grid.style.setProperty('--spotlight-x', `${x}px`)
+    grid.style.setProperty('--spotlight-y', `${y}px`)
+    grid.style.setProperty('--spotlight-opacity', '1')
+  }, [])
+
+  const handleGridMouseLeave = useCallback(() => {
+    const grid = gridRef.current
+    if (!grid) return
+    grid.style.setProperty('--spotlight-opacity', '0')
+  }, [])
+
   return (
     <section
       id="why-soley"
@@ -267,15 +286,46 @@ export default function WhySoley() {
           </h2>
         </div>
 
-        {/* 4-card grid with tilt */}
+        {/* 4-card grid with tilt + Cruip spotlight pattern */}
         <div
+          ref={gridRef}
+          onMouseMove={handleGridMouseMove}
+          onMouseLeave={handleGridMouseLeave}
+          className="why-soley-grid"
           style={{
             display: 'flex',
             flexWrap: 'wrap',
             gap: '1.25rem',
             alignItems: 'stretch',
+            position: 'relative',
           }}
         >
+          {/* Spotlight blob — follows cursor across container */}
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              inset: 0,
+              pointerEvents: 'none',
+              zIndex: 0,
+              overflow: 'hidden',
+              borderRadius: '4px',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                width: '400px',
+                height: '400px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(194,96,58,0.07) 0%, transparent 70%)',
+                transform: 'translate(calc(var(--spotlight-x, -9999px) - 200px), calc(var(--spotlight-y, -9999px) - 200px))',
+                opacity: 'var(--spotlight-opacity, 0)' as React.CSSProperties['opacity'],
+                transition: 'opacity 0.3s ease',
+                pointerEvents: 'none',
+              }}
+            />
+          </div>
           {CARDS.map((card, i) => (
             <TiltCard key={card.id} card={card} index={i} />
           ))}
