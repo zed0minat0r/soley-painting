@@ -170,6 +170,32 @@
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+/* Word-stagger: enters from left (translateX -6px) per Penn Tech catalog #7 */
+@keyframes word-in {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+/* Bullet pop: scale bounce + translateX entry */
+@keyframes bullet-pop {
+  from { opacity: 0; transform: translateX(-8px) scale(0.9); }
+  60%  { transform: translateX(2px) scale(1.03); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+/* Reduced-motion fallbacks: collapse all stagger animations to simple fade */
+@media (prefers-reduced-motion: reduce) {
+  @keyframes char-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes word-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes bullet-pop {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
 
 /* ── Form field focus styling ─────────────────────────────────────────  */
 .form-field {
@@ -223,6 +249,21 @@
     height: 380px !important;
   }
 }
+
+/* ── Hero studio environment: constant-velocity particle drift ──────────
+   Each particle animates from its start Y to off the top of the section.
+   NO sin oscillation, NO lerp — pure linear keyframes.
+   Particle drift in X is embedded as a translate in the keyframes.       */
+@keyframes particle-drift-0  { 0% { transform: translate(0,0); }       100% { transform: translate(1.6vw,-105vh); } }
+@keyframes particle-drift-1  { 0% { transform: translate(0,0); }       100% { transform: translate(1.35vw,-105vh); } }
+@keyframes particle-drift-2  { 0% { transform: translate(0,0); }       100% { transform: translate(1.75vw,-105vh); } }
+@keyframes particle-drift-3  { 0% { transform: translate(0,0); }       100% { transform: translate(1.26vw,-105vh); } }
+@keyframes particle-drift-4  { 0% { transform: translate(0,0); }       100% { transform: translate(1.54vw,-105vh); } }
+@keyframes particle-drift-5  { 0% { transform: translate(0,0); }       100% { transform: translate(0.84vw,-105vh); } }
+@keyframes particle-drift-6  { 0% { transform: translate(0,0); }       100% { transform: translate(1.33vw,-105vh); } }
+@keyframes particle-drift-7  { 0% { transform: translate(0,0); }       100% { transform: translate(1.47vw,-105vh); } }
+@keyframes particle-drift-8  { 0% { transform: translate(0,0); }       100% { transform: translate(0.98vw,-105vh); } }
+@keyframes particle-drift-9  { 0% { transform: translate(0,0); }       100% { transform: translate(1.61vw,-105vh); } }
 
 /* ── Legacy helpers ───────────────────────────────────────────────────  */
 @keyframes bounce-x {

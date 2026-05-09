@@ -2,6 +2,14 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 
+/* ── Soley Painting — Process Timeline (cinematic upgrade)
+   Frame A: cross-fade panel transition (slide-left-out → slide-left-in),
+   char-stagger title, word-stagger description (translateX entry),
+   bullet pop sequence, foreground step numeral, prefers-reduced-motion.
+   ref: Penn Tech catalog #7 char/word-stagger + Scout Round 3 Hermès
+   illustrated lessons (visible craft imperfection).
+*/
+
 const STEPS = [
   {
     id: 1,
@@ -61,18 +69,62 @@ const STEPS = [
 ]
 
 const STEP_DURATION = 10000 // 10s per step
+const EXIT_MS = 320         // ms for slide-left-out transition before entry
 
 export default function Process() {
-  const [activeStep, setActiveStep] = useState(0)
-  const [key, setKey] = useState(0) // forces countdown bar re-render
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const sectionRef = useRef<HTMLElement>(null)
-  const [visible, setVisible] = useState(false)
+  const [activeStep, setActiveStep]     = useState(0)
+  const [displayStep, setDisplayStep]   = useState(0)  // what's actually rendered
+  const [panelState, setPanelState]     = useState<'entering' | 'visible' | 'exiting'>('visible')
+  const [key, setKey]                   = useState(0)  // countdown bar reset
+  const intervalRef                     = useRef<ReturnType<typeof setInterval> | null>(null)
+  const sectionRef                      = useRef<HTMLElement>(null)
+  const [visible, setVisible]           = useState(false)
+  const nextStepRef                     = useRef<number>(0)
+  const transitioningRef                = useRef(false)
+
+  // Transition to a new step: exit → update content → enter
+  const transitionTo = useCallback((next: number) => {
+    if (transitioningRef.current) return
+    transitioningRef.current = true
+    nextStepRef.current = next
+
+    // Check prefers-reduced-motion
+    const reducedMotion = typeof window !== 'undefined'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    if (reducedMotion) {
+      // Static fade — no slide
+      setDisplayStep(next)
+      setActiveStep(next)
+      setKey(k => k + 1)
+      transitioningRef.current = false
+      return
+    }
+
+    // 1. Start exit animation
+    setPanelState('exiting')
+
+    setTimeout(() => {
+      // 2. Swap content while invisible
+      setDisplayStep(next)
+      setPanelState('entering')
+      setActiveStep(next)
+      setKey(k => k + 1)
+      // 3. A frame later, let the enter animation run
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setPanelState('visible')
+          transitioningRef.current = false
+        })
+      })
+    }, EXIT_MS)
+  }, [])
 
   const advance = useCallback(() => {
-    setActiveStep(prev => (prev + 1) % STEPS.length)
-    setKey(prev => prev + 1)
-  }, [])
+    const next = (nextStepRef.current + 1) % STEPS.length
+    nextStepRef.current = next
+    transitionTo(next)
+  }, [transitionTo])
 
   // IntersectionObserver — start auto-advance when section is in view
   useEffect(() => {
@@ -95,7 +147,23 @@ export default function Process() {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
   }, [visible, advance])
 
-  const step = STEPS[activeStep]
+  const step = STEPS[displayStep]
+
+  // Panel style based on state
+  const panelStyle: React.CSSProperties = {
+    paddingTop: '0.5rem',
+    transition: panelState === 'exiting'
+      ? `opacity ${EXIT_MS}ms ease-in, transform ${EXIT_MS}ms ease-in`
+      : panelState === 'entering'
+      ? 'none'
+      : `opacity 0.28s ease-out, transform 0.28s ease-out`,
+    opacity: panelState === 'exiting' ? 0 : panelState === 'entering' ? 0 : 1,
+    transform: panelState === 'exiting'
+      ? 'translateX(-16px)'
+      : panelState === 'entering'
+      ? 'translateX(16px)'
+      : 'translateX(0)',
+  }
 
   return (
     <section
@@ -142,9 +210,7 @@ export default function Process() {
 
         <div
           className="process-grid"
-          style={{
-            alignItems: 'start',
-          }}
+          style={{ alignItems: 'start' }}
         >
           {/* Step nav tabs */}
           <div className="process-tabs" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
@@ -154,11 +220,13 @@ export default function Process() {
                 role="tab"
                 aria-selected={i === activeStep}
                 onClick={() => {
-                  setActiveStep(i)
-                  setKey(prev => prev + 1)
                   if (intervalRef.current) clearInterval(intervalRef.current)
+                  nextStepRef.current = i
+                  transitionTo(i)
                   if (visible) {
-                    intervalRef.current = setInterval(advance, STEP_DURATION)
+                    setTimeout(() => {
+                      intervalRef.current = setInterval(advance, STEP_DURATION)
+                    }, EXIT_MS + 60)
                   }
                 }}
                 style={{
@@ -201,33 +269,57 @@ export default function Process() {
             ))}
           </div>
 
-          {/* Step content */}
-          <div key={activeStep} style={{ paddingTop: '0.5rem' }}>
-            {/* Countdown bar */}
+          {/* Step content panel — cross-fade + slide transition */}
+          <div style={panelStyle}>
+            {/* Foreground step numeral — full opacity (RULE 8 compliant: NOT ghost) */}
             <div
               style={{
-                height: '2px',
-                background: 'rgba(245,240,234,0.1)',
-                marginBottom: '2rem',
-                position: 'relative',
-                overflow: 'hidden',
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: '1rem',
+                marginBottom: '1.25rem',
               }}
             >
-              <div
-                key={key}
+              <span
                 style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'var(--color-terra)',
-                  transformOrigin: 'left center',
-                  animation: visible
-                    ? `countdown ${STEP_DURATION}ms linear forwards`
-                    : 'none',
+                  fontFamily: 'var(--font-heading)',
+                  fontWeight: 700,
+                  fontSize: 'clamp(3.5rem, 6vw, 5.5rem)',
+                  lineHeight: 1,
+                  color: 'var(--color-terra)',
+                  opacity: 1,  // full opacity — not a ghost
+                  letterSpacing: '-0.02em',
                 }}
-              />
+              >
+                0{step.id}
+              </span>
+              {/* Countdown bar sits beside the step numeral */}
+              <div
+                style={{
+                  flex: 1,
+                  height: '2px',
+                  background: 'rgba(245,240,234,0.1)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  alignSelf: 'center',
+                }}
+              >
+                <div
+                  key={key}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'var(--color-terra)',
+                    transformOrigin: 'left center',
+                    animation: visible
+                      ? `countdown ${STEP_DURATION}ms linear forwards`
+                      : 'none',
+                  }}
+                />
+              </div>
             </div>
 
-            {/* Title with char stagger */}
+            {/* Title — char stagger (re-triggers each step via key in span) */}
             <h3
               style={{
                 fontFamily: 'var(--font-heading)',
@@ -240,10 +332,10 @@ export default function Process() {
             >
               {step.title.split('').map((char, ci) => (
                 <span
-                  key={`${activeStep}-${ci}`}
+                  key={`${displayStep}-c${ci}`}
                   style={{
                     display: 'inline-block',
-                    animation: `char-in 0.4s cubic-bezier(0.16,1,0.3,1) ${ci * 0.03}s both`,
+                    animation: `char-in 0.42s cubic-bezier(0.16,1,0.3,1) ${ci * 0.035}s both`,
                   }}
                 >
                   {char === ' ' ? ' ' : char}
@@ -251,7 +343,7 @@ export default function Process() {
               ))}
             </h3>
 
-            {/* Description with word stagger */}
+            {/* Description — word stagger with translateX entry (spec: -6px) */}
             <p
               style={{
                 fontFamily: 'var(--font-body)',
@@ -264,11 +356,11 @@ export default function Process() {
             >
               {step.description.split(' ').map((word, wi) => (
                 <span
-                  key={`${activeStep}-w${wi}`}
+                  key={`${displayStep}-w${wi}`}
                   style={{
                     display: 'inline-block',
                     marginRight: '0.28em',
-                    animation: `char-in 0.4s cubic-bezier(0.16,1,0.3,1) ${wi * 0.04 + 0.2}s both`,
+                    animation: `word-in 0.42s cubic-bezier(0.16,1,0.3,1) ${wi * 0.045 + 0.18}s both`,
                   }}
                 >
                   {word}
@@ -276,11 +368,11 @@ export default function Process() {
               ))}
             </p>
 
-            {/* Bullets — staggered pop */}
+            {/* Bullets — scale pop in sequence after description settles */}
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {step.bullets.map((bullet, bi) => (
                 <li
-                  key={`${activeStep}-b${bi}`}
+                  key={`${displayStep}-b${bi}`}
                   style={{
                     display: 'flex',
                     alignItems: 'flex-start',
@@ -289,7 +381,7 @@ export default function Process() {
                     fontSize: '0.9375rem',
                     color: 'rgba(245,240,234,0.8)',
                     marginBottom: '0.875rem',
-                    animation: `char-in 0.45s cubic-bezier(0.16,1,0.3,1) ${bi * 0.12 + 0.6}s both`,
+                    animation: `bullet-pop 0.45s cubic-bezier(0.16,1,0.3,1) ${bi * 0.13 + 0.55}s both`,
                   }}
                 >
                   <span

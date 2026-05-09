@@ -19,10 +19,40 @@ import { useEffect, useRef, useState, useCallback } from 'react'
    Brand colors cycle: terracotta → deep teal → clay gold → repeat.
 
    No R3F. No blob accumulation. Clean, legible, cinematic.
-   Frame B: chalk panel centerpiece, generous white space,
-   Sacramento at 160 px — restraint IS the statement.
-   ref: Scout Section 5 SVG stroke-draw + Site B (Edina) whitespace rhythm.
+   Frame A: studio environment around the signature — drop-cloth corner,
+   brush rest, paint drips, ambient goboes, constant-velocity particles.
+   ref: Scout Round 3 finding 2 (Hermès illustrated lessons — visible
+   imperfection signals craft).
 */
+
+// ── Constant-velocity particle drift data ─────────────────────────────────
+// Each particle has a fixed (dx, dy) per-second rate — NO sin, NO lerp.
+// dx/dy in % of section width/height per second.
+type Particle = {
+  id: number
+  x: number   // start % of section width
+  y: number   // start % of section height
+  r: number   // radius px
+  color: string
+  opacity: number
+  dx: number  // % of width per second (constant)
+  dy: number  // % of height per second (constant, negative = upward)
+  dur: number // seconds to cross full height (derived, for CSS animation)
+  delay: number // animation-delay s
+}
+
+const PARTICLES: Particle[] = [
+  { id:0, x:8,  y:90, r:3.5, color:'#C2603A', opacity:0.18, dx:0.02, dy:-0.55, dur:16, delay:0 },
+  { id:1, x:18, y:75, r:2.5, color:'#2D7A70', opacity:0.14, dx:0.015,dy:-0.48, dur:18, delay:2.4 },
+  { id:2, x:32, y:85, r:4,   color:'#B8935A', opacity:0.16, dx:0.025,dy:-0.62, dur:14, delay:1.1 },
+  { id:3, x:52, y:95, r:2,   color:'#C2603A', opacity:0.12, dx:0.018,dy:-0.44, dur:20, delay:3.7 },
+  { id:4, x:65, y:80, r:3,   color:'#2D7A70', opacity:0.15, dx:0.022,dy:-0.58, dur:15, delay:5.2 },
+  { id:5, x:78, y:88, r:2.5, color:'#B8935A', opacity:0.13, dx:0.012,dy:-0.5,  dur:17, delay:0.8 },
+  { id:6, x:88, y:70, r:3.5, color:'#C2603A', opacity:0.17, dx:0.019,dy:-0.53, dur:16, delay:6.3 },
+  { id:7, x:45, y:92, r:2,   color:'#2D7A70', opacity:0.11, dx:0.021,dy:-0.46, dur:19, delay:4.1 },
+  { id:8, x:24, y:60, r:3,   color:'#B8935A', opacity:0.14, dx:0.014,dy:-0.6,  dur:14, delay:7.5 },
+  { id:9, x:70, y:55, r:2.5, color:'#C2603A', opacity:0.16, dx:0.023,dy:-0.52, dur:17, delay:2.0 },
+]
 
 const BRAND_COLORS = [
   '#C2603A',  // terracotta
@@ -197,6 +227,131 @@ export default function Hero3D() {
         paddingBottom: '4rem',
       }}
     >
+      {/* ── STUDIO ENVIRONMENT — ambient layers, props, particles ─────────── */}
+      {/* Gobo A: warm terracotta wash from upper-right */}
+      <svg
+        aria-hidden
+        style={{ position:'absolute', inset:0, width:'100%', height:'100%', pointerEvents:'none', zIndex:0 }}
+      >
+        <defs>
+          <radialGradient id="gobo-warm" cx="78%" cy="18%" r="42%" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#C2603A" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="#C2603A" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id="gobo-cool" cx="18%" cy="82%" r="40%" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#2D7A70" stopOpacity="0.06" />
+            <stop offset="100%" stopColor="#2D7A70" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <rect x="0" y="0" width="100%" height="100%" fill="url(#gobo-warm)" />
+        <rect x="0" y="0" width="100%" height="100%" fill="url(#gobo-cool)" />
+      </svg>
+
+      {/* Drop-cloth corner — bottom-left, draped fabric silhouette */}
+      <svg
+        aria-hidden
+        viewBox="0 0 220 180"
+        style={{ position:'absolute', bottom:0, left:0, width:'min(220px,28vw)', height:'auto', pointerEvents:'none', zIndex:1, opacity:0.55 }}
+      >
+        {/* Fabric drape — layered cloth folds suggesting a drop cloth */}
+        <path d="M0,180 L0,60 Q18,50 30,72 Q45,40 62,68 Q80,35 95,65 Q112,28 128,62 Q145,38 158,66 Q172,45 185,70 L220,180 Z"
+              fill="#D4C9B8" opacity="0.6" />
+        <path d="M0,180 L0,85 Q12,78 22,90 Q35,65 50,88 Q65,58 78,85 Q92,55 105,82 L95,180 Z"
+              fill="#C8BC9E" opacity="0.5" />
+        {/* Subtle fold lines suggesting creased canvas */}
+        <line x1="28" y1="72" x2="20" y2="180" stroke="#A8987C" strokeWidth="0.8" opacity="0.35" />
+        <line x1="65" y1="68" x2="55" y2="180" stroke="#A8987C" strokeWidth="0.8" opacity="0.35" />
+        <line x1="96" y1="65" x2="88" y2="180" stroke="#A8987C" strokeWidth="0.8" opacity="0.3" />
+        {/* Terracotta paint spot on cloth — imperfection signals craft */}
+        <ellipse cx="38" cy="140" rx="12" ry="7" fill="#C2603A" opacity="0.22" transform="rotate(-8,38,140)" />
+        <ellipse cx="75" cy="160" rx="8" ry="5" fill="#2D7A70" opacity="0.18" transform="rotate(5,75,160)" />
+      </svg>
+
+      {/* Brush rest + ledge — right side, below center */}
+      <svg
+        aria-hidden
+        viewBox="0 0 140 60"
+        style={{ position:'absolute', right:'4%', bottom:'18%', width:'min(140px,18vw)', height:'auto', pointerEvents:'none', zIndex:1, opacity:0.6 }}
+      >
+        {/* Ledge */}
+        <rect x="0" y="38" width="140" height="8" rx="2" fill="#C8B89A" />
+        <rect x="0" y="44" width="140" height="4" rx="1" fill="#A89070" opacity="0.6" />
+        {/* Brush handle resting on ledge */}
+        <rect x="10" y="24" width="88" height="14" rx="7" fill="#3D2314" />
+        <rect x="96" y="26" width="18" height="10" rx="5" fill="#5C3420" />
+        {/* Ferrule */}
+        <rect x="9" y="26" width="10" height="10" rx="2" fill="#C8B8A2" stroke="#A8947E" strokeWidth="0.5" />
+        {/* Bristles */}
+        <path d="M9,29 Q2,26 0,31 Q2,36 9,33" fill="#C2603A" opacity="0.9" />
+        <path d="M9,31 Q3,28 1,31 Q3,34 9,32" fill="#B8935A" opacity="0.7" />
+        {/* Tiny puddle of paint under bristles */}
+        <ellipse cx="4" cy="43" rx="6" ry="2.5" fill="#C2603A" opacity="0.3" />
+        {/* Second smaller brush */}
+        <rect x="18" y="28" width="72" height="10" rx="5" fill="#4A2D1A" opacity="0.7" />
+        <rect x="17" y="29" width="8" height="8" rx="1.5" fill="#C8B8A2" stroke="#A8947E" strokeWidth="0.4" />
+        <path d="M17,31 Q11,29 9,32 Q11,35 17,33" fill="#2D7A70" opacity="0.85" />
+      </svg>
+
+      {/* Paint drips — at the base of the scene */}
+      <svg
+        aria-hidden
+        viewBox="0 0 700 60"
+        preserveAspectRatio="none"
+        style={{ position:'absolute', bottom:0, left:0, right:0, width:'100%', height:'min(60px,8vh)', pointerEvents:'none', zIndex:1 }}
+      >
+        {/* 4 drips, staggered x positions, different brand colors */}
+        {/* Drip 1 — terracotta */}
+        <g>
+          <animateTransform attributeName="transform" type="translate" values="0,0; 0,4; 0,0" dur="10s" repeatCount="indefinite" additive="sum" />
+          <ellipse cx="115" cy="0" rx="5" ry="3" fill="#C2603A" opacity="0.7" />
+          <path d="M110,0 Q112,28 115,42 Q118,28 120,0 Z" fill="#C2603A" opacity="0.65" />
+          <ellipse cx="115" cy="44" rx="5" ry="6" fill="#C2603A" opacity="0.6" />
+        </g>
+        {/* Drip 2 — teal */}
+        <g>
+          <animateTransform attributeName="transform" type="translate" values="0,0; 0,6; 0,0" dur="13s" repeatCount="indefinite" additive="sum" />
+          <ellipse cx="255" cy="0" rx="4" ry="2.5" fill="#2D7A70" opacity="0.65" />
+          <path d="M251,0 Q253,22 255,34 Q257,22 259,0 Z" fill="#2D7A70" opacity="0.6" />
+          <ellipse cx="255" cy="36" rx="4" ry="5" fill="#2D7A70" opacity="0.55" />
+        </g>
+        {/* Drip 3 — clay gold */}
+        <g>
+          <animateTransform attributeName="transform" type="translate" values="0,0; 0,5; 0,0" dur="11.5s" repeatCount="indefinite" additive="sum" />
+          <ellipse cx="420" cy="0" rx="3.5" ry="2" fill="#B8935A" opacity="0.6" />
+          <path d="M416.5,0 Q418,18 420,28 Q422,18 423.5,0 Z" fill="#B8935A" opacity="0.55" />
+          <ellipse cx="420" cy="30" rx="3.5" ry="4.5" fill="#B8935A" opacity="0.5" />
+        </g>
+        {/* Drip 4 — terracotta (right side) */}
+        <g>
+          <animateTransform attributeName="transform" type="translate" values="0,0; 0,3; 0,0" dur="9s" repeatCount="indefinite" additive="sum" />
+          <ellipse cx="575" cy="0" rx="4.5" ry="2.5" fill="#C2603A" opacity="0.55" />
+          <path d="M570.5,0 Q572.5,20 575,32 Q577.5,20 579.5,0 Z" fill="#C2603A" opacity="0.5" />
+          <ellipse cx="575" cy="33" rx="4.5" ry="5.5" fill="#C2603A" opacity="0.45" />
+        </g>
+      </svg>
+
+      {/* Constant-velocity drifting paint particles */}
+      {PARTICLES.map(p => (
+        <div
+          key={p.id}
+          aria-hidden
+          style={{
+            position: 'absolute',
+            left: `${p.x}%`,
+            bottom: `${100 - p.y}%`,
+            width: `${p.r * 2}px`,
+            height: `${p.r * 2}px`,
+            borderRadius: '50%',
+            background: p.color,
+            opacity: p.opacity,
+            pointerEvents: 'none',
+            zIndex: 1,
+            // Constant-velocity: linear, no ease — exact per-particle rate
+            animation: `particle-drift-${p.id} ${p.dur}s linear ${p.delay}s infinite`,
+          }}
+        />
+      ))}
+
       {/* Ambient radial glow — BUG-005/BUG-011: constrained to viewport width */}
       <div
         aria-hidden
