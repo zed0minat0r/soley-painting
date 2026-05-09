@@ -149,7 +149,7 @@ function TiltCard({ card, index }: { card: typeof CARDS[0]; index: number }) {
           style={{
             display: 'block',
             fontFamily: 'var(--font-body)',
-            fontSize: '0.6875rem',
+            fontSize: '0.75rem',
             fontWeight: 600,
             letterSpacing: '0.16em',
             textTransform: 'uppercase',
@@ -243,7 +243,7 @@ export default function WhySoley() {
           <p
             style={{
               fontFamily: 'var(--font-body)',
-              fontSize: '0.7rem',
+              fontSize: '0.875rem',
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
               color: 'var(--color-terra)',

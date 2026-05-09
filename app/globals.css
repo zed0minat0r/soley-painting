@@ -228,3 +228,77 @@
 .animate-bounce-x {
   animation: bounce-x 1.5s ease-in-out infinite;
 }
+
+/* ── Hero layout — 2-col desktop, 1-col mobile ───────────────────────── */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 3rem;
+}
+.hero-canvas-wrap {
+  height: 580px;
+}
+
+/* ── Process layout — 2-col desktop, 1-col mobile ───────────────────── */
+.process-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 4rem;
+}
+
+/* ── Contact layout — 2-col desktop, 1-col mobile ───────────────────── */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+}
+
+/* ── Navbar responsive ───────────────────────────────────────────────── */
+.nav-mobile-cta {
+  display: none;
+}
+
+/* ── Mobile breakpoint (≤640px) ──────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Hero: single column, canvas below text */
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .hero-canvas-wrap {
+    height: 300px;
+    width: 100%;
+  }
+
+  /* Navbar: hide links, show CTA only */
+  .nav-links {
+    display: none !important;
+  }
+  .nav-mobile-cta {
+    display: inline-flex !important;
+  }
+
+  /* Process: single column, tab row */
+  .process-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .process-tabs {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 0.5rem !important;
+  }
+  .process-tabs button {
+    flex: 1 1 auto;
+    padding: 0.75rem 0.875rem !important;
+    border-left: none !important;
+    border-bottom: 3px solid transparent;
+  }
+
+  /* Contact: single column */
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+}

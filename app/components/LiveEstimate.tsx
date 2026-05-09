@@ -129,7 +129,7 @@ export default function LiveEstimate() {
       <p
         style={{
           fontFamily: 'var(--font-body)',
-          fontSize: '0.6875rem',
+          fontSize: '0.75rem',
           letterSpacing: '0.18em',
           textTransform: 'uppercase',
           color: isSent ? 'var(--color-terra)' : 'rgba(245,240,234,0.45)',
@@ -148,7 +148,7 @@ export default function LiveEstimate() {
             style={{
               display: 'block',
               fontFamily: 'var(--font-body)',
-              fontSize: '0.6875rem',
+              fontSize: '0.75rem',
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
               color: 'rgba(245,240,234,0.5)',
@@ -196,7 +196,7 @@ export default function LiveEstimate() {
             style={{
               display: 'block',
               fontFamily: 'var(--font-body)',
-              fontSize: '0.6875rem',
+              fontSize: '0.75rem',
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
               color: 'rgba(245,240,234,0.5)',
@@ -243,7 +243,7 @@ export default function LiveEstimate() {
             style={{
               display: 'block',
               fontFamily: 'var(--font-body)',
-              fontSize: '0.6875rem',
+              fontSize: '0.75rem',
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
               color: 'rgba(245,240,234,0.5)',

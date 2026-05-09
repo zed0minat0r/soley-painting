@@ -117,7 +117,7 @@ export default function Process() {
           <p
             style={{
               fontFamily: 'var(--font-body)',
-              fontSize: '0.75rem',
+              fontSize: '0.875rem',
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--color-terra)',
@@ -141,15 +141,13 @@ export default function Process() {
         </div>
 
         <div
+          className="process-grid"
           style={{
-            display: 'grid',
-            gridTemplateColumns: '280px 1fr',
-            gap: '4rem',
             alignItems: 'start',
           }}
         >
           {/* Step nav tabs */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <div className="process-tabs" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
             {STEPS.map((s, i) => (
               <button
                 key={s.id}
@@ -172,12 +170,13 @@ export default function Process() {
                   cursor: 'pointer',
                   textAlign: 'left',
                   transition: 'all 0.25s ease',
+                  minHeight: '44px',
                 }}
               >
                 <span
                   style={{
                     fontFamily: 'var(--font-body)',
-                    fontSize: '0.6875rem',
+                    fontSize: '0.75rem',
                     fontWeight: 600,
                     letterSpacing: '0.12em',
                     color: i === activeStep ? 'var(--color-terra)' : 'rgba(245,240,234,0.3)',
@@ -189,7 +188,7 @@ export default function Process() {
                 <span
                   style={{
                     fontFamily: 'var(--font-body)',
-                    fontSize: '0.875rem',
+                    fontSize: '0.9375rem',
                     fontWeight: 500,
                     color: i === activeStep ? 'var(--color-chalk)' : 'rgba(245,240,234,0.45)',
                   }}

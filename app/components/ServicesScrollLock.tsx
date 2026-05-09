@@ -162,7 +162,7 @@ export default function ServicesScrollLock() {
           <span
             style={{
               fontFamily: 'var(--font-body)',
-              fontSize: '0.6875rem',
+              fontSize: '0.75rem',
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'rgba(245,240,234,0.5)',
@@ -223,7 +223,7 @@ export default function ServicesScrollLock() {
                   top: '2.5rem',
                   right: '3rem',
                   fontFamily: 'var(--font-body)',
-                  fontSize: '0.75rem',
+                  fontSize: '0.875rem',
                   letterSpacing: '0.15em',
                   color: 'rgba(245,240,234,0.25)',
                 }}
@@ -358,7 +358,7 @@ export default function ServicesScrollLock() {
                     marginTop: '2rem',
                     fontFamily: 'var(--font-body)',
                     fontWeight: 500,
-                    fontSize: '0.8125rem',
+                    fontSize: '0.875rem',
                     letterSpacing: '0.1em',
                     textTransform: 'uppercase',
                     color: panel.accent,
@@ -366,6 +366,7 @@ export default function ServicesScrollLock() {
                     borderBottom: `1px solid ${panel.accent}60`,
                     paddingBottom: '2px',
                     transition: 'border-color 0.2s ease',
+                    minHeight: '44px',
                   }}
                 >
                   Get a quote for this service →

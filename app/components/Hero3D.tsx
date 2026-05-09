@@ -141,12 +141,8 @@ export default function Hero3D() {
       />
 
       <div
-        className="container-width"
+        className="container-width hero-grid"
         style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          alignItems: 'center',
-          gap: '3rem',
           width: '100%',
           paddingTop: '96px',
           paddingBottom: '4rem',
@@ -158,7 +154,7 @@ export default function Hero3D() {
             style={{
               fontFamily: 'var(--font-body)',
               fontWeight: 500,
-              fontSize: '0.75rem',
+              fontSize: '0.875rem',
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
               color: 'var(--color-terra)',
@@ -173,7 +169,7 @@ export default function Hero3D() {
             style={{
               fontFamily: 'var(--font-heading)',
               fontWeight: 700,
-              fontSize: 'clamp(3rem, 6.5vw, 6.5rem)',
+              fontSize: 'clamp(2.75rem, 6.5vw, 6.5rem)',
               lineHeight: 1.06,
               letterSpacing: '0.01em',
               color: 'var(--color-chalk)',
@@ -229,7 +225,7 @@ export default function Hero3D() {
                   style={{
                     fontFamily: 'var(--font-body)',
                     fontWeight: 600,
-                    fontSize: '0.8125rem',
+                    fontSize: '0.875rem',
                     color: 'var(--color-chalk)',
                     marginBottom: '0.2rem',
                   }}
@@ -239,7 +235,7 @@ export default function Hero3D() {
                 <p
                   style={{
                     fontFamily: 'var(--font-body)',
-                    fontSize: '0.75rem',
+                    fontSize: '0.8125rem',
                     color: 'rgba(245, 240, 234, 0.5)',
                   }}
                 >
@@ -252,8 +248,8 @@ export default function Hero3D() {
 
         {/* Right — R3F Canvas */}
         <div
+          className="hero-canvas-wrap"
           style={{
-            height: '580px',
             position: 'relative',
           }}
         >
@@ -286,7 +282,7 @@ export default function Hero3D() {
         <span
           style={{
             fontFamily: 'var(--font-body)',
-            fontSize: '0.6875rem',
+            fontSize: '0.75rem',
             letterSpacing: '0.18em',
             textTransform: 'uppercase',
             color: 'rgba(245, 240, 234, 0.4)',

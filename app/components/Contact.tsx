@@ -49,10 +49,8 @@ export default function Contact() {
     >
       <div className="container-width">
         <div
+          className="contact-grid"
           style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '5rem',
             alignItems: 'start',
           }}
         >
@@ -62,7 +60,7 @@ export default function Contact() {
               className="scroll-reveal"
               style={{
                 fontFamily: 'var(--font-body)',
-                fontSize: '0.75rem',
+                fontSize: '0.875rem',
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--color-terra)',
@@ -125,7 +123,7 @@ export default function Contact() {
                     style={{
                       fontFamily: 'var(--font-body)',
                       fontWeight: 600,
-                      fontSize: '0.8125rem',
+                      fontSize: '0.875rem',
                       letterSpacing: '0.06em',
                       textTransform: 'uppercase',
                       color: 'var(--color-umber)',

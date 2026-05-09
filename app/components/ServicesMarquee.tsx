@@ -66,7 +66,7 @@ export default function ServicesMarquee() {
               style={{
                 fontFamily: 'var(--font-body)',
                 fontWeight: 500,
-                fontSize: '0.8125rem',
+                fontSize: '0.875rem',
                 letterSpacing: '0.14em',
                 textTransform: 'uppercase',
                 color: item.color,

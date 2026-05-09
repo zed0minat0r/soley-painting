@@ -54,8 +54,8 @@ export default function Navbar() {
         Soley<span style={{ color: 'var(--color-terra)' }}> Painting</span>
       </a>
 
-      {/* Links */}
-      <div style={{ display: 'flex', gap: '2.25rem', alignItems: 'center' }}>
+      {/* Links — hidden on mobile, visible on desktop */}
+      <div className="nav-links" style={{ display: 'flex', gap: '2.25rem', alignItems: 'center' }}>
         {[
           { label: 'Services', href: '#services' },
           { label: 'Process',  href: '#process' },
@@ -67,12 +67,15 @@ export default function Navbar() {
             style={{
               fontFamily: 'var(--font-body)',
               fontWeight: 500,
-              fontSize: '0.8125rem',
+              fontSize: '0.875rem',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               color: 'rgba(245, 240, 234, 0.78)',
               textDecoration: 'none',
               transition: 'color 0.2s ease',
+              minHeight: '44px',
+              display: 'inline-flex',
+              alignItems: 'center',
             }}
             onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = 'var(--color-terra)')}
             onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(245, 240, 234, 0.78)')}
@@ -83,11 +86,20 @@ export default function Navbar() {
         <a
           href="#contact"
           className="btn-primary"
-          style={{ padding: '0.625rem 1.25rem', fontSize: '0.75rem' }}
+          style={{ padding: '0.625rem 1.25rem', fontSize: '0.875rem', minHeight: '44px' }}
         >
           Get a Quote
         </a>
       </div>
+
+      {/* Mobile CTA — only shown when nav-links are hidden */}
+      <a
+        href="#contact"
+        className="btn-primary nav-mobile-cta"
+        style={{ padding: '0.625rem 1.25rem', fontSize: '0.875rem', minHeight: '44px', alignItems: 'center' }}
+      >
+        Get a Quote
+      </a>
     </nav>
   )
 }
