@@ -948,3 +948,45 @@ a:focus-visible {
   }
 }
 
+/* ── Process→Contact section-transition: paint-bleed ramp (Spark Frame A)
+   Seam: Process (umber #221810) → Contact (chalk #F4EDE3) — hardest cut
+   on the page; no SectionDivider between them.
+   Treatment: Contact::before extends upward with a negative top offset to
+   physically overlap the bottom of the Process section, painting a rust
+   gradient that bleeds from chalk→rust-tint where the umber edge sits.
+   Together they read as wet paint dripping off the dark panel into the
+   light section — painter-brand moment, not a stepped hard cut.
+   Note: Process has overflow:hidden so ::after is clipped — Contact::before
+   with negative margin is the correct cross-section solution.
+   ref: Site E (Paint Denver) — warmth-to-neutral section bg transition.
+   Replaces: hard umber→chalk cut (no prior transition existed here).
+   RULE 4: no matchMedia bail-out — same treatment at all viewports.      */
+
+/* Contact section must be position:relative so ::before stacks correctly
+   (inline style already sets position:relative; belt-and-suspenders) */
+#contact {
+  position: relative;
+}
+
+/* Bleed ramp: Contact's ::before overlaps the bottom of Process by 80px,
+   starting in rust (matching the umber warmth) and resolving to transparent
+   so the chalk background shows through cleanly from there downward. */
+#contact::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  left: 0;
+  right: 0;
+  height: 200px;
+  /* rust edge (Process side) → warm tint → transparent (Contact side) */
+  background: linear-gradient(
+    to bottom,
+    rgba(191, 91, 56, 0.52) 0%,
+    rgba(191, 91, 56, 0.22) 38%,
+    rgba(191, 91, 56, 0.06) 65%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
