@@ -5,6 +5,153 @@
 
 ---
 
+# QA CYCLE 13 — Nigel cycle 12 verification (2026-05-07), Playwright, 4 viewports
+## Viewports: SE375 (375×667), iPhone 13 (390×664), iPhone 14 Pro Max (430×932), Desktop (1440×900)
+## Branch state: post-Refiner cycle (commits up to 22739c0)
+
+---
+
+## FINDING 1 — Body font below 14px floor: CONFIRMED (broader than Nigel reported)
+
+**Nigel claimed:** "Body font measured at 13px — below the 14px floor."
+
+**CONFIRMED. Wider than reported. The "floor" was incorrectly set at 13px (0.8125rem) not 14px (0.875rem) in multiple previous Pixel cycles.**
+
+Root cause: The Pixel cycle 8 comment trail in globals.css reads "bumped from X → 0.8125rem (13px) — 13px floor." The floor itself was wrong. The standing requirement is 14px minimum. All instances of 0.8125rem (13px) are violations.
+
+**Affected elements (measured on all 4 viewports, consistent):**
+- `p.hero-section-mobile` — "Soley Painting" eyebrow label: 13px
+- `SPAN` inside `.hero-canvas-wrap` — "1 / 5" counter: 13px
+- Commitment list `p` elements in hero: "Written quote, no ballpark ranges", "On request, any project", "Estimate through final walkthrough": 13px
+- `SPAN` "Scroll" + "Scroll to explore" hints: 13px
+- `.panel-numeral-right SPAN` labels (Interior, Exterior, Commercial, Cabinet & Trim, Specialty): 13px
+- `p` "The process" eyebrow: 13px
+- `SPAN` Process step sub-labels (Surface assessment, Sand caulk prime, Full coverage primer, Two full coats, Walkthrough & touch-up): 13px
+- `p` "Why Soley" section eyebrow: 13px
+- `p` "Who's behind Soley" section eyebrow: 13px
+
+**Additional violation:** `LiveEstimate.tsx` `labelStyle` uses `0.6875rem` (11px) at lines 120 and 309 — this was flagged in globals.css comment as "bumped to 13px" but the actual component inline style was never updated.
+
+**CSS rules responsible (all must go to 0.875rem / 14px minimum):**
+- `globals.css` lines 606, 641, 784, 812, 849, 899, 904: `font-size: 0.8125rem`
+- Component inline styles: `Hero3D.tsx` (lines 465, 657, 735, 762), `ServicesScrollLock.tsx` (lines 227, 348), `Process.tsx` (line 194), `WhySoley.tsx` (line 407), `PaintFlow.tsx` (lines 277, 522), `FounderBlock.tsx` (lines 199, 284, 328), `Footer.tsx` (lines 91, 160, 171), `FAQ.tsx` (line 244), `Contact.tsx` (lines 315, 340, 366, 392), `NotifySignup.tsx` (line 55)
+- `LiveEstimate.tsx` lines 120, 309: `0.6875rem` (11px) — these are the worst violations
+
+**Severity: HIGH — standing requirement violated across all viewports.**
+
+---
+
+## FINDING 2 — LiveEstimate typing cursor: CONFIRMED ABSENT (with nuance)
+
+**Nigel claimed:** "`typingEls = 0` at audit time — typing cursor elements absent."
+
+**CONFIRMED. The cursor span has no className, so Nigel's DOM query for `.cursor` / `.typing` correctly returns 0.**
+
+The cursor IS implemented as a JSX inline-styled `<span>` (no class, no ID), conditionally rendered only when `cursorField !== null`. When the typing animation has progressed to the 'sent' phase or 'pausing' phase, `cursorField` becomes null and the cursor span is unmounted from the DOM entirely. Nigel audited during one of these inter-cycle windows.
+
+**Additionally confirmed:** The `scroll-reveal` wrapper around the LiveEstimate headline is `opacity:0` at desktop until scrolled past threshold 0.3. At the point of Playwright measurement (just after `scrollIntoView()`), the scroll-reveal was still opacity:0 ("See how an estimate comes together" text invisible). After a 2-second wait it resolved to opacity:1 — so the reveal works, but the 0.3 threshold means on a fast desktop scroll a user can pass through without triggering it.
+
+**Real issue:** Cursor is invisible to DOM queries (no class/id). Nigel's "animation genuinely absent" concern is PARTIALLY VALID — the cursor IS absent when the sequence completes (between cycles). Nigel audited mid-pause window (8s 'sent' phase + 1.4s 'pausing' = 9.4s cursor-free window per ~40s total cycle = ~23% of the time the cursor is invisible and the animation is static). No persistent blink element exists outside the typing phase.
+
+**Severity: MEDIUM — animation works but cursor is absent 23% of cycle time. No className makes cursor untestable by standard DOM queries.**
+
+### BUG-059 — LiveEstimate cursor span has no class/ID; absent 23% of animation cycle [ALL VIEWPORTS — MEDIUM]
+
+**Location:** `/Users/modica/projects/soley-painting/app/components/LiveEstimate.tsx` lines 143–155 (blinkCursor JSX), lines 48, 74, 86, 91 (cursorField state transitions)
+
+**Description:** The blinkCursor `<span>` is unmounted whenever `cursorField` is null — which occurs during the 'sent' phase (8s), 'pausing' phase (1.4s), and between-phase 500–900ms delays. With a total cycle of approximately 40s, the cursor (and animation indicator) is absent ~25% of the time. Additionally, `labelStyle` inline font-size is `0.6875rem` (11px) — not updated from the Pixel cycle 8 fix.
+
+**Fix target:** Add a persistent blink cursor element with class `blink-cursor` visible throughout the sequence; bump `labelStyle` fontSize to `0.875rem`. Refiner.
+
+---
+
+## FINDING 3 — Hero sub-copy duplicates H1: CONFIRMED
+
+**Nigel claimed:** `"One crew. One contact. Every wall done right."` echoes headline `"Every wall done right."`
+
+**CONFIRMED. Direct DOM measurement:**
+- H1 text: `"Every wall done right."`
+- Sub-copy p text: `"One crew. One contact. Every wall done right."`
+
+The sub-copy literally contains the H1 verbatim as its final clause. A buyer reads the headline then the sub-copy and gets the same exact phrase twice. This is a real copy duplication, not a false positive.
+
+**Severity: MEDIUM — content quality issue, not a layout bug. No CSS rule to fix; requires copy edit.**
+
+### BUG-060 — Hero sub-copy "One crew. One contact. Every wall done right." contains H1 verbatim [ALL VIEWPORTS — MEDIUM]
+
+**Location:** `/Users/modica/projects/soley-painting/app/components/Hero3D.tsx` — the `<p>` element rendering sub-copy text below H1
+
+**Description:** Sub-copy "One crew. One contact. Every wall done right." literally repeats the H1 "Every wall done right." in full. The sub-copy should introduce a second idea (response speed, service area, operational commitment) rather than restating the headline.
+
+**Fix target:** Builder — replace sub-copy with a distinct commitment statement. No design change needed.
+
+---
+
+## FINDING 4 — PortfolioGallery height: CONFIRMED + WORSE on mobile
+
+**Nigel claimed:** Section height 1681px.
+
+**CONFIRMED on Desktop. Mobile is dramatically worse:**
+
+| Viewport | Measured height |
+|---|---|
+| Desktop 1440 | 1681px |
+| iPhone 13 390 | 3846px |
+| iPhone SE 375 | 3744px |
+| iPhone 14 Pro Max 430 | 4066px |
+
+**Nigel's reading of 1681px was desktop-only.** On all mobile viewports the section is 3744–4066px tall. This is a 9-tile grid reflowing to single column on mobile, stretching to nearly 4× the desktop height. With 9 placeholder swatch tiles (no real photography), this creates a 3.7–4k pixel wall of "Photography forthcoming" overlays on mobile.
+
+**Severity: HIGH on mobile — the portfolio section is the #1 conversion barrier and on mobile it is nearly 4000px of placeholder content.**
+
+### BUG-061 — PortfolioGallery height 3744–4066px on mobile (9-tile single-column reflow with no real photography) [SE375, IP13, IP14PM — HIGH]
+
+**Location:** Portfolio/Gallery component (selector `#portfolio`, identified via DOM query)
+
+**Description:** Mobile viewport causes 9 tiles to reflow into single column, creating a 3744–4066px section entirely composed of placeholder CSS swatch tiles. Desktop is 1681px which Nigel correctly flagged. No real photography present. At this height on mobile, the section consumes nearly 6× the viewport height — an extreme trust deficit.
+
+**Fix target:** Pixel or Builder — either introduce a 2-column grid on mobile to halve height, or reduce tile count pre-launch to 4–6, or add a bold honest message at section top that compresses the perceived void.
+
+---
+
+## FINDING 5 — Visual cohesion after Spark easing sweep: NO NEW BLOCKERS
+
+**Post-26-instance easing sweep (Spark cycle 10/12): no broken animations or layout regressions found.**
+
+**Overflow check:**
+- SE375 `scrollWidth` = 375px, `innerWidth` = 375px — no horizontal overflow at page level.
+- The `animate-marquee` div reports `right: 3215` but is positioned off-screen by design (infinite scroll track) and its parent has `overflow: hidden`. Not a real overflow.
+- Two `DIV` elements with `right: 398` (23px overflow) at `top: -7131` — off-screen (inside the services scroll-lock at the end of its runway). Not visible to user.
+- Desktop: same pattern. `scrollWidth` = 1440px, no page-level horizontal scroll.
+
+**Console errors:** 0 on both SE375 and Desktop viewports.
+
+**Tap targets:** Not re-measured this cycle (no changes to interactive elements since Pixel cycle 8 confirmed fixes).
+
+**Easing cohesion:** No jank or broken transitions observed across hero, SSL mid-scroll, and lower-page screenshots.
+
+**Severity: PASS — no new bugs from Spark easing sweep.**
+
+---
+
+## SUMMARY — QA Cycle 13 Severity Ranking
+
+| # | Bug | Severity | Finding |
+|---|-----|----------|---------|
+| BUG-059 | LiveEstimate cursor absent 23% of cycle, no class, labelStyle 11px | MEDIUM | New |
+| BUG-060 | Hero sub-copy repeats H1 verbatim | MEDIUM | New |
+| BUG-061 | PortfolioGallery 3744–4066px on mobile | HIGH | New (mobile extent) |
+| — | 0.8125rem "floor" set wrong (should be 0.875rem / 14px) | HIGH | Confirmed, broader than Nigel reported |
+
+**Nigel Findings Status:**
+1. Body font 13px: CONFIRMED (pervasive, correct rule IDs provided above)
+2. LiveEstimate cursor absent: CONFIRMED (cursor unmounted 23% of cycle, no className)
+3. Hero sub-copy duplicates H1: CONFIRMED (verbatim repeat)
+4. PortfolioGallery 1681px: CONFIRMED on desktop, WORSE on mobile (3744–4066px)
+5. Visual cohesion: PASS (no regressions from easing sweep)
+
+---
+
 # QA CYCLE 12 — ROOT CAUSE DIAGNOSIS (post-a3dc11a, Nigel-11 priorities)
 
 ## DIAGNOSIS 1 — ServicesScrollLock mobile: ROOT CAUSE FOUND — FALSE ALARM
