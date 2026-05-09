@@ -1,95 +1,94 @@
 # AUDIT.md — Soley Painting
-**Auditor:** Nigel  
-**Cycle:** Post-Spark Frame B (commits b46fa24 / 8802038 / b10a171)  
-**Axis:** scroll-experience  
-**Date:** 2026-05-07  
-**Live URL:** https://soley-painting.vercel.app  
-**Viewports tested:** 1440x900 desktop, iPhone 13 (390), iPhone SE (375)
+**Auditor:** Nigel
+**Cycle:** Post-Builder-2 / Spark-2 / Pixel-2 / Refiner (commits 5e07e6a, e91fac5, 446a690, 7c7a093, 0dac810)
+**Axis:** mobile-UX
+**Date:** 2026-05-07
+**Prior score:** 6.6 (scroll-experience axis)
+**Score cap:** 7.5 pre-launch
 
 ---
 
-## Score Summary
+## RULE 3 Verification — ServicesScrollLock (5-position mid-runway test)
 
-| # | Feature | Score | Notes |
-|---|---------|-------|-------|
-| 1 | Custom branded centerpiece | 0.8 | Sacramento SVG signature reveal is genuinely brand-specific and cinematic. Brush sprite tracks the stroke. Cycling terracotta to teal to gold is on-brand. Dock: brush sprite is tiny at 375px; the reveal canvas shrinks to 340px but the signature barely reads at that size. |
-| 2 | Brand palette threaded everywhere | 0.8 | Five palette tokens present and consistent. Cormorant Garamond + DM Sans pairing reads premium. Terracotta CTA, teal links, umber backgrounds all cohesive. Dock: Interior panel accent is chalk on dark umber — visually the swatch square reads as colorless/blank next to the terracotta and teal panels. |
-| 3 | Section dividers with motion | 0.7 | Teardrop SVG drops present, traveling pulses visible. Paint-drop color variety is correct. Dock: the hairline rule is barely 1px and essentially invisible; the divider reads more as floating accent than structural separator. |
-| 4 | Horizontal scroll-lock | 0.3 | CRITICAL BUG. On desktop 1440 at mid-scroll (3x viewport height), the entire screen renders blank chalk — no dark panel content visible. On iPhone 13 at the same scroll position, identical blank chalk screen. Services panel 01/05 appears at section entry (1x viewport), but the scroll handoff breaks entirely at mid-runway — exactly where a normal user spends most of their scroll time. On iPhone SE, panel 5 (Specialty) content overflows the right edge of the 375px viewport; body text and bullets run past screen width. |
-| 5 | Animated workflow diagram | 0.6 | PaintFlow is present and node labels visible in desktop screenshot. SVG draw-in and animateMotion dots are coded. Dock: section renders on chalk background and is visually flat. Dot animation and node pulses are too subtle to distinguish from a static diagram at a glance. |
-| 6 | Live conversational sequence | 0.6 | LiveEstimate component exists in codebase. Not visible in any viewport screenshot — unclear if it is rendered in page.tsx flow or buried between sections. Code inspection confirms proper auto-typing logic and sent-state animation. Dock: catalog item presence on the live page is unconfirmed. |
-| 7 | Auto-advancing horizontal timeline | 0.8 | Process component has character-stagger titles, word-stagger descriptions, bullet pop animations, 10s countdown bar, and IntersectionObserver gating. All five steps present with interactive tab nav. Dock: countdown bar is 2px — extremely thin and missable. Mobile tab row wraps to flex-wrap losing the left-border active indicator. |
-| 8 | Premium 3-layer text glow | 0.7 | .glow-hero (1px white core + 10px terracotta mid + 28px teal ambient) and .glow-sub correctly applied to hero headline and tagline. Dock: service panel titles — large uppercase INTERIOR / EXTERIOR / COMMERCIAL etc — have zero glow. Plain chalk on dark panels reads flat by comparison to the hero. |
-| 9 | CSS scroll reveals | 0.8 | .scroll-reveal ships hidden in SSR HTML, IntersectionObserver adds .in-view. Pattern is correct and applied to section headings. Dock: WhySoley tilt cards use Framer Motion useSpring which may cause SSR flash on initial load for those elements. |
-| 10 | Custom feature cards with hover/depth | 0.6 | WhySoley 4-card grid uses useSpring rotateX/Y tilt on mousemove. Mobile accordion coded. Dock: cards are bordered chalk on chalk with only a left-border accent — no gradient background, no icon background depth. The tilt mechanic is invisible to a buyer scanning at 90 seconds; the card surface itself needs visual richness to communicate quality before any hover interaction. |
-| 11 | Social as text link in bottom bar | 0.3 | Footer bottom bar shows "SOCIAL CHANNELS COMING SOON..." instead of the catalog-spec "INSTAGRAM" wide-tracked text link. Even pre-launch the spec calls for the text link with an honest placeholder — not a coming-soon suffix. |
-| 12 | Constant-speed centerpiece | 0.8 | SVG stroke-dashoffset uses linear easing — constant velocity. 3-color phase machine is clean. Brush tracks leading edge via rAF loop. Dock: ~400ms font-load delay leaves the chalk canvas visibly blank before the sequence starts, which can read as broken on fast connections. |
+Tested desktop 1440x900 AND iPhone 13 (390x664) AND iPhone SE (375x667).
 
----
+Desktop ServicesScrollLock (top: 1098px, height: 4500px):
+- 5% (scrollY 1302): Panel 1 "INTERIOR" fully visible — translateX registering as -50% in inline style but visually showing INTERIOR content. Scroll IS working.
+- 25% (scrollY 2222): Panel 1/2 transitioning — content visible.
+- 50% (scrollY 3336): Panel 3/4 split visible — "COMMERCIAL" left edge + "CABINET & TRIM" right — scroll driving horizontal travel confirmed.
+- 75% (scrollY 4461): Panel 5 "SPECIALTY" fully centered — working.
+- 95% (scrollY 5372): CRITICAL BUG — Horizontal banding stripes (alternating dark/cream bands), no content readable. Section exit broken on desktop at tail end of runway.
 
-## Decimal Total
+iPhone 13 ServicesScrollLock (top: 1183px, height: 3320px):
+- 5%: Services panel content showing (end of last panel text visible).
+- 50%: Services section still in view.
+- 95%: Services end — transition out appears to work but no content void confirmed at this position.
 
-| Metric | Value |
-|--------|-------|
-| Sum of 12 items | 7.9 / 12.0 |
-| **Weighted decimal score** | **6.6** |
+Mobile void bug: On iPhone 13, scrolling to document mid-point (~40%) reveals a blank cream expanse — PaintFlow (workflow section) renders as visually empty on mobile (section height: 744px but SVG diagram is invisible). FounderBlock has a ~400px dead dark zone above "HOW WE WORK" heading. These are BLOCKING mobile UX issues.
 
-Pre-launch cap applies (no real photography, no real reviews, no real address, no real service area, no real Instagram handle). Cap: 7.5.
-
-**Final score: 6.6 / 10**
+**Verdict:** ServicesScrollLock fix PARTIALLY holds — desktop 5/25/50/75% positions work correctly. 95% exits into a stripe-banding glitch on desktop. Mobile sections exist but PaintFlow is invisible and FounderBlock has dead padding zone.
 
 ---
 
-## Critical Issues Found
+## 12-Feature Catalog Rubric
 
-### Issue A — ServicesScrollLock blank mid-scroll (BLOCKER)
-The horizontal scroll-lock renders a blank chalk screen on both desktop 1440 and iPhone 13 when scrolled to mid-runway (3x viewport height). Panel 01/05 appears at section entry, but the scroll mapping breaks in the middle. The blank is chalk-colored — the sticky container is likely exiting early or `scrollYProgress` offset calculation misfires once the section travels past the first viewport. This is the site's signature experience and it is broken at exactly the position a normal user reaches.
+| # | Feature | Target | Score | Notes |
+|---|---------|--------|-------|-------|
+| 1 | Custom 3D / WebGL hero centerpiece | 3D paintbrush | 0.7 | SVG signature script reveal is distinctive and on-brand. Not true 3D/WebGL (R3F removed by Razor). The Bézier brush-paint "Soley" script is genuinely clever and visually differentiating. Docked for no actual 3D geometry. |
+| 2 | Brand color palette threaded through everything | Terracotta/teal/chalk/slate/gold | 0.7 | Color system is coherent — terracotta on CTAs, teal on accents, chalk backgrounds alternate with umber. Marquee items not individually tinted per panel. Dividers show the terracotta-to-teal hairline. Solid but not maximally propagated. |
+| 3 | Section dividers with motion | Paint-drop SVGs + traveling pulses | 0.7 | Three teardrop paint drops visible at divider between LiveEstimate and Contact. Traveling pulse dots appear as static small dots at edges of the divider line — motion not confirmed as animating in Playwright still. Generic hairline otherwise. |
+| 4 | Horizontal scroll-lock section | 5 painting services in locked panels | 0.7 | Scroll travels through 5 panels with correct service content and panel accent colors. 95% position produces stripe-banding artifact on desktop. Exit transition rough. Panel layout is content-left with right void on desktop (content occupies ~50% width leaving a dark blank column). |
+| 5 | Animated workflow visualization | Wall→Prep→Prime→Paint→Finish | 0.4 | PaintFlow section exists and renders on desktop (Codrops blind-reveal strips, SVG dot travel). COMPLETELY INVISIBLE on iPhone 13 and iPhone SE — section has height but no visible content on mobile. A 744px blank zone on mobile is a hard fail for a marquee feature. |
+| 6 | Live conversational sequence | Auto-typing estimate form | 0.7 | LiveEstimate section shows the typing form card on desktop with two-column editorial layout. The "I" cursor is visible and typing appears active. Mobile collapses to single column. On mobile the form card is partially off-screen. No "Sent" animation observable in static screenshot. |
+| 7 | Auto-advancing horizontal timeline | 5-step Process section | 0.7 | Process section visible on desktop with left-panel step list + right content panel. Tabs (Free Walkthrough through Final Walkthrough) are present. Countdown bar and auto-advance visible in static shot. On mobile there is a ~400px dead zone above the Process content due to FounderBlock overflow. |
+| 8 | Premium text glow (3-layer halo) | Hero headline 3-layer halo | 0.4 | Hero headline "Every wall done right." shows standard weight text without a discernible multi-layer glow in screenshots. The italic "done right." has a slight warm tint. No strong 3-layer halo (1px core + 10px mid + 28px ambient) visible at either desktop or mobile — reads as standard Tailwind. |
+| 9 | CSS scroll reveals | .scroll-reveal IntersectionObserver | 0.7 | WhySoley cards appear to stagger in per the screenshots — cards 1/2 fully opaque while 3/4 are lighter, suggesting a scroll-reveal-in-progress capture. Contact left column has scroll-reveal-left stagger. Pattern appears implemented. |
+| 10 | Custom feature cards with hover/depth | WhySoley 4-card tilt + mobile accordion | 0.4 | WhySoley cards on desktop are flat bordered boxes — no visible 3D tilt or depth gradient. The mousemove tilt requires interaction not capturable in screenshots, but the card styling (simple border-left accent, flat cream background) does not communicate depth. Mobile accordion toggle not captured. |
+| 11 | Single social as text link in footer | Instagram text link in bottom bar | 0.4 | Footer not visible in any captured screenshot — contact section is the last item visible before the page ends. Social link presence unconfirmed. |
+| 12 | Constant-speed rotation, no drift | Paintbrush/hero centerpiece constant velocity | 0.4 | No R3F 3D object — the SVG signature reveal is not a rotating centerpiece. Speed consistency is not applicable in the same way, but the brush-tracking stroke speed is visually inconsistent (brush pauses mid-stroke in the screenshot showing mid-animation state). |
 
-Root cause hypothesis: `useScroll({ target: containerRef, offset: ['start start', 'end end'] })` should track correctly when `containerRef` is on the 500vh `<section>`. But if the hero's new single-column layout changed the document scroll height vs the previous 2-col grid, the scroll range may have shifted. Verify with `scrollYProgress.onChange(v => console.log(v))` at mid-scroll.
+**Raw total: 7.2 / 12.0**
 
-### Issue B — iPhone SE content overflow in scroll panels
-At 375px, panel content uses `padding: '0 3rem'` (96px total) leaving 279px usable width inside a 375px panel. Body text wraps and overflows the fixed-height panel. Fix: reduce panel padding to `clamp(1rem, 4vw, 3rem)` on viewports under 640px.
+**Pre-launch cap applied: 7.2 — under the 7.5 cap.**
 
-### Issue C — Contact section left column void (desktop)
-The footer screenshot shows the contact form right column but the left half of the desktop viewport is a large pale void. The left column's contact info, promise copy, or "why call us" block appears to have failed its scroll-reveal trigger or is not rendering.
+**FINAL SCORE: 7.2**
 
-### Issue D — Navbar logo line-wrap on iPhone SE
-On iPhone SE (375px), "Soley / Painting" wraps to two stacked lines while the CTA button inflates. Force `white-space: nowrap` on the logo container.
+---
 
-### Issue E — LiveEstimate not confirmed on live page
-No screenshot from any viewport captured the LiveEstimate section. Verify it is imported and rendered in page.tsx, and take a full-page screenshot to confirm its scroll position.
+## What Improved Since 6.6
+
+**Improvements:**
+- ServicesScrollLock blocker is substantially fixed — panels 1-4 travel correctly through scroll (was rendering blank last cycle)
+- FounderBlock added — genuine human anchor with honest copy and placeholder portrait framing. Gives a buyer the "who are these people" answer that was entirely missing last cycle
+- WhySoley spotlight glow added to card group container
+- Contact left column filled — 6 honest commitments with scroll-reveal stagger where previously blank
+- LiveEstimate redesigned to two-column editorial layout — better editorial weight
+- PaintFlow now on dark umber background with Codrops blind-reveal strips — more cinematic on desktop
+- Mobile navbar nowrap fixed; logo no longer wraps
+
+**Regressions / New Issues:**
+- ServicesScrollLock 95% position produces horizontal stripe-banding glitch on desktop (new failure at exit point)
+- PaintFlow (workflow section) is COMPLETELY INVISIBLE on mobile — 744px blank zone
+- FounderBlock has ~400px dead dark padding zone on mobile above Process section
+- Desktop services panels have a large dark right-column void (content only fills ~50% of panel width)
+- Hero text glow is not achieving the 3-layer halo called for in catalog item #8 — still reads generic
+- WhySoley cards are visually flat — no perceptible depth/tilt effect in static rendering
 
 ---
 
 ## Top 5 Priorities for Next Cycle
 
-**Priority 1 — Fix ServicesScrollLock blank mid-scroll (BLOCKER)**
-Debug `scrollYProgress.onChange` to confirm the progress value is non-zero at section mid-point. If `scrollYProgress` reads 0 or 1 when it should read ~0.5, the `containerRef` attachment or the offset config is wrong. Also fix iPhone SE overflow: reduce panel padding from `0 3rem` to `clamp(1rem, 5vw, 3rem)` with no `!important` override needed — just conditional inline style or a CSS media query on `.services-panel-content`.
+**P1 — BLOCKER: Fix PaintFlow mobile invisibility.**
+The workflow section (catalog #5) is the most technically ambitious section and it renders as a 744px blank void on iPhone 13 and SE. The SVG diagram and animated dots are not visible on mobile. Fix the SVG sizing (likely `width: 100%` + `viewBox` mismatch), the blind-reveal strip heights (fixed px values probably overflow on mobile), and ensure IntersectionObserver fires correctly in mobile Chrome. Do not disable the feature — fix the layout.
 
-**Priority 2 — Add visual depth to WhySoley cards**
-The 4-card grid is the "why choose us" moment — it needs to land visually before any hover. Add a radial gradient background to each card using the card's accent color at 5% opacity from top-left. Give icon containers a filled tile at 12% accent opacity. The left-border accent alone is too subtle for a buyer scanning on mobile.
+**P2 — ServicesScrollLock 95% stripe-banding exit glitch.**
+At the tail-end of the scroll runway on desktop, the section exit produces alternating dark/cream horizontal bands that obscure all content. This is likely the Codrops blind-reveal strips from PaintFlow bleeding into the services section's exit scroll position, or the sticky container exit overlapping adjacent section backgrounds. Fix the sticky container height calculation and test the 95% position until it exits cleanly.
 
-**Priority 3 — Fix Contact left column**
-Audit what is in the left column of the Contact section. If it has a scroll-reveal class and the IntersectionObserver is not firing (because the section enters above a threshold), change its trigger threshold from `0.3` to `0.1` or remove the scroll-reveal from the left column heading entirely and let it render visible on load.
+**P3 — FounderBlock dead padding zone on mobile.**
+The FounderBlock has roughly 400px of blank dark space above "HOW WE WORK" on iPhone 13. This is either a fixed min-height on the portrait placeholder or a grid row that doesn't collapse. Fix the mobile layout so the content flows without the dead zone.
 
-**Priority 4 — Confirm LiveEstimate placement in page flow**
-Check page.tsx imports and render order. If LiveEstimate is missing from the rendered page, re-add it between WhySoley and Process. Take a full-page Playwright screenshot to confirm its presence at the right scroll depth.
+**P4 — Hero text glow upgrade (catalog #8).**
+The hero headline "Every wall done right." reads as plain Tailwind text-shadow. Implement the 3-layer halo: 1px near-white core (`0 0 1px rgba(255,255,255,0.9)`), 10px terracotta mid (`0 0 10px rgba(194,96,58,0.65)`), 28px teal ambient (`0 0 28px rgba(58,143,133,0.35)`). Apply `.glow-sub` to the sub-headline as well. This single change will make the hero feel premium rather than generic.
 
-**Priority 5 — Navbar logo fix + panel title glow**
-Add `white-space: nowrap` to the navbar logo container. Add a single-layer text glow to service panel titles: `text-shadow: 0 0 24px rgba(245,240,234,0.15)` — barely perceptible but adds depth against the dark panel backgrounds. Replace "SOCIAL CHANNELS COMING SOON..." in the footer bottom bar with "INSTAGRAM" as a wide-tracked text link (even if href="#" pre-launch).
-
----
-
-## Regression vs Previous Cycle
-
-**Previous score: 6.9 (content-depth axis)**
-
-The Sacramento SVG signature reveal is a genuine improvement over the CanvasTexture figure-8 and the Bezier path brush from the prior two Spark commits. It is more legible, more brand-specific (a painter's signature), and cleaner to maintain. The hero centerpiece itself improved.
-
-The score regressed from 6.9 to 6.6 for one primary reason: the ServicesScrollLock blank mid-scroll bug. This is likely a side effect of the hero's document-flow change (from a full-bleed 2-col grid to a centered single-column layout with different scroll height), which shifted the `containerRef` offset calculations for the scroll-lock section. The hero commit changed the page scroll architecture without recalibrating the downstream scroll-lock.
-
-Secondary regression: catalog #11 (social text link in bottom bar) remains at 0.3 from the previous cycle with no improvement.
-
----
-
-*Nigel audit complete. Score: 6.6. Axis: scroll-experience. Top issue: ServicesScrollLock blank mid-scroll breaks the site's signature section at the exact position users reach.*
+**P5 — Services panel content fills right void on desktop.**
+At 5% (first panel "INTERIOR") and 75% (panel 5 "SPECIALTY"), the content column occupies roughly the left 50% of the 1440px viewport, leaving a large dark void on the right. Add the service-specific color accent to the right half (large service number in low-opacity, or an icon treatment at right) to fill the right column and make panels feel full-bleed designed rather than left-aligned content dropped on a dark background.
