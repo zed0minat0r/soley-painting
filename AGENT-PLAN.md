@@ -1,167 +1,204 @@
-# AGENT-PLAN.md — Soley Painting (:03 slot, post-QA-Pixel-Refiner)
+# AGENT-PLAN.md — Soley Painting (:03 slot, post-Refiner d6c2ccf)
 
-**Date:** 2026-05-07 :03 (post-Refiner round)
+**Date:** 2026-05-07 :03 (post-QA-3 / Pixel-4 / Refiner-3)
 **Live:** https://soley-painting.vercel.app
-**Latest score:** 7.2 (mobile-UX axis, 2026-05-07 — Nigel cycle 3 / commit 19cf86f)
-**Latest commit:** 6aa205e (Refiner — BUG-014/017/018/021/022 closures)
-**Cap:** 7.5 pre-launch — currently 0.3 below cap
+**Latest score:** 7.3 (brand-cohesion axis, Nigel cycle 4 / commit 240391b)
+**Latest commit:** e093a7f (Refiner CHANGELOG append after BUG-025/026/027/028/032 closure d6c2ccf)
+**Cap:** 7.5 pre-launch — 0.2 below cap
 
 ---
 
 ## Decision rule fired
 
-**Default rotation + Section cooldown + Catalog gap-fill.** Score (7.2) is below the 8.5 polish-mode gate — full toolset available. No stuck-loop signal — last 6 changelog entries all show commits. QA + Pixel + Refiner closed every BLOCKER and HIGH from the last cycle. Now there is real headroom to push beyond the 7.2 plateau toward 7.5: the Penn Tech catalog still has true gaps (portfolio section never built, Process auto-advance is present but the cinematic polish lags Penn Tech's char/word-stagger reference, Hero centerpiece scored 0.7 because the SVG signature stands alone with no environment around it). Schedule **Builder → Spark** in that order: Builder fills the catalog gap (Portfolio section — Scout Site D Hedlund pattern), Spark elevates the two catalog items still scoring 0.7 (Hero environment + Process timeline cinematic transitions).
+**Default rotation + section cooldown.** Score (7.3) is below the 8.5 polish-mode gate so full toolset is available. No stuck-loop signal — last commits (240391b, ba942b8, 6e88be7, d6c2ccf, e093a7f) all show real work landing. Nigel's cycle-4 priorities P1/P2/P5b are already closed by Refiner d6c2ccf. The two catalog deductions Nigel actually scored low this cycle are #1 (R3F absent — IGNORE per orchestrator brief, SVG signature is the approved equivalent) and #11 (footer social link — IGNORE per orchestrator brief, honest pre-launch is intentional). That leaves the two catalog items at 0.7 with real headroom (#3 SectionDivider, #5 PaintFlow) plus a copywriting honesty pass that has never run. Schedule **Builder → Spark** in that order: Builder runs a word-level honesty + clarity pass across every section (no new components), Spark pushes #3 SectionDivider and #5 PaintFlow visual depth toward 0.9.
 
-**Section cooldown trigger (3+ of last 6 changelog touches → forbid this cycle):**
-- **FounderBlock** — touched in 280f953 (Pixel cycle 2), 5e07e6a (Builder cycle 2). 2 touches — soft cool, do not refactor structure.
-- **WhySoley** — Builder cycle 2 + Refiner spotlight. Soft cool.
-- **Contact** — Builder cycle 2 (left col fill). Soft cool.
-- **LiveEstimate** — Spark cycle 2 (e91fac5) + Refiner BUG-017 (181d376). 2 touches — verify only, no redesign.
-- **PaintFlow** — Spark cycle 2 (e91fac5) + Refiner BUG-014/018 (181d376). 2 touches — verify only, no redesign.
-- **ServicesScrollLock** — Refiner BUG-022 panel numerals (181d376). Soft cool — do not re-touch the scroll handler.
+**Section cooldown register (touches in last 6 changelog entries):**
 
-No section has 3+ touches yet, so nothing is hard-forbidden by the cooldown rule alone — but Builder + Spark this cycle should explicitly steer clear of these six sections. The catalog gap (portfolio) and the two underscored catalog items (#1 Hero environment, #7 Process cinematic) are the right targets.
+| Section | Recent touches | Status this cycle |
+|---|---|---|
+| ServicesScrollLock | Refiner BUG-025 (d6c2ccf) | **HARD FORBID** — 3rd touch = cooldown trigger |
+| Process | Refiner BUG-026/032 (d6c2ccf) + Spark cycle 3 (85888ef) | **HARD FORBID** — 2 touches, soft-cool |
+| ScrollRevealObserver | Refiner BUG-028 (d6c2ccf) | **HARD FORBID** — just refit |
+| PortfolioGallery | Builder cycle 3 (55adef2) + Pixel BUG-031 (6e88be7) + Refiner BUG-027 (d6c2ccf) | **HARD FORBID** — 3 touches |
+| Footer | Pixel BUG-030 (6e88be7) | Soft-cool, structure only — Builder may copy-edit honest framing only |
+| Hero environment | Spark cycle 3 (85888ef) | Soft-cool — Spark may NOT re-touch hero this cycle |
+| LiveEstimate | Last touched 181d376 (5+ entries back) | OK — eligible if Spark sees a clear win, not the primary target |
+| PaintFlow | Last touched 181d376 (5+ entries back) | **PRIMARY Spark target** |
+| SectionDivider | Not touched in 6+ cycles | **PRIMARY Spark target** |
+| FounderBlock / WhySoley / Contact | All touched 4+ cycles back | OK for copy-edits (Builder) |
+
+**Spark frequency check:** Spark ran cycle 3 last cycle (85888ef). Within window — schedule normal Spark this cycle.
+
+**Memory drift check:** No 7-day-old MEMORY entries lacking visible action. Penn Tech catalog binding is being respected.
 
 ---
 
 ## Scheduled agents (in order)
 
-### 1. Builder — Portfolio placeholder section (catalog gap-fill)
+### 1. Builder — Section-by-section copywriting honesty + clarity pass
 
-**Targets:**
+**Brief:** Builder runs a word-level pass across every section's headline, eyebrow, sub-copy, button labels, and microcopy. NO new components. NO new sections. NO restructured layouts. Only word-level edits to the React components' text content. Goal: every line earns its space, sounds like a human painter (not a marketing template), and contains zero fabrication.
 
-- **NEW SECTION — Portfolio / Project Gallery (catalog gap, Nigel cycle 1 priority 5).** This was on the cycle-1 priority list and never shipped. Scout Site D (Hedlund Painting, https://hedlundpainting.com/) is the explicit reference pattern: filterable project gallery with **All / Interior / Exterior / Commercial / Cabinet & Trim / Specialty** filter chips matching the 5 services. Build the section between FounderBlock and Process (insert in `app/page.tsx` accordingly).
-  - **Component:** `app/components/PortfolioGallery.tsx`.
-  - **Filter chips row:** 6 chips (All + 5 service categories). Active chip uses terracotta background + chalk text; inactive chips use chalk border + slate text. Filter behavior: clicking a chip sets a state and shows tiles whose `data-category` matches; "All" shows everything.
-  - **Tile grid:** 6–9 placeholder tiles in a CSS grid (3-up desktop, 2-up tablet, 1-up mobile). Each tile is an aspect-ratio 4:3 framed slot with: (a) honest pre-launch caption "Photography forthcoming", (b) a colored accent stripe at top using the swatch color of the matching service, (c) a 2-line metadata row showing service category + a placeholder neighborhood like "Project location coming soon" — **NEVER fabricate a real city / neighborhood / project name** (RULE 7). Tiles must use a tasteful neutral fill (chalk-toned subtle gradient, NOT a stock photo, NOT a fake before/after).
-  - **Section eyebrow + headline:** "Recent Work" eyebrow, headline like "Projects in progress." Sub-line acknowledges pre-launch honestly: "Real photography drops as projects wrap." NO fabricated stats ("47 projects completed"), NO fake testimonials inside tiles.
-  - **Honest empty state:** if a filter has no matching tiles, show a small empty-state card "More <category> work coming soon."
-  - **Filter UX:** clicks must update the visible tiles via React state. Animate the show/hide with a 200ms opacity transition — no layout-shift jank.
-  - **Mobile audit:** tile grid stacks 1-up below 640px. Filter chips wrap to two rows if needed. Tap targets ≥ 44px on chips.
+**Targets (file paths, all under `/Users/modica/projects/soley-painting`):**
 
-- **Verification (RULE 3 — mid-runway scrolling, not snapshots).** Build a Playwright check that:
-  1. Loads the live preview (or `npm run dev` localhost:3000).
-  2. Locates `#portfolio` (give the section that id) — read `getBoundingClientRect().top + window.scrollY` and `offsetHeight`.
-  3. Samples 5 positions through the section (5 / 25 / 50 / 75 / 95 %).
-  4. At each position captures a screenshot at 1440×900, iPhone 13 (390×664), iPhone SE (375×667).
-  5. Clicks each filter chip and confirms tile-count changes match expectation.
-  6. Saves screenshots to `/tmp/soley-portfolio-cycle3/` for human review.
+- `app/components/Hero3D.tsx` (or wherever the hero copy lives) — confirm "Every wall done right." headline + sub-copy reads honest and confident; tighten if there's filler.
+- `app/components/ServicesMarquee.tsx` — service category strings + the marquee separators.
+- `app/components/ServicesScrollLock.tsx` — **TEXT ONLY** for each panel (eyebrow, headline, bullets, caption). DO NOT touch the scroll handler, transform math, panel widths, or any layout/JS — that section is HARD FORBIDDEN structurally this cycle.
+- `app/components/PaintFlow.tsx` — **TEXT ONLY** for any node labels / step captions. Spark owns the visual depth pass; Builder only sharpens copy if the labels read weak.
+- `app/components/WhySoley.tsx` — 4-card titles + body copy. Confirm each card answers a real buyer concern in concrete language.
+- `app/components/FounderBlock.tsx` — confirm copy is honest pre-launch (no fabricated names/dates) and the framing reads as a real working painter, not a generic "About" block.
+- `app/components/PortfolioGallery.tsx` — **TEXT ONLY** for the section eyebrow / headline / sub-line / "Photography forthcoming" overlays. DO NOT touch the chip filter, tile grid, or any JS — section is HARD FORBIDDEN structurally.
+- `app/components/Process.tsx` — **TEXT ONLY** for each of the 5 step titles + descriptions + bullets. DO NOT touch the auto-advance JS, countdown bar, or stagger keyframes — HARD FORBIDDEN structurally.
+- `app/components/LiveEstimate.tsx` — TEXT ONLY for the typed-message script + commitment bullets. Verify each line reads honestly.
+- `app/components/Contact.tsx` — confirm form field labels, helper text, submit button, and the "we answer the phone"-style commitments read confident and concrete.
+- `app/components/Footer.tsx` — copy-edit only. The "SOCIAL CHANNELS COMING SOON" honest framing stays — DO NOT swap to a fake INSTAGRAM link.
+
+**What "honest + clarity" means in practice:**
+
+- Replace marketing filler ("we strive to deliver excellence") with concrete commitments ("we answer on the second ring; we show up when we said we would").
+- Cut adverbs that don't carry weight ("really", "truly", "honestly").
+- If a sentence could appear on any painter's site, rewrite it so it could only appear on Soley's.
+- NO fabricated specifics — no "Est. 2018", no "47 projects completed", no fake neighborhood names, no fake reviews, no fake project counts.
+- Generic role / category language is fine ("residential clients", "property managers"). Specific fake people / addresses / dates are not.
+- Headlines stay short. Sub-copy stays under 24 words per line.
+- **Brand voice:** honest, hands-on, professional. The painter equivalent of "we answer the phone." (per CLAUDE.md.)
+
+**Verification (RULE 3):**
+
+- After edits, run `npm run build` — must pass clean.
+- Run a Playwright check on the live URL (or `npm run dev`) at desktop 1440×900 + iPhone SE 375×667 + iPhone 13 390×664. Capture full-page screenshots so the next agent can confirm no copy got truncated by edits.
+- Save screenshots to `/tmp/soley-builder-cycle4-copy/`.
 
 **Forbidden moves:**
 
-- **Do NOT touch FounderBlock, WhySoley, Contact, LiveEstimate, PaintFlow, or ServicesScrollLock structure** (all on soft-cool). Inserting the new Portfolio section between FounderBlock and Process is fine — but do not edit those sections' internal markup or styles.
-- **Do NOT touch the Hero centerpiece** — Spark owns Hero environment this cycle.
-- **Do NOT fabricate** any real project name, city, neighborhood, customer name, before/after photo, project count, square-footage, or completion date (RULE 7). Every tile says "Photography forthcoming." Every metadata row stays generic.
-- **Do NOT add a "View All" link** that goes to a /projects page that doesn't exist. If the link is included, it must scroll to the top of the section or be omitted entirely.
-- **Do NOT add ghost numbers** behind tiles or behind the headline (RULE 8).
-- **Do NOT use Framer Motion `whileInView`** on the tiles — use the existing `.scroll-reveal` IntersectionObserver pattern that already lives in `globals.css` (catalog #9). Tiles ship hidden in SSR HTML and toggle `.in-view` on intersect.
-- **Do NOT collapse the filter to a select dropdown on mobile** — keep the chip row, just let it wrap (RULE 4 — disabling a feature is not a fix).
-- **Do NOT remove or downgrade** any glow / animation / effect from prior cycles (`feedback_nigel_no_removal.md`).
-- **No "subtle / considered / editorial restraint / tasteful / delicate"** language in commit messages or code comments (RULE 2).
+- **Do NOT touch any structure / JS / CSS / layout / component hierarchy.** Text-content edits only. If a copy edit reveals a layout bug, log it as a BUGS.md entry, do not fix it.
+- **HARD FORBID structural edits to:** ServicesScrollLock, Process, PortfolioGallery, ScrollRevealObserver, Hero environment, Footer columns. Copy edits inside these are allowed; structural / JS / CSS edits are not.
+- **Do NOT add ghost numbers, fake testimonials, fake names, fake dates, or fake project stats** anywhere (RULE 7, RULE 8).
+- **Do NOT swap the honest "SOCIAL CHANNELS COMING SOON" footer line to a fake INSTAGRAM handle** (per orchestrator brief — Nigel's catalog #11 suggestion is IGNORED).
+- **Do NOT introduce R3F / @react-three/fiber / drei / three** (Razor removed it deliberately; SVG signature is the approved centerpiece).
+- **Do NOT use `matchMedia` to hide any feature on any viewport** (RULE 4).
+- **Do NOT use Framer Motion `whileInView`** on SSR-rendered text — copy edits should not change rendering pattern.
+- **Do NOT call the iMessage reply tool** (RULE 1 — Builder is a sub-agent).
+- **Do NOT use the words "subtle / considered / editorial restraint / tasteful / delicate / refined"** in any copy or commit message (RULE 2).
+- **Do NOT remove or downgrade any glow / animation / effect** from prior cycles (`feedback_nigel_no_removal.md`).
+- **Do NOT strip content count** from any section — if a card / bullet / panel has 4 items today, it has 4 items after this pass (`feedback_frame_b_richness.md`).
+- **Do NOT call the user a bottleneck** in any commit message or report (`feedback_respectful_tone.md`).
 
 **MEMORY.md entries Builder MUST respect:**
 
-- `project_penn_tech_baseline.md` — Portfolio is the brand-equivalent of Penn Tech's case-study / project-gallery pattern; the 12-item catalog is the floor. The filterable gallery is also referenced in Scout Site D's "honest portfolio pattern."
-- RULE 7 / `feedback_no_invented_fight_data.md` analogue — no fabricated project names, cities, before/after pics, customer names, project counts. Generic + honest only.
-- RULE 8 / `feedback_no_ghost_numbers.md` — no large faded background numerals behind tiles or headline.
-- RULE 4 / `feedback_disabling_isnt_fixing.md` — filter chips must work on every viewport; do not collapse to a select.
-- RULE 3 / `feedback_actually_scroll_test.md` — verify at 5 runway positions on 3 viewports.
-- `feedback_pixel_alignment.md` — center-alignment of tile grid + chip row at 375 + 414.
-- `feedback_frame_b_richness.md` — keep all 6–9 tiles; do not strip count if it feels "too dense."
-- `feedback_simplicity_over_polish.md` — replace when adding (e.g., if the new section accidentally duplicates an existing visual treatment, replace, don't stack).
-- RULE 1 / `feedback_always_imessage.md` — Builder is a sub-agent: do NOT call the iMessage reply tool.
+- RULE 7 / `feedback_no_invented_fight_data.md` — no fabricated specifics anywhere in copy.
+- RULE 1 / `feedback_always_imessage.md` — sub-agent: do NOT text the user.
+- RULE 2 / `feedback_no_self_throttle.md` — execute the brief at full intensity; no "subtle" reframings.
+- `feedback_frame_b_richness.md` — preserve content count.
+- `feedback_nigel_no_removal.md` — never remove a prior animation / glow / effect.
+- `feedback_simplicity_over_polish.md` — replace, don't pile.
+- `feedback_respectful_tone.md` — collaborative framing only.
+- `feedback_just_do_simple_swaps.md` — for trivial copy edits, ship the obvious target without asking "which one?"
+- `project_penn_tech_baseline.md` — Penn Tech catalog is the floor; copy edits should make each catalog feature read as the brand-specific painter equivalent of its Penn Tech analog.
 
 ---
 
-### 2. Spark — Hero centerpiece environment + Process timeline cinematic upgrade
+### 2. Spark — SectionDivider depth + PaintFlow visual depth (Frame A or B)
 
-**Targets:**
+**Brief:** Spark pushes the two catalog items still scoring 0.7 toward 0.9 by elevating their visual depth. Frame A (replace + add) or Frame B (refine spacing/typography while keeping content count) — Spark picks based on which reads as the bigger uplift. Two clear targets; no others touched this cycle.
 
-- **Catalog #1 — Hero centerpiece environment (still 0.7 in Nigel rubric).** The SVG Sacramento signature reveal works but it floats alone in a chalk void — Nigel docked it for "no actual 3D geometry" and the user has flagged that the centerpiece "needs more presence than just a floating word." Add ambient atmosphere AROUND the signature (not on top of it — RULE 2: don't dilute, elevate):
-  - **Painter's environment props** as low-key SVG backdrop layers behind the signature: a subtle drop-cloth corner texture at the bottom edge, a brush rest silhouette to one side, scattered paint-drip marks at the canvas baseline (terracotta + teal + clay-gold drips, varying sizes, low opacity ~12–18 %). These props live in a `.hero-environment` div with `pointer-events: none` and `z-index: -1` relative to the signature.
-  - **Ambient-light SVG goboes:** a soft warm-light wash from upper-right (terracotta gradient at 8 % opacity) and a cool fill from lower-left (teal gradient at 6 %). Implement as two large `<radialGradient>` SVG circles, not box-shadow.
-  - **Subtle particle drift:** 8–12 small painted-dust SVG circles drifting slowly upward (CSS keyframes, `animation-duration: 14–22s`, staggered delays, opacities 0.1–0.25, mixed swatch colors). NO bloom postprocessing — bloom flickers on alpha canvases.
-  - **Constant-velocity rule (catalog #12):** the drift speed is constant — no `Math.sin` oscillation, no `MathUtils.lerp` smoothing. Each particle has its own constant rate.
-  - **Mobile parity:** the environment scales down but NEVER disappears via `matchMedia` (RULE 4). Particles can drop to 4–6 on mobile but the props + goboes stay.
-  - **Replace, don't stack:** if any prior chalk-empty padding or "subtle gradient" lives in the hero, REPLACE it with the environment layer. Do not pile glow on glow.
+**Targets (file paths, all under `/Users/modica/projects/soley-painting`):**
 
-- **Catalog #7 — Process timeline cinematic upgrade (still 0.7).** Process auto-advances and has the countdown bar but Nigel scored it 0.7 because the transition between tabs is not as cinematic as Penn Tech's character-stagger title + word-stagger description + bullet pop. Upgrade:
-  - **Character-stagger on title:** wrap each character of the active step's headline in a `<span>` with `animation-delay: N * 0.04s` and a CSS keyframe `from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; }`. Re-trigger on every tab change.
-  - **Word-stagger on description:** same pattern but per-word with `animation-delay: N * 0.06s` and `translateX(-6px)` entry.
-  - **Bullet pop:** each bullet has `animation-delay: (charsTotalDuration + N * 0.12s)` so they pop in sequence after the description settles. `transform: translateX(-8px) → 0` + opacity 0 → 1.
-  - **Countdown bar:** keep the existing `scaleX(1 → 0)` over 10s linear. Reset on tab change.
-  - **Tab transition out:** previous tab content fades out + slides 12px left over 0.32s ease-in before the next tab's char-stagger begins. Stagger the entry by ~0.12s so the cross-fade reads as a deliberate cinematic transition.
-  - **Reduce-motion fallback:** if `prefers-reduced-motion: reduce`, skip the staggers but keep the auto-advance + countdown. Static fade replaces the slide.
-  - **Verification (RULE 3):** Playwright must let the timeline auto-advance, capture screenshots at the start, mid-stagger, and steady-state for each of the 5 steps. 3 viewports (1440 / 390 / 375).
+- **Catalog #3 — `app/components/SectionDivider.tsx` push toward 0.9.** Today: teardrop SVG with traveling pulses + hairline gradient. Nigel docked it to 0.7 because "pulse animation is subtle enough that mid-scroll it reads as static" and "some section transitions skip the divider." Push it to 0.9 by:
+  - Adding a brand-specific paint-drop motif: a small terracotta drip silhouette descending from the teardrop's apex with a 1.6s `cubic-bezier(.4, 0, .2, 1)` easing. Constant-velocity rule (catalog #12) — no `Math.sin`, no `lerp`, just a CSS keyframe with linear timing for the drop's vertical translate. The drop loops.
+  - Bumping the traveling pulse contrast: terracotta → teal → gold cycle at full saturation (not the current near-static low-opacity pulse).
+  - Audit `app/page.tsx` to confirm the divider appears between every section transition (Nigel said "some transitions skip the divider"). Insert wherever missing — but keep the divider component itself unchanged structurally; only adjust placement.
+  - Mobile parity: the paint-drop motif scales down but does not disappear via `matchMedia` (RULE 4).
 
-- **Verification of Refiner's recent fixes (no edits — verify only):**
-  - **LiveEstimate (Spark touched in cycle 2, Refiner BUG-017 hydrated cleanly):** open the live URL, scroll to the LiveEstimate section, confirm the typing sequence runs, the cursor blinks, the "Sent" checkmark fires, and the form loops after the 8s pause. If any regression is observed, **report it back in the Spark return — do NOT silently fix it** because the section is on soft-cool and a third touch this cycle would trigger the cooldown rule next round.
-  - **PaintFlow (Refiner BUG-014/018 fixed):** confirm the SVG draw-in runs and the dots travel the path on iPhone 13 + iPhone SE. Same rule: report regressions, don't re-touch.
+- **Catalog #5 — `app/components/PaintFlow.tsx` push toward 0.9.** Today: dark-slate panel, 6-strip Codrops blind reveal, lead-dot bloom, node pulse 1.0→1.18 terracotta flash, SVG stroke 0.9px. Nigel docked it because "SVG path is not visible at the tested scroll position — unclear if animateMotion dots actually fire on initial view-enter." Push to 0.9 by adding visual depth (NOT replacing existing animations — `feedback_nigel_no_removal.md`):
+  - **Depth pass — pick at least 3 of the following:**
+    - Add a subtle paint-can / brush silhouette behind the SVG path at low opacity (~10–15%) using existing brand swatches as fill.
+    - Add a foreground splatter mark at each node when the node pulse fires — a 4–6 small dot burst in the swatch color, animating outward over 240ms with constant velocity (no easing curves on position; opacity fade is fine).
+    - Add a horizontal motion-blur streak behind the lead dot at high travel velocities — a 60px linear gradient mask following the dot, terracotta-tinted, 8% opacity.
+    - Replace the current static dark-slate panel border with an animated paint-stroke border SVG that draws in once on view-enter (stroke-dashoffset, 1.8s linear).
+    - Bump the node-pulse swatch cycle so each of the 4 nodes uses a distinct brand color (terracotta → teal → gold → chalk-cream) instead of all-terracotta — gives a sense of "the project moves through stages."
+    - Confirm the `IntersectionObserver` rootMargin is generous enough (Refiner already lowered to 0.05) — but if Spark sees the path still hidden in headless Playwright, log it and add a CSS `path-prefers-immediate` fallback class.
+  - **Verification (RULE 3):** Playwright loads PaintFlow at 5 runway positions (5/25/50/75/95%) on desktop 1440 + iPhone 13 + iPhone SE; confirm SVG path is rendered with stroke visible at each position; confirm at least 1 node pulse fires within 4s of view-enter on each viewport. Save screenshots to `/tmp/soley-spark-cycle4-paintflow/`.
+
+**Verification of Refiner's recent fixes (no edits — verify only):**
+
+- ServicesScrollLock mobile double-panel bleed (BUG-025, fixed in d6c2ccf) — confirm mid-runway scrolling shows ONE panel at a time on iPhone SE 375 / iPhone 13 390 / iPhone Pro Max 414. If regression observed, **report in Spark return — do NOT silently fix** because ServicesScrollLock is HARD FORBIDDEN structurally.
+- Process auto-advance (BUG-026, fixed in d6c2ccf) — confirm Process auto-advances within 4s of view-enter on all 3 viewports. Same rule: report regressions, do not re-touch.
+- PortfolioGallery EXTERIOR chip text (BUG-027, fixed in d6c2ccf) — confirm active-chip text reads correctly, not as an orange block.
 
 **Forbidden moves:**
 
-- **Do NOT touch FounderBlock, WhySoley, Contact, LiveEstimate, PaintFlow, or ServicesScrollLock structure** (soft-cool). Verify only.
-- **Do NOT replace the Sacramento signature itself** with another animation. The environment is ADDITIVE behind/around it. The signature reveal stays.
-- **Do NOT add a true 3D R3F paintbrush** — Razor uninstalled three / R3F earlier this cycle and the SVG signature was deliberately chosen as the centerpiece. Do not re-introduce three / R3F / @react-three/fiber.
-- **Do NOT use bloom postprocessing.** Bloom flickers on alpha canvases — catalog item #1 explicitly forbids it.
-- **Do NOT use `matchMedia` to drop the hero environment on mobile** (RULE 4). Scale down particle counts; do not bail.
-- **Do NOT use `Math.sin` oscillation, `MathUtils.lerp`, or any speed-easing on particle drift** (RULE 12 — constant velocity).
-- **Do NOT add ghost numbers** behind Process or behind Hero (RULE 8). The Process step number is foreground oversized and stays at full opacity.
-- **Do NOT pile glow-on-glow** in the hero environment. Replace any redundant gradient that already exists. (`feedback_simplicity_over_polish.md`).
-- **Do NOT use Framer Motion `whileInView`** on SSR-rendered elements — use the `.scroll-reveal` CSS pattern (catalog #9).
-- **Do NOT strip content count** from Process (5 steps stay) or any other section (`feedback_frame_b_richness.md`).
-- **Do NOT downgrade** any prior glow / animation / effect (`feedback_nigel_no_removal.md`).
-- **No "subtle / considered / editorial restraint / tasteful / delicate"** language anywhere (RULE 2). The brief is "more presence" and "as good as Penn Tech's cinematic transitions" — execute at full intensity.
-- **Do NOT fabricate** any copy in Process (no fake project names, customer names, or invented stats inside the bullets).
+- **HARD FORBID structural edits to:** ServicesScrollLock, Process, PortfolioGallery, ScrollRevealObserver, Hero environment, Footer. Copy edits or visual depth additions to those sections are NOT permitted this cycle. Spark touches SectionDivider + PaintFlow only.
+- **Do NOT introduce R3F / @react-three/fiber / drei / three** (Razor removed it; SVG signature is the approved hero centerpiece).
+- **Do NOT add bloom postprocessing** (flickers on alpha canvases — catalog item #1 forbids it).
+- **Do NOT use `Math.sin` oscillation, `MathUtils.lerp`, or any speed-easing on motion path velocity** (RULE 12 — constant velocity). Easing is fine on opacity, scale, color — not on positional travel speed.
+- **Do NOT use `matchMedia` to disable PaintFlow / SectionDivider on mobile** (RULE 4). Scale down complexity if needed; never bail.
+- **Do NOT add ghost numbers** behind any section (RULE 8).
+- **Do NOT pile glow-on-glow** — replace any redundant gradient that already exists rather than stacking new ones (`feedback_simplicity_over_polish.md`).
+- **Do NOT use Framer Motion `whileInView`** on SSR-rendered elements — use `.scroll-reveal` IO pattern (catalog #9).
+- **Do NOT strip content count** from PaintFlow nodes (4 stays) or any other section (`feedback_frame_b_richness.md`).
+- **Do NOT downgrade any prior glow / animation / effect** from prior cycles (`feedback_nigel_no_removal.md`).
+- **Do NOT call the iMessage reply tool** (RULE 1 — Spark is a sub-agent).
+- **Do NOT use the words "subtle / considered / editorial restraint / tasteful / delicate / refined"** anywhere in code, commits, or comments (RULE 2). The brief is "more visual depth" — execute at full intensity.
+- **Do NOT fabricate** any copy in node labels or divider tooltips (RULE 7).
 
 **MEMORY.md entries Spark MUST respect:**
 
-- `project_penn_tech_baseline.md` — Hero (#1) and Process (#7) are the explicit catalog targets; #12 (constant velocity) governs the particle drift.
-- RULE 2 / `feedback_no_self_throttle.md` — no "subtle / considered" reframings of "more presence." The user said "impressive enough?" — execute at full intensity.
-- RULE 4 / `feedback_disabling_isnt_fixing.md` — no `matchMedia` bail-outs to drop the environment on mobile.
-- RULE 7 — no fabricated names / stats / dates inside Process bullets or Hero environment captions.
-- RULE 8 / `feedback_no_ghost_numbers.md` — no large faded background numerals behind Process or Hero.
-- RULE 3 / `feedback_actually_scroll_test.md` — Process verified across 5 step transitions, Hero environment verified at 3 viewports.
+- `project_penn_tech_baseline.md` — SectionDivider (#3) and PaintFlow (#5) are explicit catalog targets; #12 (constant velocity) governs any positional motion.
+- RULE 1 / `feedback_always_imessage.md` — sub-agent: do NOT text the user.
+- RULE 2 / `feedback_no_self_throttle.md` — no "subtle / considered" reframings of "more visual depth."
+- RULE 3 / `feedback_actually_scroll_test.md` — verify at 5 runway positions on 3 viewports.
+- RULE 4 / `feedback_disabling_isnt_fixing.md` — no `matchMedia` bail-outs.
+- RULE 7 — no fabricated specifics in any new copy.
+- RULE 8 / `feedback_no_ghost_numbers.md` — no large faded background numerals.
 - `feedback_simplicity_over_polish.md` — replace, don't pile.
 - `feedback_frame_b_richness.md` — preserve content count.
-- `feedback_nigel_no_removal.md` — never remove a prior glow or animation.
-- `feedback_interesting_scroll.md` — Process cinematic upgrade reinforces the "fun to scroll, not template" mandate.
-- `feedback_unique_design.md` — the hero environment must NOT look like default Claude / template patterns. Hand-tuned SVG props, not generic "particles.js" presets.
-- RULE 1 / `feedback_always_imessage.md` — Spark is a sub-agent: do NOT call the iMessage reply tool.
+- `feedback_nigel_no_removal.md` — never remove a prior glow / animation / effect.
+- `feedback_interesting_scroll.md` — depth pass should reinforce "fun to scroll, not template."
+- `feedback_unique_design.md` — hand-tuned SVG / CSS, not generic particle.js / template patterns.
+- `feedback_horizontal_scroll.md` — ServicesScrollLock pattern is verified-only this cycle.
+- `feedback_pixel_alignment.md` — Spark must check center-alignment at 375 + 414 mobile during verification.
 
 ---
 
 ## Forbidden cycle-wide
 
 - **Sub-agents texting the user** (RULE 1). Builder, Spark, Pixel, Nigel, QA, Refiner, Coordinator are all sub-agents. Only the orchestrator texts.
-- **Touching FounderBlock / WhySoley / Contact / LiveEstimate / PaintFlow / ServicesScrollLock structure** (all soft-cool). Verify-only on those.
-- **Hero R3F re-introduction** (Razor removed three / @react-three/fiber / drei / @types/three). The SVG signature is the deliberate centerpiece.
-- **Footer "SOCIAL CHANNELS COMING SOON" → fake INSTAGRAM swap.** User has explicitly said no fake handles. Honest pre-launch only.
-- **Fake project names / cities / customer names / before-after photos / project counts** in the new Portfolio section (RULE 7).
-- **Fake founder names / bios / "Est. YYYY"** in any block (RULE 7).
-- **`matchMedia` bail-outs** to disable any feature on mobile (RULE 4).
-- **`whileInView`** on SSR-rendered elements — use `.scroll-reveal` (catalog #9).
+- **Touching ServicesScrollLock / Process / PortfolioGallery / ScrollRevealObserver / Hero environment** structurally (all HARD FORBIDDEN this cycle — too recently refit).
+- **Hero R3F re-introduction** (Razor removed three / @react-three/fiber / drei deliberately; SVG signature is the approved centerpiece).
+- **Footer "SOCIAL CHANNELS COMING SOON" → fake INSTAGRAM swap.** Honest pre-launch only (RULE 7).
+- **Catalog #1 R3F push** — orchestrator approved SVG signature reveal as the catalog #1 equivalent. Ignore Nigel's R3F suggestion.
+- **Catalog #11 footer social link** — orchestrator-approved as intentional pre-launch framing. Ignore Nigel's INSTAGRAM suggestion.
+- **Fake project / customer / founder / neighborhood / city names**, fake "Est. YYYY", fake reviews, fake stats (RULE 7).
+- **`matchMedia` bail-outs** to disable any feature on any viewport (RULE 4).
+- **Framer Motion `whileInView`** on SSR-rendered elements — use `.scroll-reveal` IO pattern (catalog #9).
 - **Ghost numbers** behind any section (RULE 8).
-- **Bloom postprocessing** on hero (flickers on alpha canvas).
-- **`Math.sin` / `lerp` smoothing** on hero particle drift (RULE 12 / catalog #12 — constant velocity).
-- **"Subtle / considered / editorial restraint / tasteful / delicate"** language anywhere (RULE 2).
+- **Bloom postprocessing** (flickers on alpha canvases).
+- **`Math.sin` / `lerp` smoothing** on positional motion (RULE 12 / catalog #12).
+- **"Subtle / considered / editorial restraint / tasteful / delicate / refined"** language anywhere (RULE 2).
+- **Stripping content count** from any section (`feedback_frame_b_richness.md`).
+- **Removing or downgrading** any prior glow / animation / effect (`feedback_nigel_no_removal.md`).
+- **Calling the user a bottleneck** in commits or reports (`feedback_respectful_tone.md`).
+
+---
 
 ## Section cooldown register (for next-cycle Coordinator)
 
-| Section | Touches in last 6 entries | Cycle pressure |
+| Section | Touches in last 6 entries (after this cycle) | Cycle pressure |
 |---|---|---|
-| Hero | 0 (post-Razor; this cycle Spark adds environment — counts as 1 going into next cycle) | Active — Spark touches |
-| Portfolio | 0 (NEW — built this cycle) | Active — Builder touches |
-| Process | 0 (this cycle Spark adds cinematic — counts as 1 going into next cycle) | Active — Spark touches |
-| FounderBlock | 2 (280f953, 5e07e6a) | Soft-cool. Hard-forbid if a 3rd touch lands. |
-| WhySoley | 2 (5e07e6a + Refiner spotlight) | Soft-cool. |
-| Contact | 1 (5e07e6a) | OK. |
-| LiveEstimate | 2 (e91fac5, 181d376) | Soft-cool. |
-| PaintFlow | 2 (e91fac5, 181d376) | Soft-cool. |
-| ServicesScrollLock | 2 (panel numerals 181d376 + scroll handler refit before that) | Soft-cool. |
+| ServicesScrollLock | 1 (Refiner d6c2ccf) | Soft-cool, hard-forbid this cycle |
+| Process | 2 (Spark 85888ef + Refiner d6c2ccf) | Soft-cool, hard-forbid this cycle |
+| PortfolioGallery | 3 (Builder 55adef2 + Pixel 6e88be7 + Refiner d6c2ccf) | **HARD COOLDOWN active** — do not touch next cycle either |
+| ScrollRevealObserver | 1 (Refiner d6c2ccf) | Soft-cool |
+| Hero environment | 1 (Spark 85888ef) | Soft-cool, hard-forbid this cycle |
+| Footer | 1 (Pixel 6e88be7) | Soft-cool, copy-edits OK this cycle |
+| SectionDivider | 0 → 1 after this cycle (Spark) | Active this cycle |
+| PaintFlow | 0 → 1 after this cycle (Spark) | Active this cycle |
+| LiveEstimate | 0 in last 6 | OK |
+| FounderBlock / WhySoley / Contact | 0 in last 6 | OK |
 
 ---
 
 ## Rationale (one line)
 
-Score is 7.2 / 7.5 cap with all BLOCKERS + HIGHs closed by Refiner — schedule **Builder** to fill the standing catalog gap (Portfolio section, Scout Site D Hedlund pattern) and **Spark** to push the two catalog items still scoring 0.7 (Hero centerpiece environment + Process cinematic char/word-stagger) toward 0.9, while every recently-touched section sits in soft-cool with verify-only.
+Score 7.3 / 7.5 cap with all BLOCKERS / HIGHs closed by Refiner d6c2ccf — schedule **Builder** for a word-level honesty + clarity copywriting pass across every section (no structural edits) and **Spark** to push catalog #3 SectionDivider + catalog #5 PaintFlow toward 0.9 with brand-specific paint-drop motion + visual depth, while ServicesScrollLock / Process / PortfolioGallery / ScrollRevealObserver / Hero environment all sit hard-forbidden structurally after the recent refits.
