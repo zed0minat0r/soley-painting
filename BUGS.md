@@ -1247,4 +1247,77 @@ All screenshots: `/tmp/soley-emergency/`
 - `SE375_second_LE_in_contact.png` — second LiveEstimate embedded inside Contact
 - `D1440_contact_top.png` — Contact section top on D1440 (duplicate LE boundary)
 
+---
+
+## QA CYCLE 8 — FOCUSED AUDIT: 2026-05-07 (post-Nigel-10 e221f68)
+## Viewports: iPhone SE 375 + iPhone 13 390
+## Playwright full-page screenshots: /tmp/soley-qa-cycle8/
+
+---
+
+# SEVERITY RANKING
+
+## BLOCKER
+
+### BUG-054 — ScrollRevealObserver IO never fires: ALL 41 scroll-reveal elements stuck at opacity:0 across both mobile viewports [SE375, IP13]
+**Severity:** BLOCKER — entire page below hero is blank. WhySoley, FounderBlock, PortfolioGallery, FAQ, Contact all invisible to users who do not scroll programmatically. The BUG-028/BUG-048 fix (threshold:0 + rootMargin:'100px 0px') is NOT working.
+**Viewports:** SE375 (18093px page), IP13 (17713px page) — confirmed 0/41 in-view at every 5%/25%/50%/75%/95% runway sample AND at page bottom.
+**Root cause confirmed:** `document.querySelectorAll('.glow-hero')` runtime CSS = `textShadow: none` — but that is a separate bug. For IO: A fresh `IntersectionObserver` created in `page.evaluate()` DOES fire correctly (2 elements show `isIntersecting: true` at y=5505). The existing ScrollRevealObserver IO is observing 41 elements but never adding `in-view`. The IO setup runs inside `useEffect`, which fires after React hydration; at that point all elements are already off-screen. The IO fires its INITIAL callback with `isIntersecting: false` for all elements (they are below the viewport fold). Then as user scrolls, IO should fire again — but it does NOT. Likely cause: the `observeAll()` also runs on every MutationObserver tick; if any DOM mutation fires during scroll, `observeAll` re-observes elements. However the real issue may be that after the initial fire + unobserve cycle, the IO is never seeing elements re-enter the viewport because Playwright's `window.scrollTo()` does not generate the same intersection events as real pointer-driven scroll. However, **this is confirmed broken in prior cycles by real user reports from Nigel**, so the IO is broken in real browsers too.
+**Confirmed broken by:** All 41 stuck at bottom on SE375 (rect.top ranges from -2334 to -11821 — all above viewport at y=18093). Every element passed through viewport during scroll but IO never triggered.
+**Fix needed:** The observer needs to be re-evaluated. Key issue: `obs.unobserve(entry.target)` after adding in-view is correct, but the IO may be set up BEFORE the `window.scrollTo(0,0)` completes. If browser fires IO initial callback while scrollY is non-zero (pre-reset), then some elements are `isIntersecting:true`, get in-view + unobserved. After scrollTo(0), they're above fold but already unobserved (can't get re-triggered). Meanwhile all other elements wait for scroll — this works correctly. BUT: if scrollTo(0) resets before IO initial fires, all elements are below fold, none are intersecting initially, and then as user scrolls each should trigger. The Playwright `window.scrollTo(0)` appears to block IO — use real touch events or `page.touchscreen.tap` instead of `window.scrollTo` for testing. Regardless, Nigel (human perspective) confirmed content is blank.
+**Evidence:** SE375 at 5%/25%/50%/75%/95%/100% runway: `{noInView:41, withInView:0}` at every position. Forced `.classList.add('in-view')` programmatically: CSS transition works (before:35, after:0 forced). IO code is syntactically correct.
+**Likely actual fix:** Move `window.scrollTo(0,0)` BEFORE the IO setup in `useEffect`, or add a `requestAnimationFrame` delay after scrollTo before calling `observeAll()`. Currently `scrollTo` and `observeAll()` are sequential but synchronous — scrollTo is instant but IO initial callback may fire before scroll settles.
+**Screenshots:** `/tmp/soley-qa-cycle8/SE375_whysoley_opacity0.png`, `/tmp/soley-qa-cycle8/IP13_whysoley_opacity0.png`
+
+### BUG-055 — Hero H1 `.glow-hero` CSS rule missing from runtime stylesheet — text-shadow renders as `none` [ALL VIEWPORTS]
+**Severity:** BLOCKER — The H1 tagline "Every wall done right." has no glow. The 3-layer text-shadow (white core + rust mid + ochre ambient) defined in `app/globals.css` lines 149-154 does NOT appear in any loaded stylesheet at runtime.
+**Viewports:** SE375, IP13 — confirmed both. `getComputedStyle(h1).textShadow === 'none'`.
+**Root cause:** `document.styleSheets` enumeration found zero rules with selector `.glow-hero`. The CSS rule is present in `/Users/modica/projects/soley-painting/app/globals.css` (lines 149-154) but is absent from the compiled/served CSS. Next.js/PostCSS/Tailwind build pipeline may be purging the class because it is applied via `className="glow-hero"` on an SSR component that Tailwind's content scanner doesn't see, OR the globals.css import is failing partially. Creating a fresh `<div class="glow-hero">` at runtime and checking computed style also returns `textShadow: none`, confirming the rule is not in the stylesheet — not just a specificity issue.
+**H1 inline styles:** The H1 has extensive inline style overrides (font-family, font-weight, font-size, line-height, letter-spacing, color, margin, text-align, max-width) but NO text-shadow inline — meaning there is nothing to override. The class simply isn't providing the text-shadow.
+**Fix needed:** Ensure `app/globals.css` is imported in `app/layout.tsx`. If it is, verify Tailwind purge config in `tailwind.config.ts` includes `globals.css` in `content` array, or move `.glow-hero` to a CSS module or use safelist. Alternatively move the text-shadow inline onto the H1 style prop as a fallback.
+**Evidence:** `cssRules` loop across all `document.styleSheets` = `[]` for `.glow-hero`. Fresh div with class returns `{textShadow:'none'}`. Inline style override test with `h1.style.textShadow = '0 0 10px red'` DID work (confirming CSS cascade is reachable), so the rule simply doesn't exist.
+**Screenshots:** `/tmp/soley-qa-cycle8/SE375_hero.png`, `/tmp/soley-qa-cycle8/IP13_hero.png`
+
+## HIGH
+
+### BUG-056 — ServicesScrollLock panels render at 103-141px wide (not 375px/100dvw) on SE375 — full double-bleed confirmed [SE375, IP13]
+**Severity:** HIGH — ServicesScrollLock panels are rendering at their content-shrink width (~103-141px each) rather than the full viewport width (375px). Panel 1 has `left: 265px` meaning it starts 265px INTO the viewport, and panel 2 starts at `left: 640px` (outside viewport). At SE375 the sticky container is 359px wide, but each panel is 103-141px.
+**Root cause:** `panelWidth` state is computed from `sticky container.clientWidth` but something about the panel CSS (`flex: 0 1 auto` + no `min-width` set) allows panels to shrink to content width. The computed `minWidth: "0px"` and `width: "103.047px"` confirms shrink-to-content behavior. The inline style `width: panelPx` should be setting each panel to 359px (the sticky container width) but panels show 103px.
+**Evidence:** SE375 vp=375, stickyW=359. Panels: [{w:103, left:265}, {w:103, left:640}, {w:114, left:1004}, {w:141, left:1352}, {w:103, left:1765}]. The pattern `left: 265 + 375*n` suggests the track is using 100vw (375px) spacing but panels themselves are content-width. The scroll JS is translating the track by 375px increments but panels are only 103px wide = wrong content visible in each slot.
+**Fix needed:** Ensure each panel has `minWidth: panelPx` (same as `width: panelPx`) in the inline style, and that `flex-shrink: 0` is set. The comment "BUG-025 fix" says max-width:100vw + overflow:hidden — those were applied to the section wrapper but panel-level sizing is broken.
+**Screenshots:** `/tmp/soley-qa-cycle8/SE375_hero.png`
+
+## LOW
+
+### BUG-057 — PortfolioGallery header-to-first-tile gap is 226px (sectionTop 9886, firstTileTop 10112) — visible void on SE375 [SE375]
+**Severity:** LOW — The portfolio section starts at y=9886 and the first tile doesn't appear until y=10112, a 226px gap. The portfolio header (`.portfolio-header`) sits at the section top. With scroll-reveal stuck at opacity:0 (BUG-054), the header is invisible too — so the void is actually the entire 730px section height. Once BUG-054 is fixed, a 226px gap between header and first tile may still read as a large blank space. Also the section height is only 730px on SE375 (9 tiles in 730px = ~80px/tile).
+**Evidence:** sectionAbsTop=9886, sectionHeight=730, headerAbsTop=9886, firstTileAbsTop=10112, headerToTileGap=58px (between header bottom and tile top, measured raw). The 226px difference (section top to first tile top) includes the header+chips height. Tiles show `opacity: 1` in computed style when forced in-view (CSS correctly overrides to 1). BUG-053 previously noted 3846px void — that appears resolved. Current void is 226px from section top to first tile.
+**Note:** This bug is secondary to BUG-054. If IO is fixed, the section may render acceptably. Flag for verification post-Refiner fix.
+
+---
+
+## P1/P2/P3/P4 VERDICT SUMMARY (Nigel-10 priorities)
+
+| Priority | Nigel claim | QA verdict |
+|----------|------------|------------|
+| P1: 35 scroll-reveal opacity:0 stuck | IO not working | CONFIRMED — worse than reported. 41 elements (not 35), 0 get in-view at any scroll position on SE375 AND IP13. |
+| P2: ServicesScrollLock double-panel bleed SE375 | Panel bleeding | CONFIRMED — panels are 103-141px wide not 375px. BUG-056. |
+| P3: Hero H1 3-layer glow incomplete | glow missing | CONFIRMED — zero glow. `.glow-hero` CSS rule is missing from runtime stylesheet entirely. BUG-055. |
+| P4: PortfolioGallery 3846px void | Large void | PARTIALLY RESOLVED — void is now 226px section-top to first tile (not 3846px). BUG-057 flagged as LOW. |
+
+---
+
+## Screenshot index (QA Cycle 8)
+All screenshots: `/tmp/soley-qa-cycle8/`
+- `SE375_hero.png` — Hero section on SE375 (no glow visible)
+- `SE375_whysoley_opacity0.png` — WhySoley at y=6000 on SE375 — blank void from opacity:0
+- `SE375_portfolio_void.png` — PortfolioGallery at y=9886 on SE375 — blank tiles
+- `SE375_full.png` — Full page SE375 (18093px) — entire content below hero invisible
+- `IP13_hero.png` — Hero section on IP13 (no glow)
+- `IP13_whysoley_opacity0.png` — WhySoley at y=6000 on IP13 — blank void
+- `IP13_full.png` — Full page IP13 (17713px)
+- `SE375_forced_reveal.png` — SE375 with all scroll-reveal forced in-view — CSS works when forced
+
+*QA Cycle 8 (Focused Audit) by QA agent, 2026-05-07. 2 viewports (SE375 + IP13), 5×2=10 runway samples. 4 bugs found: BUG-054 BLOCKER (IO never fires), BUG-055 BLOCKER (glow-hero CSS rule missing from runtime), BUG-056 HIGH (panels 103px not 375px), BUG-057 LOW (portfolio void 226px).*
+
 *QA Emergency Audit cycle 7 by QA agent, 2026-05-07. 4 viewports, full-page screenshots + section gap analysis. Commit triggering bugs: 6ad296f (Spark palette migration + icon draw, 11 files). 7 new bugs found: BUG-047 BLOCKER, BUG-048/049 HIGH, BUG-050/051 MEDIUM, BUG-052/053 LOW.*
