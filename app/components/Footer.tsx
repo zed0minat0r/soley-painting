@@ -168,7 +168,7 @@ export default function Footer() {
           <span
             style={{
               fontFamily: 'var(--font-body)',
-              fontSize: '0.7rem',
+              fontSize: '0.8125rem', /* Pixel cycle 8: bumped from 0.7rem (11.2px) → 13px floor */
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'rgba(245,240,234,0.28)',

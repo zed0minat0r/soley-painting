@@ -271,7 +271,7 @@ function AccordionCard({
             style={{
               display: 'block',
               fontFamily: 'var(--font-body)',
-              fontSize: '0.65rem',
+              fontSize: '0.8125rem', /* Pixel cycle 8: bumped from 0.65rem (10.4px) → 13px floor */
               fontWeight: 600,
               letterSpacing: '0.16em',
               textTransform: 'uppercase',
