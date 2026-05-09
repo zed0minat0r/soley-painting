@@ -1,6 +1,267 @@
 # BUGS.md — Soley Painting QA Audit
-## QA cycle 5: 2026-05-07 (post-Nigel-6/Razor-2/Spark-5/Builder-6), Playwright, 3 viewports
+## QA cycle 6: 2026-05-09 (post-Nigel-7/Pixel-6/Refiner-5/Builder-7/Spark-7), Playwright, 3 viewports
 ## Live site: https://soley-painting.vercel.app
+## Nigel cycle 7 priority verdicts + new findings
+
+---
+
+# QA CYCLE 6 VERDICTS (post-2f7f6e4 Nigel-7 / e81b122 Refiner-5)
+
+## P5 — Catalog #10 WhySoley mousemove tilt: CONFIRMED FIRING — REFUTED
+
+**Nigel claimed: tilt may be silently broken without live verification.**
+
+**REFUTED. Tilt is confirmed firing on all 4 cards at Desktop 1440.**
+
+Playwright native mouse events with 500ms spring-settle window on each card. All 4 WhySoley cards (`.why-soley-desktop` parent, `perspective:800px; transform-style:preserve-3d`) receive and apply the rotateX/Y tilt.
+
+Card 0 measured angles:
+| Mouse position | rotateX | rotateY | scale |
+|---|---|---|---|
+| At rest (t0) | 0° | 0° | 1.000 |
+| Far left edge | 0° | +7.58° | 1.016 |
+| Far right edge | 0° | -7.64° | 1.016 |
+| Top edge | -7.67° | 0° | 1.025 |
+| Bottom edge | +7.69° | 0° | 1.025 |
+| Off card | -0.05° | ~0° | 1.000 (snaps back) |
+
+The ±8° rotateY range matches the spec exactly. The spring snap-back to identity when mouse leaves is working. All 4 cards behave identically (cards 1, 2, 3 confirmed same angle magnitudes). `perspective:800px` confirmed on all 4 wrappers.
+
+**Note:** The first test pass (page at scrollY=7000) showed impure readings on far-right because mouse global position hit another card's boundary. The second pass (cards scroll-into-view first, page at scrollY=379) gives clean readings.
+
+**Nigel P5 REFUTED — catalog #10 tilt is fully functional on desktop.**
+
+Screenshots: `/tmp/soley-qa6-screenshots/Desktop-whysoley-card0-tilt-left.png`, `Desktop-whysoley-card0-tilt-right.png`
+
+---
+
+## P4 — LiveEstimate mobile height: CONFIRMED — REAL but less severe than claimed
+
+**Nigel claimed: iPhone SE h=1005px (~2 viewport heights).**
+
+**PARTIALLY CONFIRMED with updated numbers.**
+
+- iPhone SE 375: `#live-estimate` h=1065px, vpH=667px, **ratio=1.60 (1.6 viewport heights)**. Nigel's 1005px was slightly off — current build measures 1065px (Refiner changed some sizes since Nigel's audit).
+- iPhone 13 390: h=1065px, vpH=664px, **ratio=1.60 (same 1.6 viewports)**.
+- The estimate grid (`estimate-grid`) h=889px on mobile — the section wrapper adds another ~176px above.
+
+**The section IS 60% taller than a full mobile viewport.** A buyer on SE375 spends 2 scroll interactions entirely within this section. The LiveEstimate screenshot after `scrollIntoView()` + 1.5s wait shows the reveal fires correctly (1 scroll-reveal element with `in-view`, opacity=1) — the section IS visible, just very long.
+
+**Severity: MEDIUM** (section is visible and functional, ratio=1.60 not "2 viewport heights" as Nigel claimed)
+
+Screenshot: `/tmp/soley-qa6-screenshots/SE375-live-estimate-afterwait.png`
+
+---
+
+## P2 — Process ARIA tablist: CONFIRMED OPEN — BUG-038 VERIFIED
+
+**Nigel claimed: tablist ARIA missing from Process.**
+
+**CONFIRMED. BUG-038 is still open.**
+
+Live DOM measurement at Desktop 1440:
+- `role="tablist"` on parent `.process-tabs` div: **ABSENT** (`processTabsDivRole = null`)
+- 5 `role="tab"` buttons: present with `aria-selected`
+- `aria-controls`: **ABSENT on all 5 tabs** (`ariaControls = null` on all)
+- `id` on each tab button: **ABSENT** (`hasId: false` on all)
+- `role="tabpanel"`: **ABSENT** (tabpanelCount = 0)
+
+A screen reader sees 5 buttons that claim `role="tab"` but cannot group them (no tablist ancestor), cannot associate them with panels (no aria-controls), and cannot navigate with arrow keys.
+
+**BUG-038 confirmed open. Process ARIA is missing the full tablist/tab/tabpanel pattern.**
+
+Screenshot: `/tmp/soley-qa6-screenshots/Desktop-process-aria.png`
+
+---
+
+## P1 — Hero canvas footprint: CONFIRMED — exact numbers differ slightly from Nigel
+
+**Nigel claimed: canvas wrap is 280px tall inside 970px hero. Signature feels small.**
+
+**CONFIRMED on Desktop 1440. Updated for mobile viewports.**
+
+Desktop 1440 measurements:
+- `#top` (hero section): h=970px, w=1440px
+- `.hero-canvas-wrap`: h=**280px**, w=640px — exactly as Nigel reported
+- The SVG hero element: h=280px, w=640px (same bounding box as wrap)
+- Ratio: 280/970 = **28.9% of hero height**
+
+Mobile measurements (SE375, IP13):
+- Hero section: h=1074px
+- `.hero-canvas-wrap`: h=**149px**, w=340px
+- Ratio: 149/1074 = **13.9% of hero height** — even smaller proportionally on mobile
+
+The screenshot at Desktop scrollY=0 (hero) is not included because the screenshot was taken when page was scrolled to ServicesScrollLock section at 5% page position. The SE375 hero screenshot (`/tmp/soley-qa6-screenshots/SE375-hero.png`) shows: a dark umber box (the hero-canvas-wrap area, 149px tall) and then a large cream void below — the hero section extends 1074px but the SVG centerpiece is only 149px in the top portion.
+
+**Nigel P1 is CONFIRMED. Hero canvas wrap = 28.9% of hero on desktop (280px/970px), 13.9% on mobile (149px/1074px). The focal element is disproportionately small.**
+
+Screenshot: `/tmp/soley-qa6-screenshots/SE375-hero.png`
+
+---
+
+## NEW BUGS FOUND — QA Cycle 6
+
+---
+
+### BUG-039 — ServicesScrollLock: Double-panel bleed REOPENED on all viewports [BLOCKER]
+
+**Severity: BLOCKER**
+**Viewports: Desktop 1440, iPhone 13 390, iPhone SE 375**
+
+BUG-025 was previously marked CLOSED after Refiner's runway×0.9 fix (d26d04b). It has REOPENED in the current build.
+
+Evidence from screenshots:
+- **Desktop 1440 at 5% page scroll** (`/tmp/soley-qa6-screenshots/Desktop-scroll-5pct.png`): "COMMERCIAL" panel content visible on left half, "CABINET & TRIM" panel heading bleeding in from right edge simultaneously. Two panels visible at once.
+- **iPhone 13 390 at 5% page scroll** (`/tmp/soley-qa6-screenshots/IP13-scroll-5pct.png`): "INTERIOR" panel on left + "EXTERIOR / COMMERCIAL" bleeding from right edge simultaneously. Two panels visible.
+- **iPhone 13 390 at 10% page scroll** (`/tmp/soley-qa6-screenshots/IP13-svc-10pct.png`): Two panels simultaneously visible (INTERIOR left + COMMERCIAL right).
+
+The ServicesScrollLock JS query for `.services-sticky` and `.services-track` returns null in Playwright — class names are being hashed by Next.js. But the screenshot evidence is definitive: at every early runway position tested, two service panels are simultaneously visible.
+
+The Nigel cycle 7 AUDIT.md confirms ServicesScrollLock IS working (translateX advancing), but the panel-entry bleed at the BEGINNING of the runway (panels 1→2 transition zone) is the new failing point. Previously the bleed was at the exit (panel 4→5, 95% position). Now it appears at ENTRY on all viewports.
+
+**This is a regression since QA cycle 5.** QA cycle 5 confirmed clean panels at all 5 positions. Something in the Spark-7/Builder-7/Pixel-6/Refiner-5 cycle has reintroduced a translateX offset error or a panel-width calculation error.
+
+**Fix path:** Re-audit the runway divisor — the ×0.9 fix may have shifted too far in the other direction, causing the first panel(s) to not start at translateX=0 correctly. Or the initial-mount translateX is off by one panel width.
+
+---
+
+### BUG-040 — Font size violations: 12px on hero swatch labels, scroll indicator, and footer nav items [MEDIUM]
+
+**Severity: MEDIUM**
+**Viewports: Desktop 1440 (confirmed), likely all**
+
+10 font-size violations at 12px (below 13px minimum) on Desktop 1440:
+
+| Element | Text | Size |
+|---|---|---|
+| `<p>` | "Soley Painting" (hero marquee label?) | 12px |
+| `<span>` | "Scroll" (hero scroll indicator) | 12px |
+| `<span>` | "Scroll to explore" | 12px |
+| `<span>` | "Interior" (services marquee?) | 12px |
+| `<span>` | "Exterior" | 12px |
+| `<span>` | "Commercial" | 12px |
+| `<span>` | "Cabinet & Trim" | 12px |
+| `<span>` | "Specialty" | 12px |
+| `<p>` | "The process" (nav or eyebrow?) | 12px |
+| `<p>` | "Why Soley" (nav or eyebrow?) | 12px |
+
+These are likely the ServicesScrollLock panel numeral labels ("INTERIOR", "EXTERIOR" etc. at the bottom of numerals), the hero scroll-to-explore text, and possibly navbar sub-labels. All 10 are visible (bounding box width+height > 0).
+
+**Fix path:** Bump all these from `0.75rem` (12px) to `0.8125rem` (13px) minimum.
+
+---
+
+### BUG-041 — WhySoley mobile accordion: `why-soley-desktop` grid hidden via CSS but perspective elements still present — cards may double-render [LOW]
+
+**Severity: LOW**
+**Viewport: iPhone SE 375**
+
+On SE375, `window.innerWidth=375`:
+- `.why-soley-desktop` display = **none** (hidden, correct)
+- But `querySelectorAll('[style*="perspective"]')` still returns 4 elements
+- `ariaExpandedCount = 4` (accordion buttons present)
+- `sectH = 1073px` (very tall — stacking 4 accordion cards vertically)
+
+The accordion itself IS working (screenshot confirms card 01 "Prep is the product" expanded). The desktop grid is correctly hidden. However 4 `perspective:800px` motion.div wrappers are still in the DOM even at 375px — if these are the desktop card wrappers (hidden by `display:none` on their parent), they are not rendering visually. This is not a critical bug but could cause unnecessary JS event listeners on mobile.
+
+---
+
+### BUG-042 — Hero section on mobile: hero-canvas-wrap only 149px in 1074px hero — large cream void below [HIGH]
+
+**Severity: HIGH**
+**Viewports: iPhone SE 375, iPhone 13 390**
+
+The SE375 hero screenshot (`/tmp/soley-qa6-screenshots/SE375-hero.png`) shows the hero section has: a small dark umber box (149px, the canvas-wrap with the Soley signature SVG) and then a large cream void occupying the remainder of the 1074px hero section. Only the top ~20% of the hero is visually rich; the bottom 80% is empty cream.
+
+This is a mobile CSS gap — the hero section height on mobile (1074px = ~1.6× viewport) means users land on a page where the hero is 60% empty cream. Even worse than the desktop ratio (280/970 = 28.9%), on mobile the ratio is 149/1074 = 13.9%.
+
+This is related to Nigel P1 but distinct — on desktop the empty area is behind the hero (atmospheric gradients fill it), but on mobile the empty area below the canvas-wrap appears to be plain cream (no atmospheric treatment).
+
+---
+
+# ACTIVE BUGS SUMMARY (QA Cycle 6, severity ranked)
+
+| # | Bug | Severity | Status |
+|---|---|---|---|
+| BUG-039 | ServicesScrollLock double-panel bleed REOPENED | BLOCKER | NEW |
+| BUG-038 | Process tablist ARIA missing (tablist/tabpanel/aria-controls/ids) | MEDIUM | CONFIRMED OPEN |
+| BUG-042 | Hero mobile canvas-wrap 13.9% of hero height (149px/1074px) | HIGH | NEW |
+| BUG-040 | 10× font-size violations at 12px (scroll indicator, service labels) | MEDIUM | NEW |
+| BUG-036 | PaintFlow mobile dead space (was 163px, now Refiner fixed to 64px) | CLOSED? | needs recheck |
+| BUG-041 | WhySoley desktop perspective elements present in mobile DOM | LOW | NEW |
+
+---
+
+# Nigel P-Finding Verdicts Summary (QA Cycle 6)
+
+| Priority | Claim | Verdict |
+|---|---|---|
+| P1 — Hero canvas footprint | 280px wrap in 970px hero too small | CONFIRMED (desktop 280/970=28.9%, mobile 149/1074=13.9%) |
+| P2 — BUG-038 Process ARIA | tablist/tabpanel/aria-controls missing | CONFIRMED OPEN |
+| P3 — Portfolio placeholder content | 9 placeholder tiles, no real photos | Not re-tested (content issue, not UX) |
+| P4 — LiveEstimate mobile height | SE=1005px ~2 viewports | CONFIRMED, updated: 1065px, ratio=1.60 |
+| P5 — Catalog #10 mousemove tilt | unverified, may be broken | REFUTED — tilt confirmed ±7.6°/±7.7° on all 4 cards |
+
+---
+
+## Viewport coverage matrix (QA Cycle 6)
+
+| Component | iPhone SE 375 | iPhone 13 390 | Desktop 1440 |
+|-----------|:---:|:---:|:---:|
+| WhySoley card tilt (mousemove ±8°) | N/A (accordion) | N/A | PASS: ±7.6° rotateY, ±7.7° rotateX confirmed |
+| LiveEstimate section height | 1065px / 1.60vp | 1065px / 1.60vp | not retested |
+| LiveEstimate scroll-reveal fires | PASS (in-view, opacity=1) | not tested | not tested |
+| Process ARIA tablist | not checked | not checked | FAIL: no tablist, no aria-controls, no ids |
+| Hero canvas-wrap height | 149px / 1074px hero | 149px / 1074px hero | 280px / 970px hero |
+| ServicesScrollLock panel bleed | FAIL (bleed at entry, BUG-039) | FAIL (BUG-039) | FAIL (BUG-039) |
+| Horizontal overflow (body) | PASS (bodyScrollWidth=375) | PASS (bodyScrollWidth=390) | PASS (1440=1440) |
+| Font sizes ≥13px | not fully checked | not checked | FAIL: 10 violations at 12px (BUG-040) |
+| WhySoley accordion (mobile) | PASS (4 cards, aria-expanded) | not tested | N/A |
+| Console errors | NONE | NONE | NONE |
+| Contact section layout | PASS (left col visible) | not tested | not tested |
+
+---
+
+## Screenshot index (QA Cycle 6)
+
+All screenshots: `/tmp/soley-qa6-screenshots/`
+
+- `Desktop-hero-full.png` — Hero hero section (scrolled to services at 5% — hero not in frame, see SE375-hero.png for hero visual)
+- `Desktop-whysoley-card0-tilt-left.png` — Card 0 with mouse at far left (rotateY=+7.58°)
+- `Desktop-whysoley-card0-tilt-right.png` — Card 0 with mouse at far right (rotateY=-7.64°)
+- `Desktop-whysoley-tilt-card0-left.png` — Second pass: card 0 tilted left (page scrolled-into-view)
+- `Desktop-whysoley-tilt-card0-right.png` — Second pass: card 0 tilted right
+- `Desktop-process-aria.png` — Process section (tablist ARIA missing, BUG-038)
+- `Desktop-scroll-5pct.png` — BLOCKER: COMMERCIAL + CABINET & TRIM double-panel (BUG-039)
+- `Desktop-scroll-25pct.png` — CABINET & TRIM panel (clean single panel)
+- `Desktop-scroll-50pct.png` — WhySoley + FounderBlock entry
+- `Desktop-scroll-75pct.png` — Process section (FAQ above, Process below)
+- `Desktop-scroll-95pct.png` — Contact + Footer (clean)
+- `SE375-hero.png` — BLOCKER: hero-canvas-wrap 149px in 1074px section (13.9% fill, BUG-042)
+- `SE375-scroll-5pct.png` — BLOCKER: INTERIOR + EXTERIOR double-panel bleed (BUG-039)
+- `SE375-scroll-25pct.png` — PaintFlow section on SE375
+- `SE375-scroll-50pct.png` — PortfolioGallery tiles (clean)
+- `SE375-scroll-75pct.png` — Process section (shows "05 Final Walkthrough" tab + "01" active)
+- `SE375-scroll-95pct.png` — Contact section bottom + footer entry
+- `SE375-live-estimate-afterwait.png` — LiveEstimate visible after IO fires (1.5s wait)
+- `SE375-whysoley-section.png` — WhySoley accordion on mobile (PASS)
+- `SE375-contact.png` — Contact section on SE375 (PASS)
+- `IP13-hero.png` — Hero on IP13 (blank — canvas-wrap not in first frame)
+- `IP13-live-estimate.png` — LiveEstimate on IP13 (blank — section scrolled to but IO not yet fired)
+- `IP13-scroll-5pct.png` — BLOCKER: INTERIOR + EXTERIOR double-panel bleed (BUG-039)
+- `IP13-svc-10pct.png` — BLOCKER: two panels simultaneously visible at 10% (BUG-039)
+- `IP13-scroll-25pct.png` — Mid-page (PaintFlow area)
+- `IP13-scroll-50pct.png` — WhySoley section
+- `IP13-scroll-75pct.png` — Process section
+- `IP13-scroll-95pct.png` — Contact/Footer
+
+---
+
+*QA audit cycle 6 by QA agent, 2026-05-09. 3 viewports (SE375, IP13 390, D1440). Nigel P1 CONFIRMED (hero 280px/970px desktop, 149px/1074px mobile). P2 CONFIRMED (BUG-038 still open). P3 not retested (content gap). P4 CONFIRMED (h=1065px, ratio=1.60). P5 REFUTED (WhySoley tilt ±7.6° rotateY, ±7.7° rotateX on all 4 cards, spring snap-back working). 1 new BLOCKER (BUG-039 ServicesScrollLock double-panel bleed reopened), 1 HIGH (BUG-042 mobile hero void), 1 MEDIUM (BUG-040 12px font violations), 1 LOW (BUG-041 desktop perspective elements in mobile DOM).*
+
+---
+
+## QA cycle 5: 2026-05-07 (post-Nigel-6/Razor-2/Spark-5/Builder-6), Playwright, 3 viewports
 ## Nigel cycle 6 priority verdicts + new findings
 
 ---
