@@ -229,15 +229,12 @@
   animation: bounce-x 1.5s ease-in-out infinite;
 }
 
-/* ── Hero layout — 2-col desktop, 1-col mobile ───────────────────────── */
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: 3rem;
-}
+/* ── Hero layout — single-column centered centerpiece ───────────────── */
+/* hero-grid class removed; Hero3D now uses inline flex column styles.   */
+/* hero-canvas-wrap is sized inline with min(640px, 92vw) + aspect-ratio */
 .hero-canvas-wrap {
-  height: 580px;
+  /* aspect-ratio set inline; height auto-follows */
+  height: auto;
 }
 
 /* ── Process layout — 2-col desktop, 1-col mobile ───────────────────── */
@@ -261,14 +258,9 @@
 
 /* ── Mobile breakpoint (≤640px) ──────────────────────────────────────── */
 @media (max-width: 640px) {
-  /* Hero: single column, canvas below text */
-  .hero-grid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
+  /* Hero: canvas already single-column, just ensure full width */
   .hero-canvas-wrap {
-    height: 300px;
-    width: 100%;
+    width: min(340px, 92vw) !important;
   }
 
   /* Navbar: hide links, show CTA only */
