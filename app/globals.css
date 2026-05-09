@@ -42,12 +42,20 @@
 }
 
 @layer components {
+  /* ── Primary CTA — brush-wipe hover (Spark cycle 7, Frame B)
+     Teal fill slides in from right over terracotta base at constant velocity.
+     Matches the scaleX paint-stroke on nav links — same brand aesthetic.
+     Replaces: weak #A34E2D darkening with 1px translateY.
+     prefers-reduced-motion: snaps to teal fill, no slide.              */
   .btn-primary {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.875rem 2rem;
-    background: var(--color-terra);
+    /* Two-stop gradient: teal (left half) | terra (right half) */
+    background-image: linear-gradient(to right, var(--color-teal) 50%, var(--color-terra) 50%);
+    background-size: 200% 100%;
+    background-position: right center;
     color: var(--color-chalk);
     font-family: var(--font-body);
     font-weight: 500;
@@ -56,12 +64,27 @@
     text-transform: uppercase;
     border: none;
     cursor: pointer;
-    transition: background 0.25s ease, transform 0.15s ease;
+    text-decoration: none;
+    /* Constant-velocity background slide — no ease curve on travel */
+    transition: background-position 0.32s linear, transform 0.15s ease;
   }
   .btn-primary:hover {
-    background: #A34E2D;
+    background-position: left center;
     transform: translateY(-1px);
   }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-primary {
+      transition: none;
+    }
+    .btn-primary:hover {
+      background-position: left center;
+      transform: none;
+    }
+  }
+
+  /* ── Secondary CTA — terracotta border-bottom stroke that grows left→right on hover.
+     Matches nav-stroke language for ghost buttons.
+     Replaces: bare border-color lift with no brand character.           */
   .btn-secondary {
     display: inline-flex;
     align-items: center;
@@ -75,12 +98,36 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     border: 1px solid rgba(245, 240, 234, 0.4);
+    border-bottom: none;
+    position: relative;
     cursor: pointer;
+    text-decoration: none;
     transition: border-color 0.25s ease, color 0.25s ease, transform 0.15s ease;
+  }
+  /* Bottom stroke: grows scaleX 0→1 from left, terracotta, 2px */
+  .btn-secondary::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--color-terra);
+    transform-origin: left center;
+    transform: scaleX(0);
+    transition: transform 0.28s linear;
   }
   .btn-secondary:hover {
     border-color: var(--color-chalk);
     transform: translateY(-1px);
+  }
+  .btn-secondary:hover::after {
+    transform: scaleX(1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-secondary::after { transition: none; }
+    .btn-secondary:hover::after { transform: scaleX(1); }
+    .btn-secondary:hover { transform: none; }
   }
   .container-width {
     max-width: 80rem;
@@ -205,6 +252,7 @@
   color: var(--color-chalk);
   font-family: var(--font-body);
   font-size: 0.9375rem;
+  /* outline:none only for mouse users — keyboard gets :focus-visible ring */
   outline: none;
   transition: border-color 0.2s ease, background 0.2s ease;
 }
@@ -215,9 +263,105 @@
   border-color: var(--color-terra);
   background: rgba(194, 96, 58, 0.05);
 }
+.form-field:focus-visible {
+  /* Override the blanket outline:none — keyboard users see a terracotta ring */
+  outline: 2px solid var(--color-terra);
+  outline-offset: 0px;
+  border-color: var(--color-terra);
+  background: rgba(194, 96, 58, 0.05);
+}
 .form-field:focus::placeholder {
   color: rgba(245, 240, 234, 0.5);
 }
+
+/* ── Page-wide :focus-visible a11y sweep (Spark cycle 7, Frame B)
+   Every keyboard-focusable element gets a 2px brand-color ring.
+   Terracotta on dark-panel sections, teal on light-panel sections.
+   Hand-tuned offsets per element type — NOT browser default blue.
+   Applies to: buttons, links, inputs, textareas, accordions, chips, tabs.
+   Focus ring must be visible against umber + chalk panel backgrounds.    */
+
+/* Global base — terracotta outline, 2px, 3px offset, 2px radius */
+:focus-visible {
+  outline: 2px solid var(--color-terra);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Buttons (primary, secondary, chips, accordions, tabs) —
+   tighter offset since buttons have their own background */
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--color-terra);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* .btn-primary — teal ring (contrasts better against terracotta fill) */
+.btn-primary:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* .btn-secondary — terracotta ring, slightly tighter */
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--color-terra);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Nav links — ring hugs the text + underline */
+.nav-link-stroke:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 4px;
+  border-radius: 1px;
+}
+
+/* Portfolio chips — match chip border-radius (2px) */
+.portfolio-chip:focus-visible {
+  outline: 2px solid var(--color-terra);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Process tabs (role="tab") — teal on dark panel background */
+[role="tab"]:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Form inputs + textareas — ring outside the existing border */
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-terra);
+  outline-offset: 1px;
+  border-radius: 0;
+}
+
+/* FAQ accordion triggers — on umber bg, teal ring stands out clearly */
+#faq button:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* WhySoley accordion triggers (mobile) — same umber bg treatment */
+.why-soley-accordion button:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Anchor links throughout page — terracotta ring */
+a:focus-visible {
+  outline: 2px solid var(--color-terra);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Nav CTA (btn-primary inside nav) inherits .btn-primary:focus-visible above */
 
 /* ── LiveEstimate: blinking cursor + sent pop-in ──────────────────────  */
 @keyframes blink-cursor {

@@ -650,3 +650,17 @@ All screenshots: `/tmp/soley-qa3-screenshots/`
 ---
 
 *QA audit cycle 3 by QA agent, 2026-05-09. 4 viewports, 5×5=25 runway samples. P1 CONFIRMED (double-bleed), P2 REFUTED (no void gap), P3 REFUTED (LiveEstimate present), P5a REFUTED (FounderBlock visible), P5b CONFIRMED INTENTIONAL.*
+
+---
+
+## ARIA GAPS — logged by Spark cycle 7, 2026-05-07
+
+These require structural changes and are deferred to Refiner.
+
+### BUG-038 — Process: `role="tab"` buttons missing `role="tablist"` wrapper (MEDIUM)
+**Component:** `app/components/Process.tsx`
+**Issue:** Each step `<button>` has `role="tab"` and `aria-selected`, but the containing `<div className="process-tabs">` does not have `role="tablist"`. Without the tablist ancestor, screen readers cannot group the tabs correctly. Also missing: `aria-controls` linking each tab to its content panel, and `id` attributes on both tabs and panels.
+**Fix:** Add `role="tablist"` to the `.process-tabs` div; add `id` to each button (`tab-step-${s.id}`); add `aria-controls` pointing to the panel div; add `id` to the panel div (`panel-step-${activeStep}`).
+**Defer to:** Refiner (requires structural change to Process.tsx).
+
+*ARIA gaps logged by Spark cycle 7, 2026-05-07. All other interactive elements verified clean: FAQ accordion (aria-expanded/controls/labelledby ✓), WhySoley accordion (aria-expanded/controls ✓), PortfolioGallery chips (aria-pressed/group ✓), Contact form (htmlFor labels on all 4 inputs ✓), Hero3D icon buttons (aria-label ✓), scroll-down button (aria-label ✓). No icon-only buttons found without labels.*
