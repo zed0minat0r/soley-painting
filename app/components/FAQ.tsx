@@ -52,6 +52,27 @@ const ITEMS = [
       'We work with professional-grade lines from Benjamin Moore and Sherwin-Williams — the same products sold to trade contractors, not the consumer-shelf versions. Within those lines, we match the product to the surface: high-traffic areas get a harder enamel finish, ceilings get a dedicated flat, and cabinets get an alkyd hybrid for durability. We\'ll walk you through the options at the estimate.',
     accent: 'var(--color-gold)',
   },
+  {
+    id: 'drywall-repair',
+    question: 'Do you handle drywall repairs, or just paint?',
+    answer:
+      'We handle the kind of surface prep that comes up on every paint job — filling nail holes and small dings, skim-coating hairline cracks, sanding ridges smooth, and re-caulking where trim has pulled away from the wall. What falls outside our scope: cutting out and replacing sections of drywall, structural patching, or damage that needs a dedicated drywall contractor. If we spot something during the walkthrough that crosses that line, we\'ll flag it before quoting.',
+    accent: 'var(--color-terra)',
+  },
+  {
+    id: 'wallpaper-removal',
+    question: 'Do you remove existing wallpaper?',
+    answer:
+      'Yes — wallpaper removal is in scope. How long it takes depends on how many layers are present, the age of the adhesive, and what surface is underneath. We assess that at the walkthrough and quote removal as a separate line item so you see the cost clearly. After removal, we skim-coat any surface damage before priming.',
+    accent: 'var(--color-teal)',
+  },
+  {
+    id: 'color-matching',
+    question: 'Can you match a color from an existing paint job?',
+    answer:
+      'Yes. Bring us a paint chip, a paint can label with the color code, or a physical sample and we\'ll have it matched at the store before the job starts. If you want to stay as close as possible to an existing wall without a chip, we can pull a sample and take it in for spectrophotometer matching — it\'s not a perfect science but it gets very close. We\'ll tell you what the match confidence is before any coating goes down.',
+    accent: 'var(--color-gold)',
+  },
 ]
 
 function FAQItem({
