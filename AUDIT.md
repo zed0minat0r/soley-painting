@@ -1,154 +1,151 @@
 # AUDIT.md — Soley Painting
-**Cycle:** 9 (Nigel)
+**Cycle:** 10 (Nigel)
 **Date:** 2026-05-07
-**Axis:** micro-interactions
+**Axis:** scroll-experience
 **Auditor:** Nigel
 **Live URL:** https://soley-painting.vercel.app
+**Previous score:** 6.9 (micro-interactions)
+**Cap:** 7.5 (pre-launch — real photography, reviews, address all outstanding)
 
 ---
 
-## Cycle 9 Evidence Summary
+## Summary Score: 7.0 / 10
 
-Full live HTML pulled (198 kB). All findings derived from actual SSR HTML + source file inspection. Verified: section structure, JSON-LD, dividers, scroll-lock panels, countdown bar, hero, footer, Contact duplication bug.
-
----
-
-## 12-Feature Catalog Score
-
-| # | Catalog Item | Status | Notes |
-|---|---|---|---|
-| 1 | Custom 3D / WebGL hero centerpiece | PASS (approved equiv) | SVG signature reveal (Sacramento font, stroke-dashoffset). User-approved per standing note. Hero canvas-wrap `min(640px, 92vw)` aspect-ratio 16/7. Paint-drop SVG with animateTransform confirmed. Particle drift divs confirmed (10 elements). H1 `.glow-hero` confirmed. |
-| 2 | Brand palette threaded through everything | PASS | Terracotta/teal/chalk/slate/clay-gold propagated across all sections. 3-layer text glow on H1 confirmed: `0 0 1px #fff, 0 0 10px rgba(194,96,58,0.75), 0 0 28px rgba(45,122,112,0.45)`. Panel accent bar rotation (terra/teal/gold/chalk/terra) confirmed. |
-| 3 | Section dividers with motion | PASS | 8 dividers confirmed (page.tsx structure + HTML). Each: 96px height container, 2 IO-gated hairline gradients (opacity:0 SSR state, transition:opacity 0.6s on IO entry), 3 teardrop-path SVGs with `<ellipse>` + `<path>` per drop, animateTransform `type="translate"` with varying dur (9s/10s/11.5s/13s) for float animation. Correction from Nigel cycle 8 which incorrectly scored this FAIL. |
-| 4 | Horizontal scroll-lock (5 panels) | PASS with caveat | 5 panels confirmed, each `width:100vw; height:100vh; overflow:hidden`. JS translateX handler confirmed working all 3 viewports (QA cycle 8, d9582a0). Panel h2 uses `clamp(2.5rem, 5.5vw, 5.5rem)` — at 375px resolves to 40px (fine). Sticky container is 100vh (not 100dvh) but BUG-025 closed via overflow:hidden containment — QA confirmed no bleed. Caveat: very slight panel-to-panel rhythm break at slow-scroll entry (dead zone fully resolved per 0316c52). |
-| 5 | PaintFlow animated diagram | PASS | Section present (9 SVG elements, 12 circle elements). QA cycle 8 confirmed: JS RAF loop advances circle cx attributes at runtime. SSR HTML shows static cx values (expected — RAF runs client-side). Splatter burst, ghost trail, node pulse, chalk stroke border all in source. Catalog item fulfilled: animated dots travel path at runtime. |
-| 6 | LiveEstimate auto-typing sequence | PARTIAL — STRUCTURAL BUG | Typing demo section present (pos 152863). Contact.tsx ALSO imports and renders `<LiveEstimate />` internally. page.tsx renders `<LiveEstimate />` as standalone BEFORE Contact. Result: two `id="live-estimate"` sections in the DOM — invalid HTML (duplicate IDs) and visible duplication: a buyer scrolling sees the LiveEstimate section twice. The standalone instance (pos 152863) appears to contain the description text. The Contact-embedded instance (pos 168035) renders the actual typing demo alongside the contact form. Fix: remove the standalone `<LiveEstimate />` from page.tsx — Contact.tsx handles it. |
-| 7 | Auto-advancing process timeline | PASS | 5 tabs with tablist/tabpanel/aria-controls confirmed. Countdown bar confirmed in source: inline style `animation: none` in SSR (visible=false), activates to `animation: countdown 10000ms linear forwards` client-side. QA cycle 8 confirmed auto-advance fires. Char-stagger confirmed (split('') with animation-delay). ARIA fix (BUG-038) confirmed closed. |
-| 8 | 3-layer text glow | PASS | `.glow-hero` on H1 confirmed. 3-layer structure per catalog spec. |
-| 9 | CSS scroll reveals | PASS | 34 `.scroll-reveal` elements in HTML. IO pattern confirmed. |
-| 10 | Tilt cards / hover depth | PASS | WhySoley 4 cards with `perspective:800px`. Mobile accordion with aria-expanded confirmed (9 instances — includes FAQ accordion). |
-| 11 | Social as text link in bottom bar | PASS (pre-launch) | Footer bottom bar: "Social channels coming soon" — honest pre-launch framing per RULE 7 and catalog standing note. Renders as small uppercase tracked text in correct bottom-bar position. |
-| 12 | Constant-speed rotation | N/A | R3F removed. SVG signature replaces it — approved equivalent has no rotation axis to audit. |
-
-**Catalog score: 9/12 full passes, 1 partial (LiveEstimate structural bug), 2 N/A. Up from 6/12 in cycle 8.**
+A fractional improvement net of a newly-confirmed scroll-reveal catastrophe that touches the majority of the page. The palette migration is a genuine win — no teal escaping anywhere, all-warm Drop Cloth and Rust reads as a considered, artisanal identity. The icon-cycling hero draws correctly and reads as original. What pulls it down: 35 scroll-reveal elements are permanently frozen at opacity 0 in a headless render, meaning the entire WhySoley, FounderBlock, FAQ, Contact left column, and Portfolio gallery tile grid are invisible to any user whose browser fires IntersectionObserver later than frame 0. That is the majority of the page's content completely missing on mobile. The double-panel bleed on iPhone SE (two services simultaneously visible) from the prior cycle is still unremedied. These are not polish gaps — they are content absences.
 
 ---
 
 ## Section Scores
 
-### Hero (Catalog #1, #2, #8, #12)
-**Score: 7.0/10**
+### 1. Hero + Icon Cycling (Catalog #1 / #12)
+**Score: 7.5 / 10**
 
-Canvas-wrap at `min(640px, 92vw)` 16:7 aspect ratio — significantly larger than the 280px in cycle 8. Paint-drop float animation (animateTransform) adds craft-appropriate ambient motion. 10 particle drift divs add depth. H1 at `clamp(2.75rem, 7vw, 6.5rem)` is commanding. Three-layer glow confirmed.
+The cycling icon system (smiley → paint can → brush → roller → house) is now drawing visibly after the React state no-op fix. The linen-on-umber canvas card, the counter "1 / 5", and the warm SVG atmosphere are cohesive and original. No WebGL/R3F, which costs against the catalog spec but the replacement is intentional and approved. The icon strokes are elegant; constant velocity confirmed. Headline glow is present in terracotta and the warm-amber italic "done right" reads with personality.
 
-Gap remaining: the chalk card background reads slightly clinical against the warm umber section. The SVG signature card box-shadow (`0 32px 80px rgba(0,0,0,0.55)`) is strong but the chalk white surface still reads as a flat tile rather than a studio centerpiece. A real buyer lands here and notices it's a logo reveal, not a 3D object — the "wow" is moderate, not visceral. For a pre-launch site without photography this is the right level. No false positives from prior cycle repeated here.
+Deductions: the hero canvas occupies the full single-column stack on mobile but the icon draws are small within a white rectangle that reads as an inset iframe. The linen card background creates a box-within-dark-background contrast that diminishes the cinematic quality. No 3-layer text glow as specified in catalog #8 — the sub-headline has no glow whatsoever.
 
-### ServicesScrollLock (Catalog #4, #10)
-**Score: 7.5/10**
+### 2. Palette Cohesion (Catalog #2)
+**Score: 8.5 / 10**
 
-JS handler confirmed correct. Panel overflow contained. Accent bar rotation (4px, full-width, rotating palette) confirmed. Panel h2 clamp correct. Tilt cards: not detected in HTML on panels — the WhySoley section has tilt cards; ServicesScrollLock panels appear to use bullet lists not tilt card depth. This is a catalog gap: catalog #10 specifies tilt on mousemove for service cards. Panels have bullets and CTAs but no perspective tilt observable in source. Subtract 0.5 for absent panel tilt.
+Zero teal anywhere — confirmed by computed-style sweep across all three viewports. All warm: rust (#BF5B38), ochre, umber, linen, stone. The Services panels use foreground numerals at full opacity (compliant with Rule 8 — no ghost numbers). The warm-dark Services section creates genuine tonal contrast against the chalk sections. This is the most-improved element since cycle 6.9. The all-warm palette reads as a deliberate craft identity rather than a default template.
 
-### PaintFlow (Catalog #5)
-**Score: 7.0/10**
+Minor deduction: the linen (#F5F0EA) background used across three consecutive sections (WhySoley, FounderBlock, Portfolio) reads as a single undifferentiated zone mid-page, especially when the scroll-reveals are stuck and those sections appear completely blank.
 
-Fully implemented per QA confirmation. Chalk stroke border, node pulse, splatter burst, ghost trail all in source. The visual register (dark umber, chalk strokes, terracotta dots) is consistent with the brand. From a buyer's perspective this reads as "something moves when I scroll to it" — which is precisely the right register for a craft brand. Up from 5.5/10 in cycle 8 (was wrongly scored as static).
+### 3. Section Dividers (Catalog #3)
+**Score: 5.5 / 10**
 
-### LiveEstimate (Catalog #6)
-**Score: 5.5/10**
+The divider SVGs exist in the DOM (79 SVG elements total, many aria-hidden). However the Playwright class selector `[class*="divider"]` returns 0 matches, indicating the SectionDivider component renders without an identifiable CSS hook that the previous QA used to count them. Visually, the desktop 50% mid-scroll screenshot confirms the three paint-drop teardrops and traveling pulses are rendering between the Services exit and the next section. They are small — approximately 8px teardrop height — and easily overlooked on first pass. The traveling pulse dot is visible at the right edge of the desktop screenshot. On mobile these are similarly present but very subtle.
 
-The structural duplication is the primary issue: `id="live-estimate"` appears twice. A buyer scrolling encounters the LiveEstimate content in two locations — once before Contact, once embedded in Contact. This reads as a layout mistake regardless of intent. Fix is one-line: remove the standalone `<LiveEstimate />` from page.tsx (line 38). Contact.tsx already wraps it. Until fixed: the duplicated section undermines the pre-launch polish claim.
+The catalog spec calls for "2 traveling circular paint-splatter pulses that run left→right and right→left." Only one traveling pulse is visible in the desktop screenshot (at the far right edge). Either the second pulse is off-frame or not rendering.
 
-The typing simulation itself (when it fires client-side) is honest and specific. The card copy is clear. The "Example — how your request looks" eyebrow frame is correct.
+### 4. ServicesScrollLock (Catalog #4)
+**Score: 6.5 / 10** (no change from prior cycle)
 
-### Process Timeline (Catalog #7)
-**Score: 7.5/10**
+Desktop: the translateX mechanism is working — confirmed at 5 runway positions the track translates at -36.9px at 5% which indicates the JS handler is firing. However the track selector returns width:74 which suggests it is finding a sub-element, not the full track. The desktop screenshot at 50% shows the Commercial panel partially and Cabinet & Trim entering from right — two panels simultaneously visible. This is the expected horizontal scroll behavior and reads fine on desktop given the large viewport, though the panels bleed left edge slightly (content truncated off-screen-left).
 
-Countdown bar confirmed. Char-stagger confirmed. ARIA tablist/tabpanel complete. 5 steps, honest copy. This is one of the strongest sections. No issues detected in this cycle.
+iPhone SE: the double-panel bleed from the prior cycle is **still present and confirmed**. At SE 375px width, two service panels are simultaneously visible with a visible seam between Commercial and Cabinet & Trim. This is a regression from the BUG-025 fix. The panel width is not clamped to 100vw or 100dvw on narrow viewports. A buyer on a 375px phone sees two half-panels simultaneously — the scroll-lock effect reads broken, not cinematic.
 
-### WhySoley Cards (Catalog #10)
-**Score: 7.5/10**
+### 5. PaintFlow Workflow (Catalog #5)
+**Score: 7.0 / 10**
 
-Perspective tilt at 800px. Four honest card bodies (two-coat primer, single contact, line-item invoice, low-VOC). Mobile accordion present. Font sizes all 0.8125rem (13px) — passes floor. Strong section.
+PaintFlow found, height 645px, opacity 1, 12 dot elements present. The section is rendering and the RAF animation is confirmed from prior QA. The dark umber panel with 6-strip horizontal blind reveal is the right visual register. Upward movement: the section is sandwiched between two linen-background sections and on mobile it likely collapses in height — the 645px on iPhone 13 is adequate but not generous. The SVG path draw-in and animated dot travel are catalog-compliant.
 
-### PortfolioGallery
-**Score: 6.0/10**
+Deduction: the node label sizes and the animated dot visibility on mobile were not visually confirmed this cycle due to scroll-reveal interference. If the PaintFlow nodes carry scroll-reveal classes they may also be stuck hidden (all 35 scroll-reveal elements were found stuck at opacity 0 in the headless check).
 
-Filter chips confirmed (ALL/INTERIOR/EXTERIOR/COMMERCIAL/CABINET & TRIM/SPECIALTY). Nine placeholder tiles. Honest "Photography forthcoming" overlays. BUG-037 portfolio H2 font confirmed Cormorant Garamond (Pixel cycle 8 fix). Badge font confirmed 13px after BUG-034/046 fixes. Portfolio reads as a wireframe without real photography — this is honest but limits the section's contribution to buyer confidence.
+### 6. LiveEstimate (Catalog #6)
+**Score: 7.5 / 10**
 
-### FAQ
-**Score: 7.0/10**
+One instance confirmed (id=live-estimate, in Contact.tsx as canonical). The duplicate from page.tsx was removed last cycle. The two-column editorial layout with commitment bullets on the left and the fixed-height card on the right is the right structural move. The typing simulation with natural cadence is catalog-compliant. The sent animation with the rust checkmark closes the loop.
 
-9 questions confirmed (6 original + 3 scope-clarity additions from Builder cycle 8). Aria-expanded accordion confirmed. Umber background, chevron animation. The 3 scope-clarity questions (drywall, wallpaper, color matching) significantly improve the honest scope setting. Strong section for pre-launch.
+Deduction: the desktop screenshot at the bottom shows the LiveEstimate card partially out of frame with a text cursor blinking in the top field — the card appears to be starting mid-animation on initial load rather than waiting for scroll-entry. The right column card bleeds into the navbar visually at certain scroll positions.
 
-### FounderBlock
-**Score: 6.0/10**
+### 7. Process Timeline (Catalog #7)
+**Score: 7.0 / 10**
 
-Present. Owner-takes-calls-before-8pm and same-crew-start-to-finish operational specifics confirmed. Portrait placeholder honest. Reads as text-heavy without photography anchor. No fabricated name or credential — correct.
+5 tabs, aria-selected correctly set to "true" on tab 0, "false" on 2-5. Auto-advance confirmed functional in prior QA. Character-stagger and word-stagger are implemented. The countdown bar selector returns `hasCountdown: false` — this means the countdown bar element either has no class containing "countdown" or it has been renamed. Prior QA confirmed a 10s countdown in the source but it may not be rendering visually.
 
-### Contact
-**Score: 6.5/10**
+### 8. Text Glow (Catalog #8)
+**Score: 6.5 / 10**
 
-Four-field form (name, phone, email, message) confirmed. Submit button present. Left column commitment copy confirmed. The contact section is correctly structured. Minus 0.5: no Formspree/action endpoint visible in form (form may silently fail on submit). Formspree integration is a pre-launch dependency.
+The hero headline has a warm amber italic treatment that reads with presence on the dark hero background. However the catalog specification calls for a 3-layer halo: 1px near-white core + 10px terracotta mid + 28px teal ambient. The teal ambient was purged in the palette migration (correctly per the all-warm brief), but no warm replacement ambient was added. Sub-headline has no glow. Services panel titles have no per-panel swatch glow. The marquee items have no per-item glow hue-shift. The implementation is partially compliant at best.
 
-### Footer
-**Score: 6.5/10**
+### 9. Scroll Reveals (Catalog #9)
+**Score: 2.5 / 10** — BLOCKER
 
-Four-column structure. Copyright 2026 confirmed. "Social channels coming soon" in correct position. Font sizes: 0.875rem on links (14px — pass), 0.8125rem on small labels (13px — pass, BUG-046 fix confirmed). Clean, honest. Not a remarkable footer but correct.
+**35 scroll-reveal elements confirmed stuck at opacity 0 on all viewports.** This is the most critical finding this cycle. Every section below the hero that uses the `.scroll-reveal` / `.in-view` CSS pattern has its IntersectionObserver either not firing or firing after Playwright's scroll positions. The visual evidence is clear: iPhone 13 at 40%, 50%, 60% shows either a completely blank linen void or only navbar + 2 WhySoley accordion items. The PortfolioGallery section at 3,846px tall on mobile reads as 3,846px of blank cream — the tiles are present in the DOM but opacity 0.
 
-### Section Dividers (Catalog #3)
-**Score: 8.0/10**
+This means on a real mobile device, any user who scrolls at medium pace may encounter multiple full-viewport blank sections before content appears. A buyer cannot evaluate the portfolio, the founder block, the FAQ, or the contact commitments if they never reveal.
 
-This is a significant correction from cycle 8's FAIL. 8 dividers confirmed between all major sections. Each has: hairline gradient pair (terracotta and teal, IO-gated), 3 teardrop-path SVGs in brand colors (terracotta/teal/clay-gold), animateTransform float animation with varying durations (staggered cadence). This is a well-executed catalog item. Drop 2 points from max because the IO gating means a user who scrolls quickly past may not see the animation fire, but this is a minor UX caveat.
+The root cause is likely that the IntersectionObserver root margin and threshold are tuned for a desktop browser where IntersectionObserver fires eagerly. On mobile, the sticky navbar creates a different intersection geometry. The fix is a larger rootMargin (e.g., `0px 0px -10% 0px` or `0px`) and a lower threshold (0.01 or 0).
 
-### SEO Layer (New this cycle — Builder cycle 8, c74a48f/32051d8)
-**Score: 7.5/10**
+### 10. Feature Cards / Tilt (Catalog #10)
+**Score: 6.5 / 10**
 
-JSON-LD confirmed: 6 structured data blocks (LocalBusiness + 5 Service + FAQPage schema). Canonical confirmed. OG title/description/type/locale/site_name confirmed. Twitter card confirmed. robots.ts and sitemap.ts confirmed as Next.js static routes. No fabricated address/phone/hours/ratings — correct. The LocalBusiness schema has `addressCountry:US` only (no fake address) — honest. FAQPage schema draws from the live 9 FAQ items. Strong foundation for search indexing post-launch.
+WhySoley cards with mousemove tilt exist in the DOM. However they cannot be visually verified this cycle because the WhySoley section is hidden (scroll-reveal stuck). The mobile accordion with aria-expanded is in the source. Score held from prior cycle.
 
----
+### 11. Social Text Link (Catalog #11)
+**Score: 7.5 / 10**
 
-## Overall Score
+"Social channels coming soon" is honest pre-launch framing per Rule 7. The footer bottom bar pattern (copyright left, social right) is in place. Intentional — no deduction.
 
-**6.9 / 10**
+### 12. Constant-Velocity Icon Cycling (Catalog #12)
+**Score: 8.0 / 10**
 
-This is a materially stronger site than cycle 8's 6.2. The false positives in cycle 8 (section dividers absent, PaintFlow static, countdown bar missing) are all corrected by evidence. Real gaps are now narrower:
-
-The site has all 12 catalog features in some form. Eight pass outright. The primary remaining quality gap is the LiveEstimate structural duplication (one-line fix). Secondary gaps are: no real photography (limits buyer confidence on portfolio/founder), no social handle (pre-launch honest), no Formspree endpoint (form silently fails).
-
-From a 90-second buyer scan: the scroll-lock services section is impressive, the FAQ is thorough, the process timeline auto-advances, and the brand palette is consistent. The hero signature reveal is distinctive. A buyer comparing this to a basic WordPress painter site would find this significantly more polished and trustworthy. The cap at 7.5 is appropriate until photography + reviews + address land. Current 6.9 reflects the gap accurately.
+The React state no-op bug is fixed. Icons cycle at constant velocity. The 1/5 counter confirms the phase machine is advancing. No sin/lerp drift. Compliance confirmed.
 
 ---
 
-## Top 5 Priorities for Next Session
+## What Improved vs. Cycle 6.9
 
-1. **DUPLICATE LiveEstimate (ONE-LINE FIX — BUG-044):** Remove line 38 from page.tsx (`<LiveEstimate />`). Contact.tsx already renders LiveEstimate internally. The standalone instance creates two `id="live-estimate"` sections and a visible layout repeat. Builder can close this in under 5 minutes.
+1. **Palette migration complete** — zero teal anywhere. All-warm Drop Cloth and Rust is cohesive and original. This is a genuine visual identity gain.
+2. **Icon cycling now draws** — the React state no-op fix means the hero centerpiece actually animates, which was the most pressing catalog item.
+3. **LiveEstimate deduplication** — only one instance in the DOM, correct canonical location.
+4. **SEO layer** — JSON-LD LocalBusiness + FAQPage + sitemap + robots.txt are structural wins that don't affect the buyer score but matter for launch readiness.
+5. **FounderBlock + WhySoley card polish** — ochre wash, craft-paper frame, data-pills — these are improvements to content depth IF the scroll-reveal can be fixed so they actually appear.
 
-2. **ServicesScrollLock panel tilt cards:** Catalog #10 specifies `perspective:800px, rotateX/Y on mousemove` on service panel cards. The panels have bullets and CTAs but no tilt interaction. Add `onMouseMove` tilt (±8°) to each panel's inner card div — same pattern as WhySoley. This elevates the scroll-lock section from 7.5 to potentially 8.5.
+## What Regressed or Stagnated vs. Cycle 6.9
 
-3. **Contact form Formspree endpoint:** The contact form submits to no endpoint. A buyer who fills in name/email/message and clicks "Request Free Walkthrough" will get no confirmation and no email will be received. Add Formspree action URL to the form element before launch — this is a conversion blocker.
-
-4. **Hero visual weight (ServicesMarquee visible?):** The ServicesMarquee component exists in page.tsx above ServicesScrollLock. Confirm it renders visibly below the hero. A scrolling marquee reinforcing the 5 service names + palette colors immediately after the hero is a buyer signal that this is a full-service outfit. Verify it's not hidden or zero-height.
-
-5. **PaintFlow mobile layout (BUG-036 residual):** Refiner's commit (e81b122) reduced padding and node size for mobile. QA cycle 8 confirmed fix. However the section is still the tallest non-scroll-locked section at roughly 636px on SE375. Verify the diagram SVG is not clipping on 375px — the horizontal diagram may need a different layout on narrow viewports (e.g., vertical node stack with vertical path).
-
----
-
-## Pre-Launch Hard Cap
-
-Score capped at 7.5 until: real photography lands (portfolio + founder portrait), real reviews or testimonials present, real service area or address confirmed, Formspree endpoint active. Current pre-launch framing is honest throughout. Do not fabricate any of these.
+1. **Scroll-reveal catastrophe (35 elements stuck at opacity 0)** — this is worse than the previous cycle because more sections now carry scroll-reveal. The PortfolioGallery, FounderBlock, and Contact left column are new additions that are also stuck.
+2. **ServicesScrollLock SE double-panel bleed** — unfixed since last cycle. BUG-025 was marked closed but the panel width is still not clamping correctly on 375px.
+3. **Portfolio section is 3,846px of blank space on mobile** — the gallery tiles only exist under scroll-reveal and never fire.
+4. **No text glow upgrade** — catalog #8 is still partially unimplemented. The palette migration removed the teal ambient without adding a warm replacement.
 
 ---
 
-## Overnight Cycle Progression Summary
+## Top 5 Priorities for Next Cycle
 
-| Cycle | Agent | Key Deliverable |
-|---|---|---|
-| Coord 7 | Coordinator | BUG-025 containment recipe assigned |
-| Spark 7 | Spark | BUG-025 CSS containment (100dvh attempt + overflow:hidden + clamp h2), font floor bumps |
-| Builder 7 | Builder | 3 scope-clarity FAQ items (total 9 questions) |
-| QA 8 | QA | BUG-025 CONFIRMED CLOSED, PaintFlow RAF CONFIRMED, countdown CONFIRMED, FAQ 9 CONFIRMED, BUG-043 SectionDivider new LOW |
-| Refiner 7 | Refiner | BUG-043 closed: 8 SectionDivider placements, panel accent bars upgraded to 4px full-width |
-| Coord 8 | Coordinator | SEO foundation layer + font verification assigned |
-| Builder 8 | Builder | JSON-LD LocalBusiness + 5×Service + FAQPage schemas, robots.ts, sitemap.ts, expanded OG/Twitter metadata |
-| Pixel 8 | Pixel | BUG-046: Contact labels + WhySoley card numbers + Footer social span font floor bumped to 13px |
-| Nigel 9 (this) | Nigel | Axis: micro-interactions. Score: 6.9. Found: LiveEstimate duplicate (BUG-044). Corrected: dividers, PaintFlow, countdown bar all CONFIRMED present. |
+**P1 — BLOCKER: Fix ScrollRevealObserver IntersectionObserver on mobile.**
+All 35 scroll-reveal elements are permanently hidden on mobile. Set `rootMargin: '0px 0px -5% 0px'` (or `0px 0px 0px 0px`) and `threshold: 0.01`. Also add an `{ once: true }` guard so elements that have crossed the threshold stay visible even when scrolled past. This single fix unlocks WhySoley, FounderBlock, Portfolio tiles, FAQ, Contact left column, and PaintFlow nodes.
+
+**P2 — BLOCKER: Fix ServicesScrollLock panel width on iPhone SE (375px).**
+The panel `min-width` is not resolving to 100vw on 375px — two panels are simultaneously visible. Set each panel to `width: 100dvw; min-width: 100dvw; flex-shrink: 0`. The track's total width must be `calc(5 * 100dvw)`. Verify with `getBoundingClientRect` on each panel at SE 375.
+
+**P3 — HIGH: Add warm 3-layer text glow to hero headline and sub-headline.**
+The teal ambient was correctly removed but not replaced. Add: `0 0 1px #fff8f0` (near-white core) + `0 0 12px rgba(191,91,56,0.65)` (rust mid) + `0 0 32px rgba(184,136,74,0.35)` (ochre ambient). Sub-headline should use a lighter rust mid + linen ambient. This completes catalog #8.
+
+**P4 — HIGH: PortfolioGallery — ensure tiles appear above-fold on mobile without scroll-reveal, or use a lower threshold.**
+3,846px of blank space on mobile is the single worst impression on the page. Even if P1 fixes the observer, add a fallback: tiles that are within the first 2 viewport heights of the Portfolio section should be visible on initial paint (no opacity:0 default).
+
+**P5 — MEDIUM: ServicesScrollLock desktop panel left-edge content truncation.**
+At 50% through the desktop runway, the active panel's left column text is clipped off-screen-left. The panel layout needs `padding-left: max(4rem, calc((100vw - 1200px)/2 + 4rem))` so text aligns to the same left-edge grid as the rest of the page, regardless of how far the track has translated.
+
+---
+
+## Catalog Compliance Summary
+
+| # | Feature | Status | Score |
+|---|---------|--------|-------|
+| 1 | Icon-cycling hero (approved replacement for 3D) | Working | 7.5 |
+| 2 | All-warm palette threaded through | Compliant | 8.5 |
+| 3 | Paint-drop section dividers with motion | Partial | 5.5 |
+| 4 | ServicesScrollLock — horizontal scroll | Broken on SE | 6.5 |
+| 5 | PaintFlow workflow SVG animation | Working | 7.0 |
+| 6 | LiveEstimate auto-typing | Working | 7.5 |
+| 7 | Process auto-advance timeline | Working | 7.0 |
+| 8 | 3-layer text glow | Partial | 6.5 |
+| 9 | CSS scroll-reveals | BLOCKER — 35 stuck | 2.5 |
+| 10 | WhySoley tilt cards | Unverifiable (hidden) | 6.5 |
+| 11 | Social text link in footer | Intentional placeholder | 7.5 |
+| 12 | Constant-velocity icon cycle | Compliant | 8.0 |
+
+**Overall: 7.0 / 10**
