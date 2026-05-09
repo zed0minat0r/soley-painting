@@ -1,117 +1,135 @@
 # AUDIT.md — Soley Painting
-**Cycle:** 11 (Nigel)
+**Cycle:** 12 (Nigel)
 **Date:** 2026-05-07
-**Axis:** micro-interactions
+**Axis:** photography / content-honesty
 **Auditor:** Nigel
-**Score:** 6.8 / 10 (cap 7.5 pre-launch)
+**Live URL:** https://soley-painting.vercel.app
+**Prior score:** 6.8 (cycle 11)
+**Score cap:** 7.5 (pre-launch: no real photography, no real reviews, no real address)
 
 ---
 
-## Scoring rubric reminder
-5.0 = average | 6.0 = generic | 7.0 = better than most | 8.0 = I would choose this over competitors | 9.0+ = exceptional
+## Methodology
+
+Playwright multi-viewport audit: Desktop 1440×900, iPhone 13 (390×664), iPhone SE 375×667. ServicesScrollLock sampled at 5 runway positions per viewport (15 total samples). Scroll-reveal sampled by scrolling full page in 12 increments before measuring. Screenshots taken at hero, SSL midpoint, and full-page. All findings verified by direct DOM measurement before inclusion.
 
 ---
 
-## Overall verdict
+## 12-Feature Catalog Assessment
 
-The site has genuine bones — a custom SVG icon-cycling hero, a working horizontal scroll-lock on desktop, an honest brand voice, and a well-populated section structure. But a real prospective customer landing on this site on their phone sees vast stretches of empty linen. Four scroll-reveal elements remain permanently stuck at opacity:0 after a full scroll-to-bottom pass, and the ServicesScrollLock is completely broken on mobile (panel width 195px instead of 390px, track frozen at -97.5px across all 5 runway positions). These are not cosmetic issues — they are content voids that destroy credibility before a user reaches the contact form.
-
-Since last audit (cycle 10, 7.0): the icon system improved (Spark cycles 8+9 delivered recognisable smiley/house/bucket/star/heart paths, slowed to 1.9s, strokeWidth 4.5). NotifySignup landed cleanly between FAQ and Process. PortfolioGallery stagger animation shipped. The net is a wash: feature additions are offset by a recurring mobile scroll-lock regression and the unresolved 4-element scroll-reveal failure on both desktop and mobile.
-
----
-
-## Penn Tech 12-feature catalog scorecard
-
-| # | Feature | Status | Score |
+| # | Feature | Status | Notes |
 |---|---------|--------|-------|
-| 1 | Custom hero centerpiece (icon cycling) | PASS — 5-icon draw system (smiley/house/bucket/star/heart) animating, dashoffsets confirmed changing, stroke 4.5px, 280×200 viewBox renders at 640px wide on desktop | 8.5 |
-| 2 | Brand palette threaded through everything | PASS — Drop Cloth & Rust system (rust/linen/stone/umber/ochre) present. No teal residuals confirmed by Spark sweep. Consistent across visible sections | 7.5 |
-| 3 | Section dividers with motion | PARTIAL — SectionDivider instances exist with teardrop SVGs and traveling pulses. However only 2 of 8 placements were firing per QA-65 (BUG-043). Not re-verified post-fix in this cycle but small divider dots visible in full-page screenshot | 6.0 |
-| 4 | Horizontal scroll-lock | REGRESSION — Desktop PASSES (translateX 0px → -5760px across 5 positions, correct). Mobile FAILS: iPhone 13 track width 195px (should be 7×390=2730px), translateX frozen at -97.5px across all 5 runway positions. Panel width 195px (half viewport). Broken on every mobile user | 5.0 |
-| 5 | Animated workflow (PaintFlow) | PARTIAL — PaintFlow section found (H2: "Wall to finish — nothing skipped"), 19 circles present, SVGs with animateMotion detected. However playwright cannot find animateMotion via querySelector ('PaintFlow SVG not found' error), suggesting the dots may not be travelling. Section height correct. Screenshot shows three small dots (SectionDivider) in that region, not a workflow diagram | 5.5 |
-| 6 | Live conversational sequence (LiveEstimate) | PASS — Section present, height 972px desktop, 519px mobile (NotifySignup section). Two email inputs found (Contact form + NotifySignup). LiveEstimate typing simulation section confirmed visible | 7.0 |
-| 7 | Auto-advancing timeline (Process) | PARTIAL — Section found, active step confirmed ("01 Free Walkthrough"), char-stagger and slide transitions present per Spark commits. Countdown bar NOT FOUND via Playwright (countdownBarFound: false). Auto-advance firing but bar missing or mis-queried | 6.0 |
-| 8 | Premium text glow (3-layer halo) | PASS — Hero H1 textShadow confirmed: rgb(255,255,255) 0 0 1px (core) + rgba(191,91,56,0.75) 0 0 10px (terra mid) + rgba(184,136,74,0.35) 0 0 28px (ochre ambient). Three layers present. Inlined per Refiner BUG-055 fix | 9.0 |
-| 9 | CSS scroll reveals | FAIL — 4 elements permanently stuck at opacity:0, no in-view class, on both desktop and mobile after full scroll-to-bottom. 27 total, 4 unresolved. Same failure as cycle 10. WhySoley cards not found via card/Card class query — likely inside those 4 stuck elements | 4.0 |
-| 10 | Custom feature cards with hover/depth | PARTIAL — WhySoley mousemove tilt confirmed in prior QA (±7.6°Y/±7.7°X). Card count returned 0 from DOM query this cycle suggesting class name mismatch or hidden behind stuck scroll-reveal. PortfolioGallery filter chips render correctly (44px height, 6 chips), stagger commit shipped but stagger class not detected post-click | 6.0 |
-| 11 | Social as text link in bottom bar | INTENTIONAL PLACEHOLDER — "Social channels coming soon" per brief. NotifySignup is the pre-launch trust signal. Not scored against | N/A |
-| 12 | Constant-speed rotation / no drift | PASS — Icon cycle uses stroke-dashoffset advancing at constant speed (1.9s per path per Spark commit). No R3F sin/lerp drift. The cycling SVG approach at constant velocity satisfies this catalog item | 8.0 |
+| 1 | Custom hero centerpiece | PRESENT | SVG icon-draw cycling (5 icons, stroke-dashoffset, 640×457px viewport), no canvas/R3F (removed cycle 7). Hero 972px tall, SVG occupies ~47% of vertical height. |
+| 2 | Brand palette threaded through | PRESENT | Rust/ochre/linen/stone/slate palette, teal fully purged per spark cycle 11. CSS custom properties consistent. |
+| 3 | Section dividers with motion | PRESENT | 79 SVGs in DOM; teardrop motifs + hairlines (36 hairlines found). SectionDivider component rendered between sections. |
+| 4 | Horizontal scroll-lock | WORKING | Desktop: 0px → -5760px across runway (correct for 5×1440px). SE375: 0px → -1500px (correct for 5×375px). IP13: 0px → -1560px (correct for 5×390px). All 15 samples confirmed. |
+| 5 | Animated workflow diagram | PRESENT | PaintFlow section found, opacity 1, 26 SVG circles, SVG path confirmed. |
+| 6 | Live conversational sequence | DEGRADED | LiveEstimate id deduplication fixed (1 instance). But `typingEls = 0` at audit time — typing cursor elements absent. Animation state uncertain. |
+| 7 | Auto-advancing timeline | PRESENT | Process found, step count 5, active tab "01 Free Walkthrough", countdown bar confirmed (scaleX=0.728 mid-cycle, matrix measured). |
+| 8 | Premium text glow | PRESENT | 3-layer halo confirmed: `0 0 1px #fff core, 0 0 10px rgba(191,91,56,0.75) mid, 0 0 28px rgba(184,136,74,0.35) ambient`. |
+| 9 | CSS scroll reveals | WORKING | 19 `.scroll-reveal` elements, 0 stuck at opacity 0 after full-page scroll on both IP13 and SE375. |
+| 10 | TiltCard / accordion cards | PRESENT | WhySoley: 4 elements with `perspective: 800px` confirmed desktop. |
+| 11 | Social text link in footer | PRESENT | Footer Instagram text link per SCOUT-REPORT spec. |
+| 12 | Constant-speed rotation | N/A | R3F removed cycle 7. SVG icon draw is not rotation — constant velocity draw via `getPointAtLength`. Treated as satisfied by adaptation. |
 
 ---
 
-## Micro-interactions axis (this cycle's focus)
+## Section Scores
 
-The brief specifically instructs Nigel to evaluate micro-interactions as the fresh axis. Assessment:
+### Hero (catalog #1, #8, #12) — 6.5/10
 
-**Positive finds:**
-- Nav paint-stroke underline (scaleX 0→1 on hover, 1.5px terracotta, 0.28s cubic-bezier) — Spark commit 87d23d7. Clean, brand-appropriate, perceptible.
-- ServicesScrollLock accent bars (4px full-width, PANEL_BAR_COLORS rotation) — visible in desktop screenshot.
-- CTA button hover: brush-wipe terra→teal background-position slide (0.32s linear). Present per Spark.
-- PortfolioGallery chip filter: stagger commit 1bf60e2 shipped, brand-accent left-rail hover. Filter chips render at 44px, correct count.
-- WhySoley tilt: ±7.6°/±7.7° confirmed in prior QA, satisfying #10.
-- Process bullets: pop-in with translateX(-8px) → in-view per Spark commit.
-- Icon cycle brush sprite tracking leading edge.
+The SVG icon-draw centerpiece is charming and brand-specific. The three-layer text glow is verified. The warm dark palette is distinctive. However a real buyer's 90-second read reveals two tension points:
 
-**Failures / gaps:**
-- PortfolioGallery stagger on click: after clicking INTERIOR filter, only 2 items found in grid (down from 72), no stagger class detected. The filter is either collapsing the grid incorrectly or the stagger animation fires and ends before Playwright can detect the class. Visually unverifiable without a video.
-- Process countdown bar: not detectable via DOM after 3+ rebuild attempts. Users do not see the depleting progress bar that is the signature of catalog #7.
-- PaintFlow dots animateMotion: cannot be confirmed traveling. The section exists but dot animation status ambiguous.
-- 4 permanently stuck scroll-reveal elements: the content behind these (likely WhySoley cards, FounderBlock, or Contact right-column) never appears. This is the most damaging micro-interaction failure — the "reveal" interaction simply does not happen.
+1. The icon draw canvas is 640×457px inside a 972px tall hero — the SVG occupies about 47% of the vertical space, leaving the lower 500px below the centerpiece feeling empty before the marquee strip. On desktop it reads as a lot of dark void around the drawing box.
+2. The hero tagline "Every wall done right." is good. The sub-copy "One crew. One contact. Every wall done right." duplicates the headline rhythm almost word-for-word. A buyer who reads both lines gets the same sentence twice, which reads as a placeholder not copy.
+3. No canvas / WebGL: R3F was removed. The SVG icon draw is competent but is not the "3D paintbrush mid-stroke" specified in the Penn Tech catalog. It reads as a nice inline SVG animation rather than a true 3D hero object. This is acceptable but is a cap on the ceiling.
 
----
+### ServicesScrollLock (catalog #4, #10) — 7.5/10
 
-## Section-by-section scores
+All 15 runway samples confirm correct travel across three viewports. Desktop capped at -5760px (panel 5 reached). Mobile SE375 capped at -1500px (correct). No bleed. The horizontal lock experience is the site's strongest UX moment — a buyer who discovers it feels the craft investment. Panel content is specific and honest. The 95% cap behavior (track stops advancing rather than snapping back) is clean.
 
-| Section | Score | Notes |
-|---------|-------|-------|
-| Hero (icon cycle + glow + atmosphere) | 8.0 | Icon cycling confirmed, 3-layer glow confirmed, 4-drip baseline present, 10-particle atmosphere. Strong. |
-| ServicesScrollLock | 6.0 | Desktop works perfectly. Mobile completely broken — frozen track, half-width panels. |
-| PaintFlow workflow | 5.5 | Section present, SVG circles exist, animateMotion status ambiguous. Full-page screenshot shows only divider dots at that position. |
-| WhySoley | 5.0 | Stuck behind scroll-reveal. Cards not reachable via DOM query. Tilt likely working when visible. |
-| FounderBlock | 5.5 | Honest copy, ochre wash, data pills. But may be in stuck scroll-reveal group. |
-| PortfolioGallery | 6.5 | 6 filter chips (44px, all 6 categories), stagger commit present. Filter behavior ambiguous post-click. Photography placeholder honest. |
-| FAQ | 7.0 | 9 items, accordion correct. Content honest. Clean section. |
-| NotifySignup | 7.0 | New this cycle. Clean pre-launch signal between FAQ and Process. Honest copy. 519px mobile height reasonable. |
-| Process (timeline) | 6.5 | Auto-advance confirmed, char-stagger present. Countdown bar not detected. |
-| Contact | 6.5 | Honest commitments, form present, scroll-reveal issue may be hiding right column. |
-| Footer | 6.5 | Social coming-soon intentional. Logo, links, 4-col desktop. |
+Deduction: Panel titles are large but the descriptor copy inside panels is small at desktop scale — the eye travels from the large panel number to the mini-italic descriptor without a clear mid-weight resting point. The panel-numeral-right element (224-252px wide, 229px tall) is a heavy typographic anchor but it competes with the panel title rather than reinforcing it.
 
----
+### PaintFlow / Workflow (catalog #5) — 6.5/10
 
-## Top 5 priorities
+Section found, opacity 1, 26 SVG circles in DOM, SVG path confirmed. The section height is 1106px on desktop which is the largest single section height on the page. At this height a buyer who misses the entry animation (fast scroll, slow device) sees a large dark panel with a diagram they may not understand without the animated reveal. The static state of the diagram is not legible enough to carry itself without animation.
 
-**P1 (BLOCKER) — ServicesScrollLock mobile: track width and translateX frozen.**
-Track resolves to 195px (exactly 50% of 390px viewport) with translateX capped at -97.5px across all 5 runway positions on iPhone 13 and iPhone SE 375. The JS handler reads `stickyRef.clientWidth` but the sticky container appears to report half-width. The panel minWidth is set to 1440px on desktop but not adapting to 390px on mobile — panel count × viewport width should set the track width. This is the signature horizontal scroll feature. It must work on mobile.
+### Process / Timeline (catalog #7) — 7.0/10
 
-**P2 (BLOCKER) — 4 scroll-reveal elements permanently stuck at opacity:0.**
-After a full scroll-to-bottom pass (scrollY = body.scrollHeight), 4 of 27 scroll-reveal elements remain at opacity:0, no in-view class. WhySoley cards, FounderBlock details, or Contact form elements are likely among them. A user scrolling at any normal speed will hit blank white voids. The IO rootMargin/threshold fix from BUG-054 helped 37 of 41 elements — the remaining 4 are a second-order problem not yet diagnosed.
+Five steps confirmed. Countdown bar verified mid-cycle (scaleX=0.728). Active tab advancing. Character stagger and word stagger confirmed in changelog. This is the most complete catalog item on the site — it delivers the Penn Tech pattern in a painting-brand form with no visible regressions.
 
-**P3 (HIGH) — PaintFlow animateMotion dots: confirm or fix.**
-The "Wall to finish" section exists but dot travel cannot be confirmed via Playwright. The full-page screenshot at that region shows only the SectionDivider dots. If animateMotion is not firing (e.g. SVG inside a hidden overflow container, or IO not triggering the animation start), catalog #5 is a blank diagram.
+### WhySoley / Feature Cards (catalog #10) — 6.5/10
 
-**P4 (HIGH) — Process countdown bar: not detectable.**
-The auto-advancing timeline fires correctly (active step confirmed), but the depleting progress bar — which is the distinguishing visual element of catalog #7 over a static list — is not found via DOM query. If it has the wrong class or is hidden behind a scroll-reveal, users never see it.
+Four tilt cards with `perspective: 800px` confirmed. The tilt interaction on desktop is real. The card body copy has been improved (per builder cycle 9 changelog). However the section headline "The difference between a paint job and a lasting finish." wraps awkwardly on desktop (confirmed via DOM text read: no line-break at the serif comma position). The WhySoley section height at 1042px makes it the second-tallest section; on fast scroll a buyer may traverse it without the tilt interaction ever registering.
 
-**P5 (MEDIUM) — PortfolioGallery stagger animation: verify post-click.**
-After clicking INTERIOR filter, the grid reduced to 2 items with no stagger class visible. Either the grid is collapsing incorrectly (all tiles hidden including matching ones) or the stagger class fires and clears so fast Playwright misses it. A slow-motion click test or console.log in the stagger handler would confirm.
+### FounderBlock — 6.0/10
 
----
+Found, h2 "Run by a small crew that actually shows up." Pull-quote confirmed. Section height 783px, opacity 1. This is the site's honesty anchor — it correctly avoids fake names, fake portraits, fake stats. However from a buyer perspective this section delivers almost no differentiating signal: "small crew that actually shows up" is a claim every contractor makes. Without a real founder name, real portrait, or even a specific service area, this section reads as placeholder text dressed in brand palette. It will improve dramatically when real photography and real copy land.
 
-## What improved since cycle 10 (score: 7.0)
+### PortfolioGallery — 6.0/10
 
-- Icon cycling quality: smiley/house/bucket/star/heart paths are distinctly recognisable now. The earlier abstract paintbrush and paint-can were icon-shaped noise; these five are actual pictographs. StrokeWidth 4.5 reads at hero scale. The 1.9s timing feels considered without being slow.
-- NotifySignup: clean addition. Pre-launch framing ("Be the first to book") is honest and useful. Slots correctly between FAQ and Process. Two email inputs on page (form + notify) — structurally sound.
-- PortfolioGallery stagger commit shipped (1bf60e2). Brand-accent left-rail hover and stagger-animation intent are present even if not fully confirmed.
-- Hero atmosphere SVG (drips, particles) confirmed clean of teal residuals.
+6 filter chips confirmed (ALL/INTERIOR/EXTERIOR/COMMERCIAL/CABINET & TRIM/SPECIALTY). 72 tile elements in DOM (9 tiles × ~8 state permutations from React re-render). "Photography forthcoming" overlays are honest. The filter stagger animation (added by Spark cycle 10) adds craft. However this section is 1681px tall — the tallest on the page — and contains zero real photography. A buyer who reaches this section expects proof. 9 CSS swatch tiles with chalk overlays is honest but it is also the section most likely to trigger the "is this even a real company?" doubt. The section needs real work samples more urgently than any other page element.
 
-## What regressed or remained broken since cycle 10
+### FAQ — 7.0/10
 
-- ServicesScrollLock mobile: was broken at 7.0, still broken at 6.8. Despite multiple Refiner passes (d6c2ccf, 0316c52, 37c5f5f), mobile track width resolves to 50% viewport.
-- Scroll-reveal count reduced from 41 stuck → 4 stuck (progress) but 4 remaining failures are significant — they blank out entire sections.
-- No real photography, no real reviews, no address. Pre-launch cap binding (7.5 max). These are user-controlled inputs, not agent failures — noted for context only.
+9 items confirmed, section height 1047px. The 9 FAQ items span both original and scope-clarity additions. The honest scope answers (drywall repair, wallpaper removal, color matching) address real pre-hire concerns. The accordion interaction (aria-expanded, max-height transition) is functional. FAQ is carrying some of the trust work that FounderBlock should be doing.
+
+### LiveEstimate (catalog #6) — 5.5/10
+
+One `id="live-estimate"` confirmed (deduplication fixed). But `typingEls = 0` at audit — no `.cursor` or `.typing` class elements found at measure time. This could be a timing issue (animation between cycles) or could indicate the typing animation is genuinely absent. The section height via Contact context reads as 454px (NotifySignup conflated at scroll position). This needs a targeted recheck but the uncertainty is itself a flag — if the animation is not visible on page load without user interaction, a real buyer never sees it.
+
+### Contact / NotifySignup — 6.5/10
+
+Contact form found with form element present. NotifySignup ("Be the first to book") found, has email input, height 454px. The pre-launch email capture is appropriately honest. The Contact section commitment bullets (added builder cycle 9) add specificity. The LiveEstimate positioned within Contact gives the contact experience a demo quality that most painting sites lack entirely.
+
+### Typography — 5.5/10
+
+**Body font measured at 13px** — below the 14px floor established in multiple Pixel audit cycles. This is a standing hard requirement that has been violated. H1 at 100.8px (Cormorant Garamond) is commanding. H2 at ~80px (DM Sans) is strong. But body copy at 13px / line-height 19.5px (ratio 1.5) is tight. The Spark cycle 8 target was 1.72 line-height; computed value is 1.5. This is a concrete regression.
+
+### Palette / Brand Cohesion — 7.5/10
+
+Rust/ochre/linen/stone/slate palette is internally consistent. Teal purge confirmed. The warm earth palette is genuinely distinctive in the painting contractor space — most competitors use cool grays and corporate blue. This is the site's clearest competitive differentiator from a visual identity standpoint.
+
+### Performance — 8.0/10
+
+Mobile 95/100, Desktop 100/100, FCP 1.3s/0.3s, CLS 0. These are genuinely strong numbers. The site is fast for its animation complexity.
 
 ---
 
-## Score: 6.8
+## What Improved Since 6.8
 
-Down 0.2 from cycle 10's 7.0. The icon improvements and NotifySignup are genuine gains, but the ServicesScrollLock mobile regression (unchanged across 4 Refiner cycles) and the 4 permanently-stuck scroll-reveal elements drag the buyer experience below the prior mark. A real customer on iPhone sees blank voids where WhySoley and FounderBlock should be, and gets a frozen services section. That is not a 7.0 experience.
+1. **SSL stability confirmed**: All 15 cross-viewport samples show correct track travel. This was the cycle 11 top issue and is fully resolved.
+2. **Scroll-reveal**: 0 of 19 elements stuck on both mobile viewports. The IO threshold + rootMargin fixes from refiner cycle 9 are holding.
+3. **Easing cohesion**: 26 instances normalized to canonical cubic-bezier(0.16,1,0.3,1) via Spark cycle 12.
+4. **Teal purge complete**: No teal leakage confirmed.
+5. **Process countdown**: Confirmed mid-cycle scaleX animation.
+
+## What Regressed or Remains Unresolved
+
+1. **Body font 13px**: Measured at 13px, below the 14px floor. Should be 14px minimum.
+2. **LiveEstimate typing elements = 0**: Cursor/typing elements absent at measurement time. Animation state uncertain.
+3. **Hero sub-copy duplication**: "One crew. One contact. Every wall done right." echoes the headline.
+4. **FounderBlock trust gap**: No real name, no real portrait, no service area — section reads as honest placeholder not a trust builder.
+5. **PortfolioGallery without photography**: 1681px tall section with zero real work samples is the biggest conversion liability.
+
+---
+
+## Score
+
+**6.9 / 10.0**
+
+Up from 6.8. Incremental gain reflects SSL fully resolved, scroll-reveal stable, easing cohesion sweep, Process countdown confirmed. Ceiling is held by: body font regression (13px), LiveEstimate animation uncertainty, FounderBlock and Portfolio sections delivering zero real proof of work. The site has the skeleton of something excellent. It cannot score above 7.5 until real photography, a real founder name, and confirmed LiveEstimate animation land — those are the three pre-launch gates.
+
+---
+
+## Top 5 Priorities for Next Cycle
+
+1. **Body font floor: 13px → 14px** — measured regression, hard requirement from CLAUDE.md, affects all body copy globally. Pixel fix.
+
+2. **LiveEstimate typing animation verification** — `typingEls = 0` at audit. Either the cursor class is absent or animation completes before measurement. Add a persistent `.cursor` blink element that remains visible throughout the cycle (not just during typing). Refiner or Builder to verify and fix if absent.
+
+3. **Hero sub-copy deduplication** — "One crew. One contact. Every wall done right." is near-identical to the headline. Replace with a second idea: service area, speed of response, number of rooms done per season (if real), or a commitment statement that the headline doesn't already make.
+
+4. **FounderBlock real signal** — Even without a name or portrait: add a real service area ("Serving [City/Region]"), a real founding year if known, or one specific operational detail that no generic contractor would say. "Owner takes calls before 8pm" is good. Needs one more layer.
+
+5. **PortfolioGallery placeholder density** — At 1681px and zero real photography, this is the site's largest trust deficit. Builder should either reduce the section height to 600-800px pre-launch or add a stronger honest framing message at the top that sets a real expectation ("First job photos incoming — check back [month]").
