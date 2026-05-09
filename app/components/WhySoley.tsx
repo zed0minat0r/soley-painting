@@ -121,7 +121,6 @@ function TiltCard({ card, index }: { card: typeof CARDS[0]; index: number }) {
       }}
     >
       <div
-        className="scroll-reveal"
         style={{
           background: 'var(--color-chalk)',
           border: '1px solid rgba(44,31,22,0.1)',
@@ -233,7 +232,6 @@ function AccordionCard({
 
   return (
     <div
-      className="scroll-reveal"
       style={{
         background: 'var(--color-chalk)',
         border: '1px solid rgba(44,31,22,0.1)',
