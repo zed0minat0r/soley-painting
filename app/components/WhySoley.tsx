@@ -433,7 +433,7 @@ export default function WhySoley() {
           ref={gridRef}
           onMouseMove={handleGridMouseMove}
           onMouseLeave={handleGridMouseLeave}
-          className="why-soley-grid why-soley-desktop"
+          className="why-soley-desktop"
           style={{
             display: 'flex',
             flexWrap: 'wrap',

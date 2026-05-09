@@ -948,6 +948,3 @@ a:focus-visible {
   }
 }
 
-/* ── Pixel cycle 8: 13px font-size floor — font violations fixed inline ────── */
-/* Contact labels, WhySoley accordion card numbers, and Footer social span
-   were bumped directly in their component files (0.6875rem/0.65rem/0.7rem → 0.8125rem). */
