@@ -1,40 +1,83 @@
-# PLAN.md — Builder cycle (2026-05-07 :03 slot)
+# PLAN.md — Builder cycle 3 (2026-05-07 :03 slot — Portfolio Gallery)
 
-## Targets (4)
+## Target
 
-### 1. Contact left-column scroll-reveal void
-- **File:** `app/components/Contact.tsx`
-- **Change:** Drop IntersectionObserver threshold from 0.15 → 0.05. Add a
-  `scroll-reveal-left` stagger class to each item in the left column so the
-  content slides in from the left when the section enters the viewport.
-- **Success:** Left column content visible at all 5 mid-runway scroll positions.
+**NEW SECTION: PortfolioGallery** — filterable project gallery inserted between
+`<FounderBlock />` and `<Process />` in `app/page.tsx`.
 
-### 2. WhySoley mobile accordion (≤640px)
-- **File:** `app/components/WhySoley.tsx`
-- **Change:** Add per-card `isOpen` state tracked in parent via `openId` string.
-  On mobile (≤640px) cards render in a vertical accordion stack: header row is
-  always visible, description body collapses/expands on tap via CSS max-height
-  transition + `aria-expanded` / `aria-controls`. Desktop 3D tilt unchanged. All
-  4 cards, all content kept (Frame B richness rule).
-- **Success:** Tap to expand works at 375px; desktop tilt unaffected.
+## Files
 
-### 3. Navbar logo `white-space: nowrap` at 375px
-- **File:** `app/globals.css`
-- **Change:** Add `white-space: nowrap` to `.nav-logo` inside the ≤640px block.
-- **Success:** "Soley Painting" stays on one line at 375px.
+| File | Change |
+|---|---|
+| `app/components/PortfolioGallery.tsx` | NEW — full component |
+| `app/globals.css` | Add `portfolio-tile`, chip, filter-transition, and painted-swatch CSS (~60 lines) |
+| `app/page.tsx` | Import + insert `<PortfolioGallery />` between FounderBlock and Process |
 
-### 4. Honest founder / human-signal block
-- **File:** `app/components/FounderBlock.tsx` (new) + `app/page.tsx`
-- **Change:** Insert between WhySoley and Process. Contains: placeholder portrait
-  frame (chalk silhouette on umber tile) + two-line honest copy ("Run by a small
-  crew that actually shows up. Founder portrait forthcoming — real photography on
-  the way.") + a short pull-quote attributed only to "the painter behind Soley".
-  NO name, NO "Est. YYYY", NO neighborhood. Umber-background section, contrasts
-  with chalk sections on either side.
-- **Success:** Section renders between WhySoley and Process; build passes.
+## Tiles (9 total, honest generic descriptors, no city/homeowner names)
+
+| # | Category | Descriptor |
+|---|---|---|
+| 1 | INTERIOR | Two-story living room + stairwell · open-plan repaint |
+| 2 | EXTERIOR | Single-family Cape Cod exterior · full repaint cycle |
+| 3 | CABINET & TRIM | Kitchen cabinet refinish · 32 doors + drawer fronts |
+| 4 | COMMERCIAL | Office suite build-out · primer + two-coat finish |
+| 5 | INTERIOR | Primary bedroom + en-suite · accent wall treatment |
+| 6 | EXTERIOR | Colonial revival facade · trim detail + shutters |
+| 7 | SPECIALTY | Garage floor epoxy coating · two-part system |
+| 8 | COMMERCIAL | Retail space repaint · 3,200 sq ft open floor plan |
+| 9 | CABINET & TRIM | Built-in bookcase + crown molding refinish |
+
+## Tile design
+
+- Aspect ratio 4:3 CSS-generated painted-swatch placeholder (SVG abstract brushstroke blob, NO stock photo)
+- Chalk-on-umber painted texture: umber base `#3D2B1F`, abstract painted mark in category swatch color at 30-40% opacity
+- "Photography forthcoming" italic overlay label centered
+- Category chip badge top-left
+- 2-line descriptor bottom
+
+## Filter chips (6)
+
+ALL · INTERIOR · EXTERIOR · COMMERCIAL · CABINET & TRIM · SPECIALTY
+
+- Active: terracotta bg + chalk text
+- Inactive: chalk border + slate text
+- Click updates React state; opacity transition 200ms
+- Empty-state card if filter produces zero tiles
+
+## Section copy
+
+- Eyebrow: "Recent Work"
+- Headline: "A sketch of the work we'll showcase."
+- Sub-line: "First project photography lands as soon as our launch crew wraps their first set of jobs. Until then, here is a preview of the work categories."
+
+## Grid layout
+
+- Desktop (≥1024px): 3 columns
+- Tablet (640-1023px): 2 columns
+- Mobile (<640px): 1 column
+- Filter chips wrap naturally, tap targets ≥ 44px (RULE 4 — no collapse to select)
+
+## Scroll-reveal
+
+Use existing `.scroll-reveal` class + `ScrollRevealObserver` IntersectionObserver pattern (catalog #9). No Framer Motion `whileInView`.
+
+## Success criterion
+
+- `npx next build` passes clean
+- Section renders at `#portfolio` between FounderBlock and Process
+- All 6 filter chips work via React state
+- 9 tiles visible on ALL filter; correct subset on each category chip
+- Empty-state shows for SPECIALTY (1 tile — may appear non-empty; show state handled regardless)
+
+## Forbidden (per AGENT-PLAN.md)
+
+- NO fabricated city/homeowner/project names
+- NO ghost numbers
+- NO matchMedia bail-outs
+- NO Framer Motion whileInView on SSR elements
+- NO touching FounderBlock / Process / ServicesScrollLock internals
+- NO R3F re-introduction
 
 ## Diff scope
-~200 lines new (FounderBlock) + ~60 lines modified (WhySoley, Contact, globals.css, page.tsx).
 
-## Build check
-`npx next build` must pass clean before commit.
+~250 lines new (PortfolioGallery) + ~70 lines CSS + ~3 lines page.tsx.
