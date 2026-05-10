@@ -2,23 +2,17 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 
-/* ── Soley Painting — Cycling Icon Draw Hero
-   Technique: SVG path stroke-dashoffset animation for simple line-drawing icons.
-   Each icon is a simple hand-crafted path that gets "drawn" by a brush sprite.
+/* ── Soley Painting — Roller Stripe Hero
+   Technique: A paint roller sweeps left→right at constant velocity, leaving
+   a horizontal stripe of fresh paint in the current brand color. After the
+   stripe completes, it holds, then fades, then the roller cycles to the next
+   brand color and re-enters from the left.
 
-   Brush tracks the leading edge via path.getPointAtLength(progress * totalLength).
-   Constant velocity via progress = elapsed / STROKE_DURATION_MS (no ease).
+   Phase machine: sweeping → holding → fading → (next color)
+   4 brand colors: rust → ochre → stone-deeper → umber-lighter → back to rust
 
-   Phase machine: painting → holding → fading → (next icon)
-   5 icons, painter-themed, pure line drawings:
-     0. Smiley face    — face circle + 2 eye circles (eyes at 28% from top) + smile Q arc
-     1. House          — walls+roof outline + door + window square
-     2. Paint bucket   — trapezoid body + rim + handle arc + drip
-     3. Star           — 5-point single-stroke star
-     4. Heart          — smooth cubic Bézier lobes
-
-   Brand color per cycle (rust/ochre alternate to keep warm palette only).
-   ref: Scout Section 5 SVG stroke-draw + Site I (Corentin Bernadou focal centerpiece)
+   Constant velocity via rollerX = elapsed / SWEEP_DURATION_MS (no ease, no lerp).
+   ref: Site A (Arch Painting) — cinematic, physical-craft motion as brand statement
 */
 
 // ── Constant-velocity particle drift data ─────────────────────────────────
@@ -46,272 +40,169 @@ const PARTICLES: Particle[] = [
   { id:9, x:70, y:55, r:2.5, color:'#BF5B38', opacity:0.16, dur:17, delay:2.0 },
 ]
 
-// ── Brand colors: Drop Cloth & Rust palette — NO teal ─────────────────────
-const BRAND_COLORS = [
-  '#BF5B38',  // rust — primary
-  '#B8884A',  // ochre — accent
-  '#BF5B38',  // rust — repeat
-  '#B8884A',  // ochre
-  '#BF5B38',  // rust
+// ── Brand color cycle: rust → ochre → stone-deeper → umber-lighter ────────
+const STRIPE_COLORS = [
+  { hex: '#BF5B38', name: 'rust' },
+  { hex: '#B8884A', name: 'ochre' },
+  { hex: '#5C4838', name: 'stone' },
+  { hex: '#3D2A1E', name: 'umber' },
 ]
 
-// ── 5 painter icons — viewBox 0 0 280 200 ──────────────────────────────────
-// Redesigned for instant readability: 1-3 paths max, icon legible within 1-2s.
-// Strategy: single continuous paths that read as complete silhouettes early.
-// strokeWidth 4.5 for visibility on small canvas.
+// ── ViewBox constants — matches current 16:7 aspect canvas ────────────────
+const VB_W = 560   // viewBox width
+const VB_H = 200   // viewBox height
 
-interface IconDef {
-  label: string
-  paths: string[]   // each string is one <path> d — drawn sequentially
-}
+// Stripe geometry
+const STRIPE_Y    = 84    // top of stripe band
+const STRIPE_H    = 32    // height of stripe band (roller kiss-line center = STRIPE_Y + STRIPE_H/2)
+const STRIPE_CX   = STRIPE_Y + STRIPE_H / 2  // y-center of stripe = 100
 
-const ICONS: IconDef[] = [
-  {
-    // 0 — Smiley face: face circle → left eye → right eye → smile arc
-    // Eyes repositioned to ~28% from top of face for natural proportion.
-    // Face center at (140, 105), radius 58: top=47, bottom=163.
-    // Eyes at y=80 (28% from top). Smile Q curve in lower third y=120→148.
-    label: 'smiley face',
-    paths: [
-      // Face circle — full loop, center (140,105) radius 58
-      'M 140 47 a 58 58 0 1 0 0.01 0 Z',
-      // Left eye — filled circle, center (115, 82), radius 7
-      'M 115 75 a 7 7 0 1 0 0.01 0 Z',
-      // Right eye — filled circle, center (165, 82), radius 7
-      'M 165 75 a 7 7 0 1 0 0.01 0 Z',
-      // Smile arc — clean Q Bézier from left cheek to right, apex dips to y=148
-      'M 108 122 Q 140 152 172 122',
-    ],
-  },
-  {
-    // 1 — House: outer walls+roof → door → window
-    // Walls span x80-200, floor at y=168, roof apex at y=62.
-    // Door centered at x=120-155, floor to y=140.
-    // Window: small square left side at x=90-110, y=125-145.
-    label: 'house',
-    paths: [
-      // Outer shell — left wall up → roof apex → right wall down → floor → close
-      'M 80 168 L 80 120 L 140 62 L 200 120 L 200 168 L 80 168 Z',
-      // Door — right-of-center open-top rectangle, 3 sides (floor is base line)
-      'M 128 168 L 128 138 L 158 138 L 158 168',
-      // Window — small square on left side of facade
-      'M 88 128 L 88 148 L 108 148 L 108 128 Z',
-    ],
-  },
-  {
-    // 2 — Paint bucket: painter's most recognizable tool
-    // Bucket body: trapezoid (wider at top). Handle arc over top. Drip at bottom.
-    // Bucket: top x=100-180 y=88, bottom x=108-172 y=162. Handle arc over top center.
-    label: 'paint bucket',
-    paths: [
-      // Bucket body — trapezoid outline (top wider, bottom slightly narrower)
-      'M 100 88 L 180 88 L 172 162 L 108 162 Z',
-      // Bucket rim — thick top edge stroke
-      'M 96 88 L 184 88',
-      // Handle — arc from left rim to right rim over top
-      'M 110 88 Q 140 52 170 88',
-      // Paint drip from bottom center
-      'M 140 162 Q 140 172 143 178 Q 146 185 140 188 Q 134 185 137 178 Q 140 172 140 162',
-    ],
-  },
-  {
-    // 3 — Star: clean 5-pointed single-stroke star
-    // Center (140,100), outer radius 68, inner radius 28.
-    // Points calculated: top tip at (140,32). Clock-skip-one pattern.
-    label: 'star',
-    paths: [
-      // 5-point star, one closed continuous path from top
-      'M 140 32 L 153 74 L 198 74 L 163 98 L 176 140 L 140 116 L 104 140 L 117 98 L 82 74 L 127 74 Z',
-    ],
-  },
-  {
-    // 4 — Heart: single closed path, smooth cubic Béziers on both lobes
-    // Center (140,100). Bottom tip at y=162. Lobe tops at y=72.
-    label: 'heart',
-    paths: [
-      // Heart: bottom tip → up-left lobe → top → down-right lobe → back to tip
-      'M 140 162 C 78 128 66 72 100 66 C 116 63 132 74 140 90 C 148 74 164 63 180 66 C 214 72 202 128 140 162 Z',
-    ],
-  },
-]
+// Roller geometry (in viewBox units)
+const ROLLER_W    = 80    // cylinder body width
+const ROLLER_H    = 26    // cylinder body height
+const ROLLER_CY   = STRIPE_CX  // roller rides on stripe center line
 
-const STROKE_DURATION_MS = 1900  // deliberate constant-velocity draw (~1.9s per path)
-const HOLD_DURATION_MS   = 1500  // hold after complete
-const FADE_DURATION_MS   = 600   // fade out
+// Roller handle — rises up-right from cylinder center
+// Yoke attaches at right center of cylinder
+const YOKE_X_OFF  = ROLLER_W / 2   // x offset from roller center to yoke attach
+const YOKE_Y_OFF  = 0               // at cylinder center
+const HANDLE_DX   = 28              // handle extends dx to the right
+const HANDLE_DY   = -54             // and dy upward
+const GRIP_W      = 28              // grip rectangle width
+const GRIP_H      = 7               // grip rectangle height
 
-type Phase = 'painting' | 'holding' | 'fading' | 'idle'
+// Timing
+const SWEEP_DURATION_MS = 4000   // roller crosses full canvas
+const HOLD_DURATION_MS  = 2200   // stripe holds after roller exits
+const FADE_DURATION_MS  = 500    // fade out
 
-interface PathState {
-  dashOffset: number  // current dashoffset (totalLen → 0)
-  totalLen: number
-}
+// The roller starts at x = -(ROLLER_W/2) - 20 (off-screen left)
+// and ends at x = VB_W + ROLLER_W/2 + 20 (off-screen right)
+const ROLLER_START_X = -(ROLLER_W / 2) - 20
+const ROLLER_END_X   = VB_W + ROLLER_W / 2 + 20
+const ROLLER_TRAVEL  = ROLLER_END_X - ROLLER_START_X
+
+type Phase = 'sweeping' | 'holding' | 'fading' | 'idle'
 
 export default function Hero3D() {
-  const pathRefs       = useRef<(SVGPathElement | null)[]>([])
-  const rafRef         = useRef<number>(0)
-  const timeoutRef     = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const phaseRef       = useRef<Phase>('idle')
-  const iconIdxRef     = useRef(0)
-  const pathIdxRef     = useRef(0)  // which path within current icon we're drawing
-  const startTimeRef   = useRef(0)
+  const rafRef      = useRef<number>(0)
+  const timeoutRef  = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const phaseRef    = useRef<Phase>('idle')
+  const startRef    = useRef<number>(0)
+  const colorIdxRef = useRef<number>(0)
 
-  const [iconIdx, setIconIdx]       = useState(-1)
-  const [pathIdx, setPathIdx]       = useState(0)      // which path is currently drawing
-  const [drawnPaths, setDrawnPaths] = useState<boolean[]>([])  // paths fully drawn
-  const [color, setColor]           = useState(BRAND_COLORS[0])
-  const [svgOpacity, setSvgOpacity] = useState(1)
-  const [brushX, setBrushX]         = useState(-100)
-  const [brushY, setBrushY]         = useState(-100)
-  const [brushAngle, setBrushAngle] = useState(0)
-  const [pathStates, setPathStates] = useState<PathState[]>([])
+  // Animated state
+  const [colorIdx, setColorIdx]     = useState(0)
+  const [rollerX, setRollerX]       = useState(ROLLER_START_X)
+  const [stripeWidth, setStripeWidth] = useState(0)
+  const [canvasOpacity, setCanvasOpacity] = useState(1)
 
-  // Measure all paths and set initial dashoffset = totalLength (invisible)
-  const measurePaths = useCallback((iIdx: number) => {
-    const icon = ICONS[iIdx]
-    const states: PathState[] = icon.paths.map((_, pi) => {
-      const el = pathRefs.current[pi]
-      if (!el) return { dashOffset: 1000, totalLen: 1000 }
-      const len = el.getTotalLength()
-      return { dashOffset: len, totalLen: len }
-    })
-    return states
-  }, [])
+  // Derived
+  const color = STRIPE_COLORS[colorIdx].hex
 
-  const startIconCycle = useCallback((iIdx: number) => {
-    const normIdx = iIdx % ICONS.length
-    iconIdxRef.current = normIdx
-    pathIdxRef.current = 0
-    phaseRef.current = 'painting'
+  const startCycle = useCallback((idx: number) => {
+    const normIdx = idx % STRIPE_COLORS.length
+    colorIdxRef.current = normIdx
+    phaseRef.current = 'sweeping'
+    setColorIdx(normIdx)
+    setRollerX(ROLLER_START_X)
+    setStripeWidth(0)
+    setCanvasOpacity(1)
+    startRef.current = performance.now()
 
-    const col = BRAND_COLORS[normIdx % BRAND_COLORS.length]
-    setIconIdx(normIdx)
-    setPathIdx(0)
-    setColor(col)
-    setSvgOpacity(1)
-    // Mark all paths as un-drawn
-    setDrawnPaths(ICONS[normIdx].paths.map(() => false))
-  }, [])
+    const sweep = (now: number) => {
+      if (phaseRef.current !== 'sweeping') return
+      const elapsed  = now - startRef.current
+      const progress = Math.min(elapsed / SWEEP_DURATION_MS, 1)
 
-  // Draw a single path (pathIdx) within current icon
-  const drawPath = useCallback((iIdx: number, pIdx: number, onComplete: () => void) => {
-    const el = pathRefs.current[pIdx]
-    if (!el) { onComplete(); return }
+      // Constant velocity: rollerX grows linearly
+      const rx = ROLLER_START_X + progress * ROLLER_TRAVEL
+      setRollerX(rx)
 
-    const totalLen = el.getTotalLength()
-    startTimeRef.current = performance.now()
-
-    const loop = (now: number) => {
-      if (phaseRef.current !== 'painting') return
-      const elapsed  = now - startTimeRef.current
-      const progress = Math.min(elapsed / STROKE_DURATION_MS, 1)
-
-      const drawn    = progress * totalLen
-      const remaining = totalLen - drawn
-
-      // Update dashoffset for this path
-      setPathStates(prev => {
-        const next = [...prev]
-        next[pIdx] = { dashOffset: remaining, totalLen }
-        return next
-      })
-
-      // Brush position at leading edge
-      try {
-        const pt = el.getPointAtLength(drawn)
-        // Angle: tangent from previous point
-        const ptPrev = el.getPointAtLength(Math.max(drawn - 3, 0))
-        const dx = pt.x - ptPrev.x
-        const dy = pt.y - ptPrev.y
-        const angle = Math.atan2(dy, dx) * (180 / Math.PI)
-        setBrushX(pt.x)
-        setBrushY(pt.y)
-        setBrushAngle(angle)
-      } catch { /* getBBox/getPointAtLength can throw before layout */ }
+      // Stripe width: grows from left edge (x=0) to wherever the roller
+      // center currently is, clamped to VB_W
+      const leftEdge  = 0
+      const stripeEnd = Math.max(0, rx - ROLLER_W / 2)  // stripe trails the roller's left face
+      const sw = Math.min(Math.max(stripeEnd - leftEdge, 0), VB_W)
+      setStripeWidth(sw)
 
       if (progress < 1) {
-        rafRef.current = requestAnimationFrame(loop)
+        rafRef.current = requestAnimationFrame(sweep)
       } else {
-        // Path fully drawn
-        setDrawnPaths(prev => {
-          const next = [...prev]
-          next[pIdx] = true
-          return next
-        })
-        onComplete()
+        // Roller has exited — ensure stripe is full width
+        setStripeWidth(VB_W)
+        phaseRef.current = 'holding'
+        timeoutRef.current = setTimeout(() => {
+          phaseRef.current = 'fading'
+          const fadeStart = performance.now()
+          const fade = (n: number) => {
+            const t = Math.min((n - fadeStart) / FADE_DURATION_MS, 1)
+            setCanvasOpacity(1 - t)
+            if (t < 1) {
+              rafRef.current = requestAnimationFrame(fade)
+            } else {
+              setCanvasOpacity(0)
+              phaseRef.current = 'idle'
+              timeoutRef.current = setTimeout(() => {
+                startCycle(normIdx + 1)
+              }, 120)
+            }
+          }
+          rafRef.current = requestAnimationFrame(fade)
+        }, HOLD_DURATION_MS)
       }
     }
 
-    rafRef.current = requestAnimationFrame(loop)
+    rafRef.current = requestAnimationFrame(sweep)
   }, [])
 
-  const drawNextPath = useCallback((iIdx: number, pIdx: number) => {
-    const icon = ICONS[iIdx % ICONS.length]
-    if (pIdx >= icon.paths.length) {
-      // All paths drawn — hold then fade
-      phaseRef.current = 'holding'
-      timeoutRef.current = setTimeout(() => {
-        phaseRef.current = 'fading'
-        const fadeStart = performance.now()
-        const fadeLoop = (now: number) => {
-          const t = Math.min((now - fadeStart) / FADE_DURATION_MS, 1)
-          setSvgOpacity(1 - t)
-          if (t < 1) {
-            rafRef.current = requestAnimationFrame(fadeLoop)
-          } else {
-            setSvgOpacity(0)
-            setBrushX(-100)
-            setBrushY(-100)
-            timeoutRef.current = setTimeout(() => {
-              startIconCycle(iIdx + 1)
-            }, 80)
-          }
-        }
-        rafRef.current = requestAnimationFrame(fadeLoop)
-      }, HOLD_DURATION_MS)
-      return
-    }
-
-    setPathIdx(pIdx)
-    pathIdxRef.current = pIdx
-
-    drawPath(iIdx % ICONS.length, pIdx, () => {
-      drawNextPath(iIdx, pIdx + 1)
-    })
-  }, [drawPath, startIconCycle])
-
-  // When iconIdx changes (after startIconCycle), kick off drawing
-  // Note: phaseRef is set to 'painting' inside startIconCycle BEFORE setIconIdx,
-  // so the guard is redundant — and would block the initial 0 cycle if iconIdx
-  // started at 0 (React skips same-value setState). We now start at -1 so the
-  // -1 → 0 transition always fires. We skip the guard and rely on iconIdx >= 0.
+  // Boot
   useEffect(() => {
-    if (iconIdx < 0) return
-    // Give React a frame to mount the new paths
-    const t = setTimeout(() => {
-      const states = measurePaths(iconIdx)
-      setPathStates(states)
-      // Give DOM another frame to apply dasharray/dashoffset before animating
-      requestAnimationFrame(() => {
-        drawNextPath(iconIdx, 0)
-      })
-    }, 60)
-    return () => clearTimeout(t)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [iconIdx])
-
-  // Boot sequence
-  useEffect(() => {
-    const t = setTimeout(() => {
-      startIconCycle(0)
-    }, 400)
+    const t = setTimeout(() => startCycle(0), 400)
     return () => {
       clearTimeout(t)
       cancelAnimationFrame(rafRef.current)
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
-  }, [startIconCycle])
+  }, [startCycle])
 
-  const currentIcon = iconIdx >= 0 ? ICONS[iconIdx] : ICONS[0]
+  // Roller center X in viewBox coords
+  const rx = rollerX
+
+  // Roller body rect coords
+  const rollerLeft  = rx - ROLLER_W / 2
+  const rollerTop   = ROLLER_CY - ROLLER_H / 2
+
+  // Yoke attach point (right side of cylinder center)
+  const yokeX = rx + YOKE_X_OFF
+  const yokeY = ROLLER_CY + YOKE_Y_OFF
+
+  // Handle tip
+  const handleTipX = yokeX + HANDLE_DX
+  const handleTipY = yokeY + HANDLE_DY
+
+  // Grip center
+  const gripCX = handleTipX
+  const gripCY = handleTipY
+
+  // Subtle imperfect stripe edges: very small wave via SVG path instead of plain rect
+  // Top edge: slight saw-tooth. Bottom edge: slight opposite wave.
+  // Implemented as a clipPath + full-width rect.
+  const stripeTopWave = (sw: number) => {
+    if (sw <= 0) return ''
+    // Simple: flat top with tiny step variation
+    const steps = Math.floor(sw / 14)
+    let d = `M 0 ${STRIPE_Y}`
+    for (let i = 0; i <= steps; i++) {
+      const x = Math.min(i * 14, sw)
+      const jitter = (i % 2 === 0) ? -0.8 : 0.8
+      d += ` L ${x} ${STRIPE_Y + jitter}`
+    }
+    d += ` L ${sw} ${STRIPE_Y + STRIPE_H}`
+    d += ` L 0 ${STRIPE_Y + STRIPE_H}`
+    d += ' Z'
+    return d
+  }
 
   return (
     <section
@@ -362,7 +253,6 @@ export default function Hero3D() {
         <line x1="28" y1="72" x2="20" y2="180" stroke="#A8987C" strokeWidth="0.8" opacity="0.35" />
         <line x1="65" y1="68" x2="55" y2="180" stroke="#A8987C" strokeWidth="0.8" opacity="0.35" />
         <line x1="96" y1="65" x2="88" y2="180" stroke="#A8987C" strokeWidth="0.8" opacity="0.3" />
-        {/* Paint spots on cloth — rust and ochre only */}
         <ellipse cx="38" cy="140" rx="12" ry="7" fill="#BF5B38" opacity="0.22" transform="rotate(-8,38,140)" />
         <ellipse cx="75" cy="160" rx="8" ry="5" fill="#B8884A" opacity="0.18" transform="rotate(5,75,160)" />
       </svg>
@@ -440,7 +330,7 @@ export default function Hero3D() {
         />
       ))}
 
-      {/* Ambient glow — constrained to viewport width */}
+      {/* Ambient glow */}
       <div
         aria-hidden
         style={{
@@ -473,9 +363,7 @@ export default function Hero3D() {
         Soley Painting
       </p>
 
-      {/* H1 — BUG-055 fix: glow applied inline to guarantee it's never stripped
-           by CSS bundling/purge. The .glow-hero class is kept as a hook for
-           QA selectors but the text-shadow is owned by the inline style.      */}
+      {/* H1 */}
       <h1
         className="glow-hero"
         style={{
@@ -511,7 +399,7 @@ export default function Hero3D() {
         Owner-operated. Same crew start to finish. Free walkthrough, written quote in 24 hours.
       </p>
 
-      {/* ── ICON DRAW CENTERPIECE ── */}
+      {/* ── ROLLER STRIPE CENTERPIECE ── */}
       <div
         className="hero-canvas-wrap"
         style={{
@@ -525,15 +413,15 @@ export default function Hero3D() {
             '0 32px 80px rgba(0,0,0,0.55), 0 8px 24px rgba(0,0,0,0.3)',
         }}
       >
-        {/* Subtle paper texture wash */}
+        {/* Linen wall surface texture wash */}
         <div
           aria-hidden
           style={{
             position: 'absolute',
             inset: 0,
             background: `
-              radial-gradient(ellipse at 15% 25%, rgba(191,91,56,0.05) 0%, transparent 55%),
-              radial-gradient(ellipse at 85% 75%, rgba(184,136,74,0.04) 0%, transparent 55%)
+              radial-gradient(ellipse at 15% 25%, rgba(191,91,56,0.04) 0%, transparent 55%),
+              radial-gradient(ellipse at 85% 75%, rgba(184,136,74,0.03) 0%, transparent 55%)
             `,
             pointerEvents: 'none',
             zIndex: 1,
@@ -541,7 +429,7 @@ export default function Hero3D() {
         />
 
         <svg
-          viewBox="0 0 280 200"
+          viewBox={`0 0 ${VB_W} ${VB_H}`}
           preserveAspectRatio="xMidYMid meet"
           width="100%"
           height="100%"
@@ -549,123 +437,214 @@ export default function Hero3D() {
             display: 'block',
             position: 'relative',
             zIndex: 2,
-            opacity: svgOpacity,
-            maxWidth: '100%',
-            height: 'auto',
+            opacity: canvasOpacity,
           }}
-          aria-label={currentIcon.label}
+          aria-label="Paint roller applying a stripe of color"
         >
-          {/* Previously-drawn paths (fully revealed, static) */}
-          {currentIcon.paths.map((d, pi) => {
-            if (pi >= pathIdx && !(drawnPaths[pi])) return null
-            const state = pathStates[pi]
-            if (!state) return null
-            return (
-              <path
-                key={`static-${pi}`}
-                d={d}
-                fill="none"
-                stroke={color}
-                strokeWidth={4.5}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeDasharray={state.totalLen}
-                strokeDashoffset={drawnPaths[pi] ? 0 : state.dashOffset}
-              />
-            )
-          })}
+          <defs>
+            {/* Stripe gradient — slightly darker at edges, lighter center (wet paint look) */}
+            <linearGradient id="stripe-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor={color} stopOpacity="0.82" />
+              <stop offset="30%"  stopColor={color} stopOpacity="0.97" />
+              <stop offset="60%"  stopColor={color} stopOpacity="1.0"  />
+              <stop offset="85%"  stopColor={color} stopOpacity="0.93" />
+              <stop offset="100%" stopColor={color} stopOpacity="0.75" />
+            </linearGradient>
 
-          {/* Active drawing paths — measured via ref */}
-          {currentIcon.paths.map((d, pi) => (
-            <path
-              key={`live-${pi}`}
-              ref={el => { pathRefs.current[pi] = el }}
-              d={d}
-              fill="none"
-              stroke={color}
-              strokeWidth={4.5}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeDasharray={pathStates[pi]?.totalLen ?? 10000}
-              strokeDashoffset={pathStates[pi]?.dashOffset ?? (pathStates[pi]?.totalLen ?? 10000)}
-              style={{ visibility: pi < pathIdx || drawnPaths[pi] ? 'hidden' : 'visible' }}
+            {/* Wet sheen on top surface of stripe */}
+            <linearGradient id="stripe-sheen" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stopColor="#ffffff" stopOpacity="0.18" />
+              <stop offset="40%" stopColor="#ffffff" stopOpacity="0.04" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+            </linearGradient>
+
+            {/* Roller cylinder gradient — dry painter-tan surface with paint saturation on leading edge */}
+            <linearGradient id="roller-body" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"   stopColor="#C8B89A" stopOpacity="0.95" />
+              <stop offset="60%"  stopColor="#D4C8AE" stopOpacity="1.0"  />
+              <stop offset="85%"  stopColor={color}   stopOpacity="0.65" />
+              <stop offset="100%" stopColor={color}   stopOpacity="0.90" />
+            </linearGradient>
+
+            {/* Roller end caps */}
+            <radialGradient id="roller-cap-l" cx="30%" cy="40%" r="70%">
+              <stop offset="0%"   stopColor="#E0D4BE" />
+              <stop offset="100%" stopColor="#A89A80" />
+            </radialGradient>
+            <radialGradient id="roller-cap-r" cx="70%" cy="40%" r="70%">
+              <stop offset="0%"   stopColor={color} stopOpacity="0.9" />
+              <stop offset="100%" stopColor={color} stopOpacity="0.6" />
+            </radialGradient>
+
+            {/* Clip path for imperfect stripe edges */}
+            <clipPath id="stripe-clip">
+              {stripeWidth > 0 && (
+                <path d={stripeTopWave(stripeWidth)} />
+              )}
+            </clipPath>
+          </defs>
+
+          {/* Linen wall — subtle horizontal grain lines to suggest surface */}
+          {[30, 60, 90, 120, 150, 170].map((y, i) => (
+            <line
+              key={i}
+              x1="0" y1={y} x2={VB_W} y2={y}
+              stroke="#E0D5C5"
+              strokeWidth="0.4"
+              opacity={0.35}
             />
           ))}
 
-          {/* ── Paintbrush sprite — tracks leading edge (50% smaller than original) ── */}
-          {brushX > -50 && (
-            <g
-              transform={`translate(${brushX}, ${brushY}) rotate(${brushAngle})`}
-              style={{ pointerEvents: 'none' }}
-            >
-              {/* Bristles — compact fan behind tip */}
-              {[-3, -1.5, 0, 1.5, 3].map((offset, i) => (
-                <line
-                  key={i}
-                  x1={-2}
-                  y1={offset * 0.5}
-                  x2={-10 - (i % 3) * 1.5}
-                  y2={offset * 0.2}
-                  stroke={color}
-                  strokeWidth={0.9}
-                  strokeLinecap="round"
-                  opacity={0.82}
-                />
-              ))}
-              {/* Ferrule — narrow */}
+          {/* ── PAINT STRIPE ── */}
+          {stripeWidth > 0 && (
+            <g clipPath="url(#stripe-clip)">
+              {/* Base paint color */}
               <rect
-                x={-3}
-                y={-3}
-                width={6}
-                height={6}
-                rx={1.5}
-                fill="#C8B8A2"
-                stroke="#A8947E"
-                strokeWidth={0.4}
+                x={0}
+                y={STRIPE_Y}
+                width={stripeWidth}
+                height={STRIPE_H}
+                fill="url(#stripe-grad)"
               />
-              {/* Handle — slender */}
+              {/* Wet sheen highlight on top third */}
               <rect
-                x={3}
-                y={-2.5}
-                width={22}
-                height={5}
-                rx={2.5}
-                fill="#3D2314"
-              />
-              {/* End cap */}
-              <circle cx={26} cy={0} r={2.5} fill="#3D2314" />
-              {/* Wet paint bead at bristle tip */}
-              <circle
-                cx={-10}
-                cy={0}
-                r={1.8}
-                fill={color}
-                opacity={0.92}
+                x={0}
+                y={STRIPE_Y}
+                width={stripeWidth}
+                height={STRIPE_H * 0.45}
+                fill="url(#stripe-sheen)"
               />
             </g>
           )}
-        </svg>
 
-        {/* Icon label — small caption at bottom-right */}
-        <span
-          aria-hidden
-          style={{
-            position: 'absolute',
-            bottom: '0.625rem',
-            right: '0.75rem',
-            fontFamily: 'var(--font-body)',
-            fontSize: '0.875rem',
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            color: 'rgba(34, 24, 16, 0.35)',
-            zIndex: 3,
-          }}
-        >
-          {Math.max(iconIdx + 1, 1)} / {ICONS.length}
-        </span>
+          {/* ── PAINT ROLLER ── */}
+          <g>
+            {/* Handle — the pole going from yoke up to grip */}
+            <line
+              x1={yokeX}
+              y1={yokeY}
+              x2={handleTipX}
+              y2={handleTipY}
+              stroke="#3D2A1E"
+              strokeWidth="4"
+              strokeLinecap="round"
+            />
+
+            {/* Yoke bracket — small L connecting handle to roller left-end */}
+            {/* Yoke goes from handle base down and left to roller axle */}
+            <line
+              x1={yokeX}
+              y1={yokeY}
+              x2={rx - ROLLER_W / 2 + 6}
+              y2={ROLLER_CY}
+              stroke="#5C4030"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+            />
+            {/* Yoke right arm to roller axle right */}
+            <line
+              x1={yokeX}
+              y1={yokeY}
+              x2={rx + ROLLER_W / 2 - 6}
+              y2={ROLLER_CY}
+              stroke="#5C4030"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+            />
+
+            {/* Roller cylinder body */}
+            <rect
+              x={rollerLeft}
+              y={rollerTop}
+              width={ROLLER_W}
+              height={ROLLER_H}
+              rx="4"
+              fill="url(#roller-body)"
+            />
+
+            {/* Roller texture lines (nap texture on the cylinder) */}
+            {Array.from({ length: 6 }, (_, i) => {
+              const lx = rollerLeft + 8 + i * 12
+              return (
+                <line
+                  key={i}
+                  x1={lx} y1={rollerTop + 2}
+                  x2={lx} y2={rollerTop + ROLLER_H - 2}
+                  stroke="#A89880"
+                  strokeWidth="0.7"
+                  opacity="0.4"
+                />
+              )
+            })}
+
+            {/* Left end cap */}
+            <ellipse
+              cx={rollerLeft}
+              cy={ROLLER_CY}
+              rx={4}
+              ry={ROLLER_H / 2}
+              fill="url(#roller-cap-l)"
+            />
+
+            {/* Right end cap — paint-saturated side */}
+            <ellipse
+              cx={rollerLeft + ROLLER_W}
+              cy={ROLLER_CY}
+              rx={4}
+              ry={ROLLER_H / 2}
+              fill="url(#roller-cap-r)"
+            />
+
+            {/* Paint bead below roller — thin film at application line */}
+            {stripeWidth > 0 && (
+              <ellipse
+                cx={rx - ROLLER_W / 2 + 2}
+                cy={STRIPE_Y + STRIPE_H - 1}
+                rx={6}
+                ry={1.5}
+                fill={color}
+                opacity={0.55}
+              />
+            )}
+
+            {/* Grip — rectangular handle end with slight taper */}
+            <rect
+              x={gripCX - GRIP_W / 2}
+              y={gripCY - GRIP_H / 2}
+              width={GRIP_W}
+              height={GRIP_H}
+              rx={GRIP_H / 2}
+              fill="#2A1A0E"
+            />
+            {/* Grip highlight ring */}
+            <rect
+              x={gripCX - GRIP_W / 2 + 4}
+              y={gripCY - 1.5}
+              width={8}
+              height={3}
+              rx={1.5}
+              fill="#6A5040"
+              opacity={0.6}
+            />
+          </g>
+
+          {/* Color name label — bottom right */}
+          <text
+            x={VB_W - 8}
+            y={VB_H - 8}
+            textAnchor="end"
+            fontFamily="var(--font-body), sans-serif"
+            fontSize="10"
+            letterSpacing="2"
+            fill="rgba(34,24,16,0.3)"
+            style={{ textTransform: 'uppercase' }}
+          >
+            {STRIPE_COLORS[colorIdx].name}  {colorIdx + 1}/{STRIPE_COLORS.length}
+          </text>
+        </svg>
       </div>
 
-      {/* Body copy — BUG-055 fix: glow-sub also inline to match h1 treatment */}
+      {/* Body copy */}
       <p
         className="glow-sub"
         style={{
@@ -703,7 +682,7 @@ export default function Hero3D() {
         style={{
           marginTop: '3rem',
           paddingTop: '2rem',
-          borderTop: '1px solid rgba(244, 237, 227, 0.12)',
+          borderTop: '1px solid rgba(244, 237, 237, 0.12)',
           display: 'flex',
           gap: '3rem',
           flexWrap: 'wrap',
