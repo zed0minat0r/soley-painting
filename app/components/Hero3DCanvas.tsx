@@ -32,52 +32,52 @@ function Paintbrush() {
   const paintBaseRef = useRef<THREE.MeshStandardMaterial>(null!)
   const paintDripRef = useRef<THREE.MeshStandardMaterial>(null!)
 
-  // Bristle tuft profile — a trapezoid wider at the tip (top) than at the
-  // ferrule (bottom), matching how flat painter brushes splay outward.
-  // Coordinates: x = flat-face width, y = height along the brush.
+  // Bristle tuft profile — big house-painter's brush. Wide at the base (matches
+  // ferrule) and splays even wider at the tip. Coordinates: x = flat-face
+  // width, y = height along the brush.
   const bristleShape = useMemo(() => {
     const shape = new THREE.Shape()
-    const baseHalf = 0.32   // half-width where bristles enter the ferrule
-    const tipHalf  = 0.46   // half-width at the chisel tip (splayed)
-    const height   = 0.95
-    // Slightly rounded shoulders at the tip corners for a softer chisel edge
+    const baseHalf = 0.72   // half-width where bristles enter the ferrule
+    const tipHalf  = 0.85   // half-width at the chisel tip (splayed)
+    const height   = 1.05
+    // Slightly rounded shoulders at the tip corners
     shape.moveTo(-baseHalf, 0)
     shape.lineTo(baseHalf, 0)
-    shape.lineTo(tipHalf, height - 0.08)
-    shape.quadraticCurveTo(tipHalf, height, tipHalf - 0.05, height)
-    shape.lineTo(-tipHalf + 0.05, height)
-    shape.quadraticCurveTo(-tipHalf, height, -tipHalf, height - 0.08)
+    shape.lineTo(tipHalf, height - 0.10)
+    shape.quadraticCurveTo(tipHalf, height, tipHalf - 0.07, height)
+    shape.lineTo(-tipHalf + 0.07, height)
+    shape.quadraticCurveTo(-tipHalf, height, -tipHalf, height - 0.10)
     shape.closePath()
     return shape
   }, [])
 
   // Paint strip along the chisel edge — slightly wider than the bristles
-  // (paint creeps over the edges), short height.
+  // (paint creeps over the edges), thick wet bead.
   const paintEdgeShape = useMemo(() => {
     const shape = new THREE.Shape()
-    const halfW = 0.50
-    const height = 0.13
-    shape.moveTo(-halfW + 0.04, 0)
-    shape.quadraticCurveTo(-halfW, 0, -halfW, 0.04)
-    shape.lineTo(-halfW, height - 0.04)
-    shape.quadraticCurveTo(-halfW, height, -halfW + 0.04, height)
-    shape.lineTo(halfW - 0.04, height)
-    shape.quadraticCurveTo(halfW, height, halfW, height - 0.04)
-    shape.lineTo(halfW, 0.04)
-    shape.quadraticCurveTo(halfW, 0, halfW - 0.04, 0)
+    const halfW = 0.92
+    const height = 0.16
+    shape.moveTo(-halfW + 0.05, 0)
+    shape.quadraticCurveTo(-halfW, 0, -halfW, 0.05)
+    shape.lineTo(-halfW, height - 0.05)
+    shape.quadraticCurveTo(-halfW, height, -halfW + 0.05, height)
+    shape.lineTo(halfW - 0.05, height)
+    shape.quadraticCurveTo(halfW, height, halfW, height - 0.05)
+    shape.lineTo(halfW, 0.05)
+    shape.quadraticCurveTo(halfW, 0, halfW - 0.05, 0)
     shape.closePath()
     return shape
   }, [])
 
-  // Visible bristle "lines" — vertical thin strips drawn on the broad face of
-  // the tuft, just to communicate "this is made of bristles" when seen face-on.
+  // Vertical bristle striations — many thin lines on the broad face so the
+  // tuft reads as densely packed bristles
   const bristleLines = useMemo(() => {
     const lines: { x: number; height: number }[] = []
-    const N = 11
+    const N = 22
     for (let i = 0; i < N; i++) {
       const tx = i / (N - 1) - 0.5
-      // Lines splay outward toward the tip — base width 0.55, tip width 0.85
-      lines.push({ x: tx * 0.55, height: 0.90 })
+      // Lines splay outward toward the tip — base width 1.35, tip width 1.62
+      lines.push({ x: tx * 1.35, height: 1.0 })
     }
     return lines
   }, [])
@@ -108,89 +108,111 @@ function Paintbrush() {
     }
   })
 
-  // Y coordinates (brush oriented bristles UP along Y axis):
-  //  Butt cap:        y = -1.10
-  //  Handle:          y = -1.05 .. 0.30
-  //  Ferrule (oval):  y =  0.30 .. 0.62
-  //  Bristle tuft:    y =  0.62 .. 1.57 (flat splayed wedge)
-  //  Paint at base:   y =  0.62 .. 0.78 (paint that soaked into bristle base)
-  //  Paint edge:      y =  1.52 .. 1.65 (fresh paint strip on chisel edge)
+  // Y coordinates (wall brush, bristles UP, oversized for the wide-flat form):
+  //  Butt knob:    y = -1.30
+  //  Handle:       y = -1.25 .. 0.20  (chunky, slight beavertail taper)
+  //  Ferrule:      y =  0.20 .. 0.65  (large oval clamp)
+  //  Bristle tuft: y =  0.65 .. 1.70  (wide flat splayed wedge — the dominant element)
+  //  Paint base:   y =  0.65 .. 0.85  (paint wicked into bristle base)
+  //  Paint edge:   y =  1.65 .. 1.81  (fresh thick paint strip on chisel edge)
   return (
-    <group ref={groupRef} position={[0, -0.18, 0]} scale={1.0}>
-      {/* ── HANDLE — tapered dark-stained wood (stays round so it reads as a grip) ── */}
-      <mesh position={[0, -0.375, 0]}>
-        <cylinderGeometry args={[0.22, 0.17, 1.35, 36]} />
+    <group ref={groupRef} position={[0, -0.32, 0]} scale={0.95}>
+      {/* ── HANDLE — chunky beavertail / oval grip in dark stained wood ──
+          A house-painter's handle is fat and shaped — slightly wider at the
+          neck (toward the ferrule) and tapering through a wide grip area to
+          a rounded knob at the butt. We scale the cylinder slightly oval. */}
+      <mesh position={[0, -0.525, 0]} scale={[1, 1, 0.85]}>
+        <cylinderGeometry args={[0.34, 0.28, 1.45, 40]} />
         <meshStandardMaterial color="#2A1810" roughness={0.55} metalness={0.15} />
       </mesh>
+      {/* Neck flare — the handle widens slightly just before the ferrule */}
+      <mesh position={[0, 0.12, 0]} scale={[1, 1, 0.85]}>
+        <cylinderGeometry args={[0.38, 0.34, 0.18, 40]} />
+        <meshStandardMaterial color="#241208" roughness={0.55} metalness={0.15} />
+      </mesh>
       {/* Ochre branded ring — Soley accent near the butt */}
-      <mesh position={[0, -0.92, 0]}>
-        <cylinderGeometry args={[0.185, 0.185, 0.06, 36]} />
+      <mesh position={[0, -1.12, 0]} scale={[1, 1, 0.85]}>
+        <cylinderGeometry args={[0.29, 0.29, 0.08, 40]} />
         <meshStandardMaterial color="#B8884A" roughness={0.4} metalness={0.35} />
       </mesh>
-      {/* Butt cap — rounded end */}
-      <mesh position={[0, -1.10, 0]}>
-        <sphereGeometry args={[0.18, 24, 16]} />
+      {/* Butt knob — round bulb at the end (classic Purdy / Wooster shape) */}
+      <mesh position={[0, -1.30, 0]} scale={[1, 0.85, 0.85]}>
+        <sphereGeometry args={[0.30, 28, 20]} />
         <meshStandardMaterial color="#1F120A" roughness={0.6} metalness={0.1} />
       </mesh>
-
-      {/* ── FERRULE — flattened oval (matches the flat-brush form factor) ── */}
-      <mesh position={[0, 0.46, 0]} scale={[1.5, 1, 0.5]}>
-        <cylinderGeometry args={[0.24, 0.22, 0.32, 36]} />
-        <meshStandardMaterial color="#C8A368" roughness={0.18} metalness={0.95} />
-      </mesh>
-      {/* Ferrule crimp ridges */}
-      <mesh position={[0, 0.34, 0]} scale={[1.5, 1, 0.5]}>
-        <torusGeometry args={[0.235, 0.012, 12, 36]} />
-        <meshStandardMaterial color="#876B40" roughness={0.25} metalness={0.9} />
-      </mesh>
-      <mesh position={[0, 0.58, 0]} scale={[1.5, 1, 0.5]}>
-        <torusGeometry args={[0.235, 0.012, 12, 36]} />
-        <meshStandardMaterial color="#876B40" roughness={0.25} metalness={0.9} />
+      {/* Hang hole — small dark notch in the butt knob (small ring) */}
+      <mesh position={[0, -1.45, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.05, 0.014, 12, 24]} />
+        <meshStandardMaterial color="#0F0700" roughness={0.7} metalness={0.05} />
       </mesh>
 
-      {/* ── BRISTLE TUFT — flat splayed trapezoid ── */}
-      <mesh position={[0, 0.62, -0.075]}>
+      {/* ── FERRULE — wide oval polished stainless / brass band that clamps
+          the bristle tuft. Significantly wider on X than the round handle to
+          accommodate the flat bristle pack. ── */}
+      <mesh position={[0, 0.42, 0]} scale={[2.7, 1, 0.55]}>
+        <cylinderGeometry args={[0.30, 0.28, 0.46, 40]} />
+        <meshStandardMaterial color="#C8A368" roughness={0.20} metalness={0.95} />
+      </mesh>
+      {/* Top crimp ridge */}
+      <mesh position={[0, 0.62, 0]} scale={[2.7, 1, 0.55]}>
+        <torusGeometry args={[0.295, 0.018, 14, 48]} />
+        <meshStandardMaterial color="#876B40" roughness={0.28} metalness={0.9} />
+      </mesh>
+      {/* Bottom crimp ridge */}
+      <mesh position={[0, 0.24, 0]} scale={[2.7, 1, 0.55]}>
+        <torusGeometry args={[0.295, 0.018, 14, 48]} />
+        <meshStandardMaterial color="#876B40" roughness={0.28} metalness={0.9} />
+      </mesh>
+      {/* Middle stamped band — a thin darker line across the middle of the
+          ferrule, where a brand name would be embossed */}
+      <mesh position={[0, 0.42, 0]} scale={[2.7, 1, 0.55]}>
+        <torusGeometry args={[0.295, 0.005, 8, 48]} />
+        <meshStandardMaterial color="#5C4838" roughness={0.5} metalness={0.7} />
+      </mesh>
+
+      {/* ── BRISTLE TUFT — big flat splayed pack ── */}
+      <mesh position={[0, 0.65, -0.12]}>
         <extrudeGeometry
           args={[
             bristleShape,
             {
-              depth: 0.15,
+              depth: 0.24,
               bevelEnabled: true,
-              bevelThickness: 0.015,
-              bevelSize: 0.018,
+              bevelThickness: 0.02,
+              bevelSize: 0.02,
               bevelSegments: 3,
-              curveSegments: 12,
+              curveSegments: 14,
             },
           ]}
         />
         <meshStandardMaterial color="#D4C29A" roughness={0.92} metalness={0.0} />
       </mesh>
 
-      {/* Vertical bristle striations — thin darker lines on the front broad face */}
+      {/* Vertical bristle striations on the front broad face */}
       {bristleLines.map((line, i) => (
-        <mesh key={`b-front-${i}`} position={[line.x, 1.09, 0.08]}>
-          <boxGeometry args={[0.012, line.height, 0.002]} />
+        <mesh key={`b-front-${i}`} position={[line.x, 1.18, 0.13]}>
+          <boxGeometry args={[0.014, line.height, 0.002]} />
           <meshStandardMaterial color="#A89070" roughness={0.95} metalness={0} />
         </mesh>
       ))}
       {/* Same striations on the back broad face */}
       {bristleLines.map((line, i) => (
-        <mesh key={`b-back-${i}`} position={[line.x, 1.09, -0.08]}>
-          <boxGeometry args={[0.012, line.height, 0.002]} />
+        <mesh key={`b-back-${i}`} position={[line.x, 1.18, -0.13]}>
+          <boxGeometry args={[0.014, line.height, 0.002]} />
           <meshStandardMaterial color="#A89070" roughness={0.95} metalness={0} />
         </mesh>
       ))}
 
-      {/* ── PAINT-SOAKED BRISTLE BASE — color creeps up from where the bristles
-          meet the ferrule (where paint first wicks in) ── */}
-      <mesh position={[0, 0.62, -0.08]}>
+      {/* ── PAINT-SOAKED BRISTLE BASE — translucent layer at the base where
+          paint has wicked up from the load ── */}
+      <mesh position={[0, 0.65, -0.13]}>
         <extrudeGeometry
           args={[
             bristleShape,
             {
-              depth: 0.16,
+              depth: 0.26,
               bevelEnabled: false,
-              curveSegments: 12,
+              curveSegments: 14,
             },
           ]}
         />
@@ -207,18 +229,18 @@ function Paintbrush() {
         />
       </mesh>
 
-      {/* ── PAINT EDGE — fresh thick strip of paint along the chisel tip ── */}
-      <mesh position={[0, 1.55, -0.09]}>
+      {/* ── PAINT EDGE — fresh thick wet bead across the full chisel tip ── */}
+      <mesh position={[0, 1.68, -0.14]}>
         <extrudeGeometry
           args={[
             paintEdgeShape,
             {
-              depth: 0.18,
+              depth: 0.28,
               bevelEnabled: true,
-              bevelThickness: 0.025,
-              bevelSize: 0.025,
+              bevelThickness: 0.03,
+              bevelSize: 0.03,
               bevelSegments: 4,
-              curveSegments: 12,
+              curveSegments: 14,
             },
           ]}
         />
@@ -232,9 +254,9 @@ function Paintbrush() {
         />
       </mesh>
 
-      {/* Paint drip — small bead clinging to the front edge of the paint strip */}
-      <mesh position={[0.36, 1.48, 0]}>
-        <sphereGeometry args={[0.07, 18, 14]} />
+      {/* Paint drip — heavy bead off one corner of the loaded edge */}
+      <mesh position={[0.66, 1.58, 0]}>
+        <sphereGeometry args={[0.10, 20, 16]} />
         <meshStandardMaterial
           ref={paintDripRef}
           color="#BF5B38"
@@ -296,7 +318,7 @@ export default function Hero3DCanvas() {
     >
       <Canvas
         dpr={[1, 2]}
-        camera={{ position: [0, 0.1, 4.6], fov: 38 }}
+        camera={{ position: [0, 0.1, 5.4], fov: 40 }}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         style={{ background: 'transparent' }}
       >
