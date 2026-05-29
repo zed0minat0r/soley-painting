@@ -29,29 +29,9 @@ function lerpHex(a: string, b: string, t: number): THREE.Color {
 function Paintbrush() {
   const groupRef = useRef<THREE.Group>(null!)
   const paintEdgeRef = useRef<THREE.MeshStandardMaterial>(null!)
-  const paintBaseRef = useRef<THREE.MeshStandardMaterial>(null!)
   const paintDripRef = useRef<THREE.MeshStandardMaterial>(null!)
 
-  // Bristle tuft profile — big house-painter's brush. Wide at the base (matches
-  // ferrule) and splays even wider at the tip. Coordinates: x = flat-face
-  // width, y = height along the brush.
-  const bristleShape = useMemo(() => {
-    const shape = new THREE.Shape()
-    const baseHalf = 0.72   // half-width where bristles enter the ferrule
-    const tipHalf  = 0.85   // half-width at the chisel tip (splayed)
-    const height   = 1.05
-    // Slightly rounded shoulders at the tip corners
-    shape.moveTo(-baseHalf, 0)
-    shape.lineTo(baseHalf, 0)
-    shape.lineTo(tipHalf, height - 0.10)
-    shape.quadraticCurveTo(tipHalf, height, tipHalf - 0.07, height)
-    shape.lineTo(-tipHalf + 0.07, height)
-    shape.quadraticCurveTo(-tipHalf, height, -tipHalf, height - 0.10)
-    shape.closePath()
-    return shape
-  }, [])
-
-  // Paint strip along the chisel edge — slightly wider than the bristles
+// Paint strip along the chisel edge — slightly wider than the bristles
   // (paint creeps over the edges), thick wet bead.
   const paintEdgeShape = useMemo(() => {
     const shape = new THREE.Shape()
@@ -88,7 +68,7 @@ function Paintbrush() {
     const local = cycle - Math.floor(cycle)
     const fadeT = local < 0.7 ? 0 : easeInOutCubic((local - 0.7) / 0.3)
     const blended = lerpHex(PAINT_COLORS[idx], PAINT_COLORS[nextIdx], fadeT)
-    for (const m of [paintEdgeRef.current, paintBaseRef.current, paintDripRef.current]) {
+    for (const m of [paintEdgeRef.current, paintDripRef.current]) {
       if (m) {
         m.color.copy(blended)
         m.emissive.copy(blended)
@@ -190,31 +170,6 @@ function Paintbrush() {
       })}
 
 
-      {/* ── PAINT-SOAKED BRISTLE BASE — translucent layer at the base where
-          paint has wicked up from the load ── */}
-      <mesh position={[0, 0.65, -0.13]}>
-        <extrudeGeometry
-          args={[
-            bristleShape,
-            {
-              depth: 0.26,
-              bevelEnabled: false,
-              curveSegments: 14,
-            },
-          ]}
-        />
-        <meshStandardMaterial
-          ref={paintBaseRef}
-          color="#BF5B38"
-          emissive="#BF5B38"
-          emissiveIntensity={0.18}
-          roughness={0.5}
-          metalness={0.05}
-          transparent
-          opacity={0.42}
-          depthWrite={false}
-        />
-      </mesh>
 
       {/* ── PAINT EDGE — fresh thick wet bead across the full chisel tip ── */}
       <mesh position={[0, 1.68, -0.14]}>
