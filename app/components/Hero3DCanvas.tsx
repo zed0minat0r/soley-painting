@@ -1,8 +1,7 @@
 'use client'
 
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Edges } from '@react-three/drei'
 import * as THREE from 'three'
 
 /* ── Soley Painting — Rotating 3D Paintbrush
@@ -29,130 +28,213 @@ function lerpHex(a: string, b: string, t: number): THREE.Color {
 
 function Paintbrush() {
   const groupRef = useRef<THREE.Group>(null!)
-  const paintTipRef = useRef<THREE.MeshStandardMaterial>(null!)
-  const paintCollarRef = useRef<THREE.MeshStandardMaterial>(null!)
+  const paintEdgeRef = useRef<THREE.MeshStandardMaterial>(null!)
+  const paintBaseRef = useRef<THREE.MeshStandardMaterial>(null!)
   const paintDripRef = useRef<THREE.MeshStandardMaterial>(null!)
+
+  // Bristle tuft profile — a trapezoid wider at the tip (top) than at the
+  // ferrule (bottom), matching how flat painter brushes splay outward.
+  // Coordinates: x = flat-face width, y = height along the brush.
+  const bristleShape = useMemo(() => {
+    const shape = new THREE.Shape()
+    const baseHalf = 0.32   // half-width where bristles enter the ferrule
+    const tipHalf  = 0.46   // half-width at the chisel tip (splayed)
+    const height   = 0.95
+    // Slightly rounded shoulders at the tip corners for a softer chisel edge
+    shape.moveTo(-baseHalf, 0)
+    shape.lineTo(baseHalf, 0)
+    shape.lineTo(tipHalf, height - 0.08)
+    shape.quadraticCurveTo(tipHalf, height, tipHalf - 0.05, height)
+    shape.lineTo(-tipHalf + 0.05, height)
+    shape.quadraticCurveTo(-tipHalf, height, -tipHalf, height - 0.08)
+    shape.closePath()
+    return shape
+  }, [])
+
+  // Paint strip along the chisel edge — slightly wider than the bristles
+  // (paint creeps over the edges), short height.
+  const paintEdgeShape = useMemo(() => {
+    const shape = new THREE.Shape()
+    const halfW = 0.50
+    const height = 0.13
+    shape.moveTo(-halfW + 0.04, 0)
+    shape.quadraticCurveTo(-halfW, 0, -halfW, 0.04)
+    shape.lineTo(-halfW, height - 0.04)
+    shape.quadraticCurveTo(-halfW, height, -halfW + 0.04, height)
+    shape.lineTo(halfW - 0.04, height)
+    shape.quadraticCurveTo(halfW, height, halfW, height - 0.04)
+    shape.lineTo(halfW, 0.04)
+    shape.quadraticCurveTo(halfW, 0, halfW - 0.04, 0)
+    shape.closePath()
+    return shape
+  }, [])
+
+  // Visible bristle "lines" — vertical thin strips drawn on the broad face of
+  // the tuft, just to communicate "this is made of bristles" when seen face-on.
+  const bristleLines = useMemo(() => {
+    const lines: { x: number; height: number }[] = []
+    const N = 11
+    for (let i = 0; i < N; i++) {
+      const tx = i / (N - 1) - 0.5
+      // Lines splay outward toward the tip — base width 0.55, tip width 0.85
+      lines.push({ x: tx * 0.55, height: 0.90 })
+    }
+    return lines
+  }, [])
 
   useFrame((state) => {
     const t = state.clock.elapsedTime
 
-    // Continuous rotation around the long axis (Y) so the whole brush is seen
-    // from every angle, plus a strong diagonal tilt on Z so the silhouette
-    // reads across the frame.
+    // Slow rotation around the long axis (Y). The flat-face / edge-view
+    // alternation IS the visual interest — like the cube's face turns.
     if (groupRef.current) {
-      groupRef.current.rotation.y = t * 0.42
-      groupRef.current.rotation.z = Math.sin(t * 0.45) * 0.06 - 0.55
-      groupRef.current.rotation.x = -0.04
+      groupRef.current.rotation.y = t * 0.45
+      groupRef.current.rotation.z = Math.sin(t * 0.4) * 0.05 - 0.45
+      groupRef.current.rotation.x = -0.06
     }
 
-    // Color cycling: hold for first 70% of slot, then cross-fade to next color
+    // Color cycling: hold for first 70%, then cross-fade
     const cycle = t / SECONDS_PER_COLOR
     const idx = Math.floor(cycle) % PAINT_COLORS.length
     const nextIdx = (idx + 1) % PAINT_COLORS.length
     const local = cycle - Math.floor(cycle)
     const fadeT = local < 0.7 ? 0 : easeInOutCubic((local - 0.7) / 0.3)
     const blended = lerpHex(PAINT_COLORS[idx], PAINT_COLORS[nextIdx], fadeT)
-    if (paintTipRef.current) {
-      paintTipRef.current.color.copy(blended)
-      paintTipRef.current.emissive.copy(blended)
-    }
-    if (paintCollarRef.current) {
-      paintCollarRef.current.color.copy(blended)
-      paintCollarRef.current.emissive.copy(blended)
-    }
-    if (paintDripRef.current) {
-      paintDripRef.current.color.copy(blended)
-      paintDripRef.current.emissive.copy(blended)
+    for (const m of [paintEdgeRef.current, paintBaseRef.current, paintDripRef.current]) {
+      if (m) {
+        m.color.copy(blended)
+        m.emissive.copy(blended)
+      }
     }
   })
 
-  // Y coordinates (brush oriented along Y axis, bristles UP):
+  // Y coordinates (brush oriented bristles UP along Y axis):
   //  Butt cap:        y = -1.10
   //  Handle:          y = -1.05 .. 0.30
-  //  Ferrule:         y =  0.30 .. 0.62
-  //  Bristle tuft:    y =  0.62 .. 1.55  (visible tan body)
-  //  Paint collar:    y =  0.62 .. 0.80  (where paint soaks into bristles)
-  //  Paint cap (tip): y =  1.45 .. 1.62
+  //  Ferrule (oval):  y =  0.30 .. 0.62
+  //  Bristle tuft:    y =  0.62 .. 1.57 (flat splayed wedge)
+  //  Paint at base:   y =  0.62 .. 0.78 (paint that soaked into bristle base)
+  //  Paint edge:      y =  1.52 .. 1.65 (fresh paint strip on chisel edge)
   return (
-    <group ref={groupRef} position={[0, -0.1, 0]} scale={1.0}>
-      {/* ── HANDLE — tapered dark-stained wood ── */}
+    <group ref={groupRef} position={[0, -0.18, 0]} scale={1.0}>
+      {/* ── HANDLE — tapered dark-stained wood (stays round so it reads as a grip) ── */}
       <mesh position={[0, -0.375, 0]}>
-        <cylinderGeometry args={[0.26, 0.20, 1.35, 36]} />
+        <cylinderGeometry args={[0.22, 0.17, 1.35, 36]} />
         <meshStandardMaterial color="#2A1810" roughness={0.55} metalness={0.15} />
       </mesh>
       {/* Ochre branded ring — Soley accent near the butt */}
       <mesh position={[0, -0.92, 0]}>
-        <cylinderGeometry args={[0.215, 0.215, 0.06, 36]} />
+        <cylinderGeometry args={[0.185, 0.185, 0.06, 36]} />
         <meshStandardMaterial color="#B8884A" roughness={0.4} metalness={0.35} />
       </mesh>
       {/* Butt cap — rounded end */}
       <mesh position={[0, -1.10, 0]}>
-        <sphereGeometry args={[0.20, 24, 16]} />
+        <sphereGeometry args={[0.18, 24, 16]} />
         <meshStandardMaterial color="#1F120A" roughness={0.6} metalness={0.1} />
       </mesh>
 
-      {/* ── FERRULE — polished brass band that clamps the bristles ── */}
-      <mesh position={[0, 0.46, 0]}>
-        <cylinderGeometry args={[0.32, 0.30, 0.32, 36]} />
+      {/* ── FERRULE — flattened oval (matches the flat-brush form factor) ── */}
+      <mesh position={[0, 0.46, 0]} scale={[1.5, 1, 0.5]}>
+        <cylinderGeometry args={[0.24, 0.22, 0.32, 36]} />
         <meshStandardMaterial color="#C8A368" roughness={0.18} metalness={0.95} />
       </mesh>
       {/* Ferrule crimp ridges */}
-      <mesh position={[0, 0.36, 0]}>
-        <torusGeometry args={[0.315, 0.014, 12, 36]} />
+      <mesh position={[0, 0.34, 0]} scale={[1.5, 1, 0.5]}>
+        <torusGeometry args={[0.235, 0.012, 12, 36]} />
         <meshStandardMaterial color="#876B40" roughness={0.25} metalness={0.9} />
       </mesh>
-      <mesh position={[0, 0.56, 0]}>
-        <torusGeometry args={[0.315, 0.014, 12, 36]} />
+      <mesh position={[0, 0.58, 0]} scale={[1.5, 1, 0.5]}>
+        <torusGeometry args={[0.235, 0.012, 12, 36]} />
         <meshStandardMaterial color="#876B40" roughness={0.25} metalness={0.9} />
       </mesh>
 
-      {/* ── BRISTLE TUFT — a solid tapered cone that widens slightly toward the tip
-          (matches how a flat brush splays). Simple, large, instantly readable.
-          We then add subtle vertical "groove" rings to suggest bristle texture. */}
-      <mesh position={[0, 1.08, 0]}>
-        <cylinderGeometry args={[0.36, 0.30, 0.92, 40]} />
+      {/* ── BRISTLE TUFT — flat splayed trapezoid ── */}
+      <mesh position={[0, 0.62, -0.075]}>
+        <extrudeGeometry
+          args={[
+            bristleShape,
+            {
+              depth: 0.15,
+              bevelEnabled: true,
+              bevelThickness: 0.015,
+              bevelSize: 0.018,
+              bevelSegments: 3,
+              curveSegments: 12,
+            },
+          ]}
+        />
         <meshStandardMaterial color="#D4C29A" roughness={0.92} metalness={0.0} />
-        <Edges color="#7A6A4A" threshold={20} />
       </mesh>
-      {/* Bristle groove rings — three subtle dark bands so the tuft reads as bristly */}
-      {[0.78, 1.05, 1.30].map((y, i) => (
-        <mesh key={i} position={[0, y, 0]}>
-          <torusGeometry args={[0.32 + i * 0.012, 0.008, 8, 40]} />
-          <meshStandardMaterial color="#9F8A60" roughness={0.85} metalness={0.05} />
+
+      {/* Vertical bristle striations — thin darker lines on the front broad face */}
+      {bristleLines.map((line, i) => (
+        <mesh key={`b-front-${i}`} position={[line.x, 1.09, 0.08]}>
+          <boxGeometry args={[0.012, line.height, 0.002]} />
+          <meshStandardMaterial color="#A89070" roughness={0.95} metalness={0} />
+        </mesh>
+      ))}
+      {/* Same striations on the back broad face */}
+      {bristleLines.map((line, i) => (
+        <mesh key={`b-back-${i}`} position={[line.x, 1.09, -0.08]}>
+          <boxGeometry args={[0.012, line.height, 0.002]} />
+          <meshStandardMaterial color="#A89070" roughness={0.95} metalness={0} />
         </mesh>
       ))}
 
-      {/* ── PAINT COLLAR — paint has soaked into the bottom of the bristles
-          (where they meet the ferrule), so this ring of color sits at the base */}
-      <mesh position={[0, 0.74, 0]}>
-        <cylinderGeometry args={[0.305, 0.302, 0.18, 40]} />
+      {/* ── PAINT-SOAKED BRISTLE BASE — color creeps up from where the bristles
+          meet the ferrule (where paint first wicks in) ── */}
+      <mesh position={[0, 0.62, -0.08]}>
+        <extrudeGeometry
+          args={[
+            bristleShape,
+            {
+              depth: 0.16,
+              bevelEnabled: false,
+              curveSegments: 12,
+            },
+          ]}
+        />
         <meshStandardMaterial
-          ref={paintCollarRef}
+          ref={paintBaseRef}
           color="#BF5B38"
           emissive="#BF5B38"
-          emissiveIntensity={0.2}
-          roughness={0.35}
-          metalness={0.1}
+          emissiveIntensity={0.18}
+          roughness={0.5}
+          metalness={0.05}
+          transparent
+          opacity={0.42}
+          depthWrite={false}
         />
       </mesh>
 
-      {/* ── PAINT CAP — fat blob of fresh paint loaded onto the tip ── */}
-      {/* Big rounded cap covering the top end of the bristles */}
-      <mesh position={[0, 1.52, 0]} scale={[1, 0.55, 1]}>
-        <sphereGeometry args={[0.38, 36, 24]} />
+      {/* ── PAINT EDGE — fresh thick strip of paint along the chisel tip ── */}
+      <mesh position={[0, 1.55, -0.09]}>
+        <extrudeGeometry
+          args={[
+            paintEdgeShape,
+            {
+              depth: 0.18,
+              bevelEnabled: true,
+              bevelThickness: 0.025,
+              bevelSize: 0.025,
+              bevelSegments: 4,
+              curveSegments: 12,
+            },
+          ]}
+        />
         <meshStandardMaterial
-          ref={paintTipRef}
+          ref={paintEdgeRef}
           color="#BF5B38"
           emissive="#BF5B38"
-          emissiveIntensity={0.4}
-          roughness={0.25}
-          metalness={0.18}
+          emissiveIntensity={0.35}
+          roughness={0.28}
+          metalness={0.15}
         />
       </mesh>
 
-      {/* Paint drip — a small bead off the front edge of the cap */}
-      <mesh position={[0.32, 1.42, 0]}>
-        <sphereGeometry args={[0.08, 18, 14]} />
+      {/* Paint drip — small bead clinging to the front edge of the paint strip */}
+      <mesh position={[0.36, 1.48, 0]}>
+        <sphereGeometry args={[0.07, 18, 14]} />
         <meshStandardMaterial
           ref={paintDripRef}
           color="#BF5B38"
