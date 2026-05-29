@@ -37,7 +37,7 @@ export default function Hero3D() {
         justifyContent: 'center',
         position: 'relative',
         overflow: 'hidden',
-        paddingTop: '88px',
+        paddingTop: '140px',
         paddingBottom: '4rem',
       }}
     >
@@ -100,21 +100,53 @@ export default function Hero3D() {
         }}
       />
 
-      {/* Eyebrow */}
-      <p
+      {/* Eyebrow — horizontally scrolling marquee strip */}
+      <div
+        aria-hidden
         style={{
-          fontFamily: 'var(--font-body)',
-          fontWeight: 500,
-          fontSize: '0.875rem',
-          letterSpacing: '0.3em',
-          textTransform: 'uppercase',
-          color: 'var(--color-ochre)',
-          marginBottom: '1rem',
-          textAlign: 'center',
+          position: 'absolute',
+          top: '72px',
+          left: 0,
+          right: 0,
+          overflow: 'hidden',
+          padding: '0.75rem 0',
+          borderTop: '1px solid rgba(201,168,118,0.18)',
+          borderBottom: '1px solid rgba(201,168,118,0.18)',
+          background: '#0F1E18',
+          zIndex: 60,
         }}
       >
-        Soley&rsquo;s Painting · South Eastern PA
-      </p>
+        <div
+          className="animate-marquee"
+          style={{
+            display: 'inline-flex',
+            whiteSpace: 'nowrap',
+            fontFamily: 'var(--font-body)',
+            fontWeight: 500,
+            fontSize: '0.8125rem',
+            letterSpacing: '0.3em',
+            textTransform: 'uppercase',
+            color: 'var(--color-ochre)',
+          }}
+        >
+          {/* Duplicated content — keyframe translates -50% so the second copy
+              picks up exactly where the first ends, looping seamlessly */}
+          {[0, 1].map((copy) => (
+            <span key={copy} style={{ display: 'inline-flex', flexShrink: 0 }}>
+              <span style={{ padding: '0 2rem' }}>Soley&rsquo;s Painting</span>
+              <span style={{ padding: '0 2rem', color: 'rgba(201,168,118,0.55)' }}>·</span>
+              <span style={{ padding: '0 2rem' }}>South Eastern PA</span>
+              <span style={{ padding: '0 2rem', color: 'rgba(201,168,118,0.55)' }}>·</span>
+              <span style={{ padding: '0 2rem' }}>15+ Years</span>
+              <span style={{ padding: '0 2rem', color: 'rgba(201,168,118,0.55)' }}>·</span>
+              <span style={{ padding: '0 2rem' }}>Fully Insured</span>
+              <span style={{ padding: '0 2rem', color: 'rgba(201,168,118,0.55)' }}>·</span>
+              <span style={{ padding: '0 2rem' }}>(484) 948-5573</span>
+              <span style={{ padding: '0 2rem', color: 'rgba(201,168,118,0.55)' }}>·</span>
+            </span>
+          ))}
+        </div>
+      </div>
 
       {/* H1 */}
       <h1
