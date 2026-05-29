@@ -185,7 +185,6 @@ export default function Process() {
       <div className="container-width">
         {/* Header */}
         <div
-          className="scroll-reveal"
           style={{ marginBottom: '3.5rem', maxWidth: '38ch' }}
         >
           <p
@@ -387,17 +386,7 @@ export default function Process() {
                 lineHeight: 1.1,
               }}
             >
-              {step.title.split('').map((char, ci) => (
-                <span
-                  key={`${displayStep}-c${ci}`}
-                  style={{
-                    display: 'inline-block',
-                    animation: `char-in 0.42s cubic-bezier(0.16,1,0.3,1) ${ci * 0.035}s both`,
-                  }}
-                >
-                  {char === ' ' ? ' ' : char}
-                </span>
-              ))}
+              {step.title}
             </h3>
 
             {/* Description — word stagger with translateX entry (spec: -6px) */}
@@ -411,18 +400,7 @@ export default function Process() {
                 maxWidth: '54ch',
               }}
             >
-              {step.description.split(' ').map((word, wi) => (
-                <span
-                  key={`${displayStep}-w${wi}`}
-                  style={{
-                    display: 'inline-block',
-                    marginRight: '0.28em',
-                    animation: `word-in 0.42s cubic-bezier(0.16,1,0.3,1) ${wi * 0.045 + 0.18}s both`,
-                  }}
-                >
-                  {word}
-                </span>
-              ))}
+              {step.description}
             </p>
 
             {/* Bullets — scale pop in sequence after description settles */}
@@ -438,7 +416,6 @@ export default function Process() {
                     fontSize: '0.9375rem',
                     color: 'rgba(245,240,234,0.8)',
                     marginBottom: '0.875rem',
-                    animation: `bullet-pop 0.45s cubic-bezier(0.16,1,0.3,1) ${bi * 0.13 + 0.55}s both`,
                   }}
                 >
                   <span
