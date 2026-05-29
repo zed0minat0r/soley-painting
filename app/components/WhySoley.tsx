@@ -13,66 +13,56 @@ import { motion, useSpring } from 'framer-motion'
 
 const CARDS = [
   {
-    id: 'prep',
+    id: 'years',
     number: '01',
-    title: 'Prep is the product',
+    title: '15+ years in business',
     description:
-      'We spend more time preparing surfaces than applying paint. That means two-coat primer on bare drywall, sanding between coats, and fresh caulk on every gap before a brush touches the wall. These steps are why finishes last.',
+      'Sean Soley has been painting homes and commercial spaces in South Eastern PA for over fifteen years. That experience shows up in surface prep, finish quality, and a written quote that matches the final invoice.',
     accent: 'var(--color-terra)',
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <rect x="3" y="22" width="26" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-        <path d="M8 22 L8 10 Q8 6 16 6 Q24 6 24 10 L24 22" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-        <path d="M8 14 L24 14" stroke="currentColor" strokeWidth="1.2" opacity="0.5"/>
-        <path d="M10 18 L22 18" stroke="currentColor" strokeWidth="1.2" opacity="0.5"/>
+        <circle cx="16" cy="16" r="11" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+        <path d="M16 8 L16 16 L21 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
       </svg>
     ),
   },
   {
-    id: 'contact',
+    id: 'quality',
     number: '02',
-    title: 'One person, start to finish',
+    title: 'Quality work, fair price',
     description:
-      'One person runs your project from estimate to punch-list. No call centers, no crew-lead handoffs. You get a confirmed arrival window the night before — not a four-hour "sometime in the morning" block.',
+      'Honest quotes, no upsells, no surprise line items. We spend the time on surface prep that makes the finish coat last — and we don\'t cut corners just because the budget is tight.',
     accent: 'var(--color-ochre)',
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <circle cx="16" cy="10" r="5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-        <path d="M5 28 Q5 20 16 20 Q27 20 27 28" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-        <path d="M21 13 L24 16 L28 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M16 4 L19.2 12.3 L28 13 L21.3 18.7 L23.5 27 L16 22.5 L8.5 27 L10.7 18.7 L4 13 L12.8 12.3 Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
       </svg>
     ),
   },
   {
-    id: 'honest',
+    id: 'insured',
     number: '03',
-    title: 'Written quotes, line by line',
+    title: 'Fully insured, every job',
     description:
-      'Every estimate breaks down each surface, square footage, and product separately. You see exactly what you are paying for before we start. The final invoice matches the quote — line for line.',
+      'Liability coverage on every project, residential or commercial. Floors, furniture, and trim protected on every day of the job. You get the paperwork on request — and you never have to ask twice.',
     accent: 'var(--color-gold)',
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <rect x="6" y="4" width="20" height="24" rx="1.5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-        <path d="M10 10 L22 10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-        <path d="M10 14 L22 14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-        <path d="M10 18 L18 18" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-        <path d="M14 22 L19 22 L22 25" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M16 4 L26 8 L26 17 Q26 24 16 28 Q6 24 6 17 L6 8 Z" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinejoin="round"/>
+        <path d="M11 16 L15 20 L22 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
   },
   {
-    id: 'voc',
+    id: 'local',
     number: '04',
-    title: 'Low-VOC by default',
+    title: 'Locally owned & operated',
     description:
-      'Every interior project uses low-VOC or zero-VOC paint — not as an upgrade, not by request. We choose cleaner formulations as the standard because your home is where you breathe.',
+      'Sean answers the phone. Sean walks the job. Sean is on site, start to finish. No call centers, no sub-contracted crews you have never met. South Eastern PA is home — your house is right next door.',
     accent: 'var(--color-rust)',
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <path d="M16 4 Q20 10 20 16 Q20 22 16 26 Q12 22 12 16 Q12 10 16 4Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-        <path d="M8 12 Q12 14 16 12 Q20 10 24 12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" opacity="0.6"/>
-        <path d="M8 18 Q12 20 16 18 Q20 16 24 18" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" opacity="0.4"/>
-        <circle cx="16" cy="17" r="2" stroke="currentColor" strokeWidth="1.2" fill="none" opacity="0.6"/>
+        <path d="M16 5 L4 15 L7 15 L7 26 L13 26 L13 19 L19 19 L19 26 L25 26 L25 15 L28 15 Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
       </svg>
     ),
   },
@@ -411,7 +401,7 @@ export default function WhySoley() {
               marginBottom: '0.875rem',
             }}
           >
-            Why Soley
+            Why Soley&rsquo;s
           </p>
           <h2
             style={{

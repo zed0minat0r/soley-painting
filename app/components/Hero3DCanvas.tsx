@@ -4,7 +4,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 
-/* ── Soley Painting — Rotating 3D Paintbrush
+/* ── Soley's Painting — Rotating 3D Paintbrush
    Ported technique from Penn Tech's Rubik's cube. The hero centerpiece is a
    real WebGL paintbrush: dark wood handle → polished brass ferrule → tan
    bristles → paint-loaded tip. The whole brush rotates continuously around
@@ -105,7 +105,7 @@ function Paintbrush() {
         <meshStandardMaterial color="#241208" roughness={0.55} metalness={0.15} />
       </mesh>
 
-      {/* Champagne branded inlay — Soley accent on the broad face of the handle */}
+      {/* Champagne branded inlay — Soley's accent on the broad face of the handle */}
       <mesh position={[0, -0.92, 0]} scale={[1, 1, 0.45]}>
         <cylinderGeometry args={[0.245, 0.245, 0.07, 48]} />
         <meshStandardMaterial color="#C9A876" roughness={0.4} metalness={0.35} />

@@ -62,7 +62,7 @@ export default function Navbar() {
           alignItems: 'center',
         }}
       >
-        Soley<span style={{ color: 'var(--color-ochre)' }}> Painting</span>
+        Soley&rsquo;s<span style={{ color: 'var(--color-ochre)' }}> Painting</span>
       </a>
 
       {/* Links — hidden on mobile, visible on desktop */}

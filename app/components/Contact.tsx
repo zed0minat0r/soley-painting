@@ -97,9 +97,9 @@ export default function Contact() {
                 transitionDelay: '0.2s',
               }}
             >
-              We measure, assess surfaces, and deliver a written quote — no ballpark
-              ranges, no pressure. We confirm our arrival window the night before,
-              every time.
+              Call Sean directly at (484) 948-5573 or send the form below.
+              We&rsquo;ll come to you, measure every surface, and follow up with
+              a written quote — no pressure, no ballpark ranges.
             </p>
 
             {/* Honest commitments list */}
@@ -108,12 +108,10 @@ export default function Contact() {
               style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', marginBottom: '2rem', transitionDelay: '0.3s' }}
             >
               {[
-                'We answer every call — no voicemail runaround',
-                'We show up inside our confirmed window, every time',
-                'Written estimates, line by line — no ballpark ranges',
-                'Floors, furniture, and trim protected on every day of the job',
-                'Low-VOC formulations on every interior, by default',
-                'Written warranty terms provided when scope is finalized',
+                'Great prices — honest quotes, no upsells',
+                'Quality work — 15+ years of finished jobs',
+                'Fully insured on every project',
+                'Locally owned, owner-operated',
               ].map((item, i) => (
                 <div
                   key={i}
@@ -161,16 +159,16 @@ export default function Contact() {
             >
               {[
                 {
+                  label: 'Phone',
+                  value: '(484) 948-5573',
+                },
+                {
                   label: 'Service area',
-                  value: 'Details coming soon — currently serving the region by referral',
+                  value: 'South Eastern Pennsylvania — interior & exterior, residential & commercial',
                 },
                 {
-                  label: 'Estimate response time',
-                  value: 'Written quote delivered within 48 hours of walkthrough',
-                },
-                {
-                  label: 'Project gallery',
-                  value: 'Photography forthcoming — first projects starting this season',
+                  label: 'Owner',
+                  value: 'Sean Soley — 15+ years, fully insured, locally owned',
                 },
               ].map(({ label, value }) => (
                 <div key={label}>

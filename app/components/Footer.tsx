@@ -17,13 +17,13 @@ export default function Footer() {
       links: [
         { label: 'Free Walkthrough', href: '#process' },
         { label: 'Color Consultation', href: '#process' },
-        { label: 'Surface Prep', href: '#process' },
-        { label: 'Application', href: '#process' },
-        { label: 'Final Walkthrough', href: '#process' },
+        { label: "Surface Prep", href: "#process" },
+        { label: "Application", href: "#process" },
+        { label: "Final Walkthrough", href: "#process" },
       ],
     },
     {
-      heading: 'Why Soley',
+      heading: "Why Soley's",
       links: [
         { label: 'Written quotes — no ranges', href: '#contact' },
         { label: 'Low-VOC options', href: '#contact' },
@@ -35,8 +35,8 @@ export default function Footer() {
       heading: 'Contact',
       links: [
         { label: 'Request a Free Estimate', href: '#contact' },
-        { label: 'Phone available at launch', href: '#contact' },
-        { label: 'Service area coming soon', href: '#contact' },
+        { label: '(484) 948-5573', href: 'tel:+14849485573' },
+        { label: 'South Eastern PA', href: '#contact' },
       ],
     },
   ]
@@ -64,13 +64,13 @@ export default function Footer() {
               style={{
                 fontFamily: 'var(--font-heading)',
                 fontWeight: 700,
-                fontSize: '1.625rem',
-                color: 'var(--color-chalk)',
-                marginBottom: '1rem',
+                fontSize: "1.625rem",
+                color: "var(--color-chalk)",
+                marginBottom: "1rem",
                 lineHeight: 1.1,
               }}
             >
-              Soley<br />
+              Soley&rsquo;s<br />
               <span style={{ color: 'var(--color-ochre)' }}>Painting</span>
             </p>
             <p
@@ -83,8 +83,9 @@ export default function Footer() {
                 marginBottom: '1.75rem',
               }}
             >
-              Meticulous surface prep. Durable finishes. One point of contact
-              from estimate to final walkthrough.
+              Soley&rsquo;s Painting &amp; Home Improvements. Locally owned,
+              fully insured, 15+ years serving South Eastern PA. Owner Sean
+              Soley on every job, start to finish.
             </p>
             <a
               href="#contact"
@@ -157,12 +158,12 @@ export default function Footer() {
         >
           <p
             style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.875rem',
-              color: 'rgba(244,237,222,0.3)',
+              fontFamily: "var(--font-body)",
+              fontSize: "0.875rem",
+              color: "rgba(244,237,222,0.3)",
             }}
           >
-            &copy; {new Date().getFullYear()} Soley Painting. All rights reserved.
+            &copy; {new Date().getFullYear()} Soley&rsquo;s Painting. All rights reserved.
           </p>
 
           {/* Catalog item #11 — social text link in bottom bar, no fake handle */}

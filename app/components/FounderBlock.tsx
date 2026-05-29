@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react'
 /* ── Human-signal block (Option B) ──────────────────────────────────────
    No portrait placeholder — that was promising something we can't deliver.
    Instead: a full-width centered pull-quote block with honest operational
-   copy. The painter behind Soley gets a real voice without a fake face.  */
+   copy. The painter behind Soley&rsquo;s gets a real voice without a fake face.  */
 
 export default function FounderBlock() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -88,7 +88,7 @@ export default function FounderBlock() {
               marginBottom: '1.25rem',
             }}
           >
-            Who&apos;s behind Soley
+            Who&apos;s behind Soley&rsquo;s
           </p>
           <h2
             style={{
@@ -112,7 +112,7 @@ export default function FounderBlock() {
               color: 'rgba(244,237,222,0.6)',
             }}
           >
-            Soley Painting is owner-operated. Every estimate, every walkthrough, and every
+            Soley&rsquo;s Painting is owner-operated. Every estimate, every walkthrough, and every
             punch-list item is handled by the same person who answers the phone. No handoffs,
             no middlemen — the owner takes calls before 8pm and shows up on day one with the
             same crew that finishes the job.
@@ -175,7 +175,7 @@ export default function FounderBlock() {
             }}
           >
             <span style={{ display: 'inline-block', width: '18px', height: '1px', background: 'var(--color-terra)', opacity: 0.6 }} />
-            The painter behind Soley
+            The painter behind Soley&rsquo;s
           </cite>
         </blockquote>
 

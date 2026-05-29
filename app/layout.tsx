@@ -29,8 +29,8 @@ const sacramento = Sacramento({
 
 /* ── Expanded metadata (replaces thin export) ──────────────────────────── */
 export const metadata: Metadata = {
-  metadataBase: new URL('https://soley-painting.vercel.app'),
-  title: 'Soley Painting | Expert Residential & Commercial Painting',
+  metadataBase: new URL("https://soley-painting.vercel.app"),
+  title: "Soley's Painting | Expert Residential & Commercial Painting",
   description:
     'Meticulous surface prep, durable finishes, and one point of contact from estimate to final walkthrough. Residential and commercial painting — done right the first time.',
   keywords: [
@@ -44,23 +44,23 @@ export const metadata: Metadata = {
     'low-VOC paint',
     'professional painter',
   ],
-  authors: [{ name: 'Soley Painting' }],
-  creator: 'Soley Painting',
+  authors: [{ name: "Soley's Painting" }],
+  creator: "Soley's Painting",
   alternates: {
-    canonical: '/',
+    canonical: "/",
   },
   openGraph: {
-    title: 'Soley Painting | Expert Residential & Commercial Painting',
+    title: "Soley's Painting | Expert Residential & Commercial Painting",
     description:
       'Meticulous surface prep, durable finishes, and one point of contact from estimate to final walkthrough. Residential and commercial painting — done right the first time.',
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://soley-painting.vercel.app',
-    siteName: 'Soley Painting',
+    type: "website",
+    locale: "en_US",
+    url: "https://soley-painting.vercel.app",
+    siteName: "Soley's Painting",
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'Soley Painting | Expert Residential & Commercial Painting',
+    card: "summary_large_image",
+    title: "Soley's Painting | Expert Residential & Commercial Painting",
     description:
       'Meticulous surface prep, durable finishes, and one point of contact from estimate to final walkthrough. Residential and commercial painting — done right the first time.',
   },
@@ -70,9 +70,9 @@ export const metadata: Metadata = {
 
 /* LocalBusiness — honest pre-launch: no address, no phone, no hours, no ratings */
 const localBusinessSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
-  name: 'Soley Painting',
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: "Soley's Painting",
   url: 'https://soley-painting.vercel.app',
   description:
     'Meticulous surface prep, durable finishes, and one point of contact from estimate to final walkthrough. Residential and commercial painting — done right the first time.',
@@ -90,15 +90,15 @@ const serviceSchemas = [
     name: 'Interior Painting',
     description:
       'Walls, ceilings, trim, and crown molding. We protect every surface with drop-cloth floor-to-ceiling coverage before the first brush touches a wall.',
-    provider: { '@type': 'LocalBusiness', name: 'Soley Painting' },
+    provider: { "@type": "LocalBusiness", name: "Soley's Painting" },
   },
   {
     '@context': 'https://schema.org',
     '@type': 'Service',
     name: 'Exterior Painting',
     description:
-      'Siding, fascia, soffits, doors, and shutters. Every trim gap caulked before primer — skip prep and the best paint fails in two seasons.',
-    provider: { '@type': 'LocalBusiness', name: 'Soley Painting' },
+      "Siding, fascia, soffits, doors, and shutters. Every trim gap caulked before primer — skip prep and the best paint fails in two seasons.",
+    provider: { "@type": "LocalBusiness", name: "Soley's Painting" },
   },
   {
     '@context': 'https://schema.org',
@@ -106,7 +106,7 @@ const serviceSchemas = [
     name: 'Commercial Painting',
     description:
       'Office buildings, retail, multi-unit residential, and HOA common areas. We schedule around your operation — nights, weekends, phased rollouts.',
-    provider: { '@type': 'LocalBusiness', name: 'Soley Painting' },
+    provider: { "@type": "LocalBusiness", name: "Soley's Painting" },
   },
   {
     '@context': 'https://schema.org',
@@ -114,15 +114,15 @@ const serviceSchemas = [
     name: 'Cabinet & Trim Painting',
     description:
       'Kitchen, bathroom, and built-in cabinets refinished with factory-grade finish quality. Spray-applied for a glass-smooth surface that holds color longer than brush-applied coatings.',
-    provider: { '@type': 'LocalBusiness', name: 'Soley Painting' },
+    provider: { "@type": "LocalBusiness", name: "Soley's Painting" },
   },
   {
     '@context': 'https://schema.org',
-    '@type': 'Service',
-    name: 'Specialty Coatings',
+    "@type": "Service",
+    name: "Specialty Coatings",
     description:
-      'Epoxy floors, deck staining, fence staining, concrete sealer, and venetian plaster. Services that set Soley apart from volume-play competitors.',
-    provider: { '@type': 'LocalBusiness', name: 'Soley Painting' },
+      "Epoxy floors, deck staining, fence staining, concrete sealer, and venetian plaster. Services that set Soley's apart from volume-play competitors.",
+    provider: { "@type": "LocalBusiness", name: "Soley's Painting" },
   },
 ]
 

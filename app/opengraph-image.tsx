@@ -1,9 +1,9 @@
-import { ImageResponse } from 'next/og'
-import fs from 'node:fs'
-import path from 'node:path'
+import { ImageResponse } from "next/og"
+import fs from "node:fs"
+import path from "node:path"
 
-export const runtime = 'nodejs'
-export const alt = 'Soley Painting — Every wall done right.'
+export const runtime = "nodejs"
+export const alt = "Soley's Painting — Every wall done right."
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -172,14 +172,14 @@ export default async function OgImage() {
             style={{
               fontFamily: '"Cormorant Garamond"',
               fontWeight: 700,
-              fontSize: '96px',
+              fontSize: "96px",
               color: LINEN,
-              letterSpacing: '-0.01em',
+              letterSpacing: "-0.01em",
               lineHeight: 1,
-              marginBottom: '28px',
+              marginBottom: "28px",
             }}
           >
-            Soley Painting
+            Soley&rsquo;s Painting
           </div>
 
           {/* Rust accent rule */}

@@ -166,7 +166,7 @@ const PANELS = [
     bg: '#1A130E',
     headline: 'Beyond standard paint.',
     descriptor:
-      'Epoxy floors, deck staining, fence staining, concrete sealer, and venetian plaster. Services that set Soley apart from volume-play competitors.',
+      "Epoxy floors, deck staining, fence staining, concrete sealer, and venetian plaster. Services that set Soley's apart from volume-play competitors.",
     bullets: [
       'Epoxy garage and basement floors',
       'Deck and fence staining + sealant',
@@ -479,11 +479,11 @@ export default function ServicesScrollLock() {
                           fontFamily: 'var(--font-body)',
                           fontSize: '0.875rem',
                           letterSpacing: '0.18em',
-                          textTransform: 'uppercase',
-                          color: 'rgba(244,237,222,0.45)',
+                          textTransform: "uppercase",
+                          color: "rgba(244,237,222,0.45)",
                         }}
                       >
-                        Soley Painting
+                        Soley&rsquo;s Painting
                       </span>
                     </div>
                   )

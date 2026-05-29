@@ -2,7 +2,7 @@
 
 import Hero3DCanvas from './Hero3DCanvas'
 
-/* ── Soley Painting — Rotating 3D Paintbrush Hero
+/* ── Soley's Painting — Rotating 3D Paintbrush Hero
    Centerpiece: a real WebGL paintbrush (handle, ferrule, bristles, paint-loaded
    tip) rotating continuously on its long axis. The paint on the bristle tip
    cycles through the brand palette. Ported from Penn Tech's R3F cube technique.
@@ -113,7 +113,7 @@ export default function Hero3D() {
           textAlign: 'center',
         }}
       >
-        Soley Painting
+        Soley&rsquo;s Painting · South Eastern PA
       </p>
 
       {/* H1 */}
@@ -149,7 +149,7 @@ export default function Hero3D() {
           maxWidth: '36ch',
         }}
       >
-        Owner-operated. Same crew start to finish. Free walkthrough, written quote in 24 hours.
+        Locally owned, 15+ years in business. Interior &amp; exterior, residential &amp; commercial — fully insured.
       </p>
 
       {/* ── 3D PAINTBRUSH CENTERPIECE ── */}
@@ -193,8 +193,8 @@ export default function Hero3D() {
             '0 0 1px rgba(255,255,255,0.5), 0 0 8px rgba(201,168,118,0.55), 0 0 20px rgba(36,66,56,0.25)',
         }}
       >
-        Meticulous surface prep. Durable finishes. One point of contact
-        from estimate to final walkthrough — no call centers, no surprises.
+        Sean Soley and the same crew on every job — start to finish.
+        Free walkthrough, written quote, fair pricing.
       </p>
 
       {/* CTAs */}
@@ -230,9 +230,10 @@ export default function Hero3D() {
         }}
       >
         {[
-          { label: 'Free in-home consultation', sub: 'Written quote, no ballpark ranges' },
-          { label: 'Low-VOC options available', sub: 'On request, any project' },
-          { label: 'Single point of contact', sub: 'Estimate through final walkthrough' },
+          { label: 'Great Prices', sub: 'Honest quotes, no upsells' },
+          { label: 'Quality Work', sub: '15+ years of finished jobs' },
+          { label: 'Fully Insured', sub: 'Liability coverage on every job' },
+          { label: 'Locally Owned', sub: 'Owner Sean Soley on site' },
         ].map(({ label, sub }) => (
           <div key={label} style={{ textAlign: 'center' }}>
             <p

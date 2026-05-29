@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 
-/* ── Soley Painting — Process Timeline (cinematic upgrade)
+/* ── Soley's Painting — Process Timeline (cinematic upgrade)
    Frame A: cross-fade panel transition (slide-left-out → slide-left-in),
    char-stagger title, word-stagger description (translateX entry),
    bullet pop sequence, foreground step numeral, prefers-reduced-motion.
