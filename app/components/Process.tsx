@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useRef, useState } from 'react'
 
 /* ── Soley Painting — Process Timeline (cinematic upgrade)
    Frame A: cross-fade panel transition (slide-left-out → slide-left-in),
@@ -68,107 +68,18 @@ const STEPS = [
   },
 ]
 
-const STEP_DURATION = 10000 // 10s per step
-const EXIT_MS = 320         // ms for slide-left-out transition before entry
-
 export default function Process() {
-  const [activeStep, setActiveStep]     = useState(0)
-  const [displayStep, setDisplayStep]   = useState(0)  // what's actually rendered
-  const [panelState, setPanelState]     = useState<'entering' | 'visible' | 'exiting'>('visible')
-  const [key, setKey]                   = useState(0)  // countdown bar reset
-  const intervalRef                     = useRef<ReturnType<typeof setInterval> | null>(null)
-  const sectionRef                      = useRef<HTMLElement>(null)
-  const [visible, setVisible]           = useState(false)
-  const nextStepRef                     = useRef<number>(0)
-  const transitioningRef                = useRef(false)
+  // No auto-advance, no cross-fade. Tabs are a plain click-driven nav so the
+  // section never animates on its own (the previous slide-out / slide-in +
+  // countdown bar created a "horizontal blinder" effect that read as broken).
+  const [activeStep, setActiveStep] = useState(0)
+  const sectionRef = useRef<HTMLElement>(null)
 
-  // Transition to a new step: exit → update content → enter
-  const transitionTo = useCallback((next: number) => {
-    if (transitioningRef.current) return
-    transitioningRef.current = true
+  const step = STEPS[activeStep]
+  const displayStep = activeStep
 
-    // Check prefers-reduced-motion
-    const reducedMotion = typeof window !== 'undefined'
-      && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-    if (reducedMotion) {
-      // Static fade — no slide
-      setDisplayStep(next)
-      setActiveStep(next)
-      setKey(k => k + 1)
-      nextStepRef.current = next
-      transitioningRef.current = false
-      return
-    }
-
-    // 1. Start exit animation
-    setPanelState('exiting')
-
-    setTimeout(() => {
-      // 2. Swap content while invisible
-      setDisplayStep(next)
-      setPanelState('entering')
-      setActiveStep(next)
-      setKey(k => k + 1)
-      // 3. A frame later, let the enter animation run
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setPanelState('visible')
-          // Update ref AFTER transition completes so advance() reads correct current step
-          nextStepRef.current = next
-          transitioningRef.current = false
-        })
-      })
-    }, EXIT_MS)
-  }, [])
-
-  const advance = useCallback(() => {
-    // nextStepRef tracks the CURRENTLY DISPLAYED step (updated by transitionTo).
-    // advance always moves +1 from the current displayed step.
-    const next = (nextStepRef.current + 1) % STEPS.length
-    transitionTo(next)
-  }, [transitionTo])
-
-  // IntersectionObserver — start auto-advance when section is in view.
-  // threshold: 0.05 (not 0.3) so even a small sliver of the section entering
-  // the viewport triggers the interval. 0.3 required 30% (≈239px) in view
-  // before firing — programmatic scrolls and fast-scroll users missed it.
-  useEffect(() => {
-    const el = sectionRef.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([entry]) => setVisible(entry.isIntersecting),
-      { threshold: 0.05, rootMargin: '0px' }
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
-
-  useEffect(() => {
-    if (visible) {
-      intervalRef.current = setInterval(advance, STEP_DURATION)
-    } else {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-    }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [visible, advance])
-
-  const step = STEPS[displayStep]
-
-  // Panel style based on state
   const panelStyle: React.CSSProperties = {
     paddingTop: '0.5rem',
-    transition: panelState === 'exiting'
-      ? `opacity ${EXIT_MS}ms cubic-bezier(0.16, 1, 0.3, 1), transform ${EXIT_MS}ms cubic-bezier(0.16, 1, 0.3, 1)`
-      : panelState === 'entering'
-      ? 'none'
-      : `opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)`,
-    opacity: panelState === 'exiting' ? 0 : panelState === 'entering' ? 0 : 1,
-    transform: panelState === 'exiting'
-      ? 'translateX(-16px)'
-      : panelState === 'entering'
-      ? 'translateX(16px)'
-      : 'translateX(0)',
   }
 
   return (
@@ -246,14 +157,7 @@ export default function Process() {
                 return
               }
               tabs[next].focus()
-              if (intervalRef.current) clearInterval(intervalRef.current)
-              nextStepRef.current = next
-              transitionTo(next)
-              if (visible) {
-                setTimeout(() => {
-                  intervalRef.current = setInterval(advance, STEP_DURATION)
-                }, EXIT_MS + 60)
-              }
+              setActiveStep(next)
             }}
           >
             {STEPS.map((s, i) => (
@@ -264,16 +168,7 @@ export default function Process() {
                 aria-selected={i === activeStep}
                 aria-controls={`process-panel-${i}`}
                 tabIndex={i === activeStep ? 0 : -1}
-                onClick={() => {
-                  if (intervalRef.current) clearInterval(intervalRef.current)
-                  nextStepRef.current = i
-                  transitionTo(i)
-                  if (visible) {
-                    setTimeout(() => {
-                      intervalRef.current = setInterval(advance, STEP_DURATION)
-                    }, EXIT_MS + 60)
-                  }
-                }}
+                onClick={() => setActiveStep(i)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -345,34 +240,17 @@ export default function Process() {
               >
                 0{step.id}
               </span>
-              {/* Countdown bar sits beside the step numeral */}
+              {/* Static hairline divider beside the step numeral — replaces
+                  the previous countdown bar that scaled horizontally on every
+                  auto-advance (the "horizontal blinder" effect). */}
               <div
                 style={{
                   flex: 1,
-                  height: '2px',
-                  background: 'rgba(244,237,222,0.1)',
-                  position: 'relative',
-                  overflow: 'hidden',
+                  height: '1px',
+                  background: 'rgba(244,237,222,0.18)',
                   alignSelf: 'center',
                 }}
-              >
-                <div
-                  key={`${key}-${visible ? 'v' : 'h'}`}
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'var(--color-terra)',
-                    transformOrigin: 'left center',
-                    /* BUG-032 fix: key includes visible state so the element
-                       re-mounts (restarting the CSS animation) when the section
-                       enters view. Previously key only changed on step advance,
-                       so the countdown never started on first entry. */
-                    animation: visible
-                      ? `countdown ${STEP_DURATION}ms linear forwards`
-                      : 'none',
-                  }}
-                />
-              </div>
+              />
             </div>
 
             {/* Title — char stagger (re-triggers each step via key in span) */}
