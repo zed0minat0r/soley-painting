@@ -69,24 +69,6 @@ function Paintbrush() {
     return shape
   }, [])
 
-  // Vertical bristle striations — DENSE many-line packing so the broad face
-  // reads as a real brush, not a rectangle.
-  const bristleLines = useMemo(() => {
-    const lines: { x: number; xTip: number; height: number; thick: number; shade: string }[] = []
-    const N = 70
-    for (let i = 0; i < N; i++) {
-      const tx = i / (N - 1) - 0.5
-      // Base of bristle pack spans x = -0.72 .. 0.72 (matches bristleShape baseHalf)
-      // Tip of bristle pack spans x = -0.85 .. 0.85 (tipHalf — splayed)
-      const xBase = tx * 1.40
-      const xTip  = tx * 1.66
-      // Vary width + shade so packed lines don't look like a regular grating
-      const thick = i % 4 === 0 ? 0.020 : i % 3 === 0 ? 0.016 : 0.012
-      const shade = i % 6 === 0 ? '#1F120A' : i % 4 === 0 ? '#3D2A1E' : i % 3 === 0 ? '#5C4838' : '#7A5F44'
-      lines.push({ x: xBase, xTip, height: 1.02, thick, shade })
-    }
-    return lines
-  }, [])
 
   useFrame((state) => {
     const t = state.clock.elapsedTime
@@ -176,46 +158,33 @@ function Paintbrush() {
         <meshStandardMaterial color="#5C4838" roughness={0.5} metalness={0.7} />
       </mesh>
 
-      {/* ── BRISTLE TUFT — big flat splayed pack ── */}
-      <mesh position={[0, 0.65, -0.12]}>
-        <extrudeGeometry
-          args={[
-            bristleShape,
-            {
-              depth: 0.24,
-              bevelEnabled: true,
-              bevelThickness: 0.02,
-              bevelSize: 0.02,
-              bevelSegments: 3,
-              curveSegments: 14,
-            },
-          ]}
-        />
-        <meshStandardMaterial color="#D4C29A" roughness={0.92} metalness={0.0} />
-      </mesh>
-
-      {/* Vertical bristle striations — densely packed dark lines on the front
-          broad face. Tilted to splay outward so they follow the bristle taper. */}
-      {bristleLines.map((line, i) => {
-        const dx = line.xTip - line.x
-        const angle = Math.atan2(dx, line.height)
-        const cx = (line.x + line.xTip) / 2
+      {/* ── BRISTLE TUFT — built from many individual vertical slats packed
+          side-by-side. The tiny gaps between slats give the brush its
+          line-by-line bristle look from every rotation angle (lines are
+          intrinsic to the geometry, not overlays). ── */}
+      {Array.from({ length: 42 }).map((_, i) => {
+        const tx = i / 41 - 0.5   // -0.5 .. 0.5
+        const xCenter = tx * 1.50  // total slat span at center: 1.50
+        // Slight stagger of slat heights and starts so the chisel edge has
+        // micro-variation rather than a perfect line, like real bristles
+        const heightJitter = ((i * 7) % 5) * 0.012 - 0.024
+        const baseY = 0.65
+        const slatHeight = 1.06 + heightJitter
+        const cy = baseY + slatHeight / 2
+        // Width of each slat — pitch is 1.50/41 ≈ 0.0366, leave a small gap
+        const slatWidth = 0.030
+        const slatDepth = 0.26
+        // Shade variation so the pack reads as individual bristles
+        const shades = ['#D4C29A', '#C8B58B', '#BFAA7E', '#D8C7A2', '#CDBA8D', '#C4AE7A']
+        const color = shades[(i * 3) % shades.length]
+        // Slats near the edges (|tx| close to 0.5) splay outward slightly —
+        // we tilt them around Z so the tip-end is further from center
+        const splayDx = tx * 0.18  // additional offset at the tip
+        const angle = Math.atan2(splayDx, slatHeight)
         return (
-          <mesh key={`b-front-${i}`} position={[cx, 1.18, 0.135]} rotation={[0, 0, -angle]}>
-            <boxGeometry args={[line.thick, line.height, 0.004]} />
-            <meshStandardMaterial color={line.shade} roughness={0.95} metalness={0} />
-          </mesh>
-        )
-      })}
-      {/* Same striations on the back broad face */}
-      {bristleLines.map((line, i) => {
-        const dx = line.xTip - line.x
-        const angle = Math.atan2(dx, line.height)
-        const cx = (line.x + line.xTip) / 2
-        return (
-          <mesh key={`b-back-${i}`} position={[cx, 1.18, -0.135]} rotation={[0, 0, -angle]}>
-            <boxGeometry args={[line.thick, line.height, 0.004]} />
-            <meshStandardMaterial color={line.shade} roughness={0.95} metalness={0} />
+          <mesh key={`slat-${i}`} position={[xCenter, cy, 0]} rotation={[0, 0, -angle]}>
+            <boxGeometry args={[slatWidth, slatHeight, slatDepth]} />
+            <meshStandardMaterial color={color} roughness={0.92} metalness={0.0} />
           </mesh>
         )
       })}
