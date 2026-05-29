@@ -11,67 +11,39 @@ import { useState } from 'react'
 
 const ITEMS = [
   {
-    id: 'prep-timeline',
-    question: 'How does prep work factor into the timeline?',
+    id: 'estimate',
+    question: 'How does the estimate process work?',
     answer:
-      'Prep is typically the longest part of any paint job. Patching holes, sanding surfaces, caulking trim gaps, and applying primer — these steps take as long as (or longer than) the actual painting. We build realistic timelines based on your wall conditions after the walkthrough, not a flat rate per room.',
+      "Call Sean at (484) 948-5573 or send the contact form — we'll schedule a walkthrough at your place. We measure every surface and follow up with a written quote, line by line. No ballpark ranges.",
     accent: 'var(--color-terra)',
   },
   {
     id: 'furniture-floors',
     question: 'Will you protect my floors and furniture?',
     answer:
-      'Yes. We lay drop cloths on every floor in the work area and cover furniture that cannot be moved. We use low-tack painter\'s tape on trim, hardware, and outlets before any coating goes on. Our daily routine ends with covering every surface so we pick up clean the next morning.',
+      "Yes. Drop cloths on every floor in the work area, covers on furniture that can't be moved, low-tack painter's tape on trim and outlets. We cover everything at the end of each day so we pick up clean in the morning.",
     accent: 'var(--color-ochre)',
-  },
-  {
-    id: 'pets-kids',
-    question: 'How do you handle pets and kids during the job?',
-    answer:
-      'We use low-VOC or zero-VOC paint on every interior job by default — not as an add-on. We do ask that pets stay out of the active work area while coatings are wet, which is typically a few hours per coat. We can schedule early morning starts so rooms are dry and ventilated before your household routine kicks in.',
-    accent: 'var(--color-gold)',
   },
   {
     id: 'guarantee',
     question: 'What guarantee do you offer on the work?',
     answer:
-      'We are finalizing our written workmanship terms before our first jobs this season — you will have them in writing before any work starts. What will not change: if a finish lifts, peels, or shows a defect tied to our application within the warranty period, we come back and make it right at no charge. The paint manufacturer\'s own product warranty also applies to every job.',
-    accent: 'var(--color-terra)',
-  },
-  {
-    id: 'estimate',
-    question: 'How does the estimate process work?',
-    answer:
-      'Fill out the contact form or send us a message with your room details and we\'ll schedule a walkthrough. We measure every surface, note the condition, and put together a line-by-line written quote — each surface, square footage, and product listed separately. You see exactly what you\'re paying for before we agree to anything.',
-    accent: 'var(--color-rust)',
+      "Fully insured on every job. If a finish lifts, peels, or shows a defect tied to our application, we come back and make it right at no charge. The paint manufacturer's own product warranty also applies.",
+    accent: 'var(--color-gold)',
   },
   {
     id: 'paint-brands',
     question: 'What paint brands do you use?',
     answer:
-      'We work with professional-grade lines from Benjamin Moore and Sherwin-Williams — the same products sold to trade contractors, not the consumer-shelf versions. Within those lines, we match the product to the surface: high-traffic areas get a harder enamel finish, ceilings get a dedicated flat, and cabinets get an alkyd hybrid for durability. We\'ll walk you through the options at the estimate.',
-    accent: 'var(--color-gold)',
+      "Professional-grade Benjamin Moore and Sherwin-Williams — the trade lines, not consumer shelves. We match the product to the surface: harder enamels for high-traffic areas, dedicated ceiling flats, alkyd hybrids for cabinets.",
+    accent: 'var(--color-rust)',
   },
   {
     id: 'drywall-repair',
-    question: 'Do you handle drywall repairs, or just paint?',
+    question: 'Do you handle drywall repairs?',
     answer:
-      'We handle the kind of surface prep that comes up on every paint job — filling nail holes and small dings, skim-coating hairline cracks, sanding ridges smooth, and re-caulking where trim has pulled away from the wall. What falls outside our scope: cutting out and replacing sections of drywall, structural patching, or damage that needs a dedicated drywall contractor. If we spot something during the walkthrough that crosses that line, we\'ll flag it before quoting.',
+      "Nail holes, dings, hairline cracks, and re-caulking trim — all in scope. Cutting out and replacing sections of drywall or structural patching needs a dedicated drywall contractor; we'll flag anything like that at the walkthrough before quoting.",
     accent: 'var(--color-terra)',
-  },
-  {
-    id: 'wallpaper-removal',
-    question: 'Do you remove existing wallpaper?',
-    answer:
-      'Yes — wallpaper removal is in scope. How long it takes depends on how many layers are present, the age of the adhesive, and what surface is underneath. We assess that at the walkthrough and quote removal as a separate line item so you see the cost clearly. After removal, we skim-coat any surface damage before priming.',
-    accent: 'var(--color-slate)',
-  },
-  {
-    id: 'color-matching',
-    question: 'Can you match a color from an existing paint job?',
-    answer:
-      'Yes. Bring us a paint chip, a paint can label with the color code, or a physical sample and we\'ll have it matched at the store before the job starts. If you want to stay as close as possible to an existing wall without a chip, we can pull a sample and take it in for spectrophotometer matching — it\'s not a perfect science but it gets very close. We\'ll tell you what the match confidence is before any coating goes down.',
-    accent: 'var(--color-gold)',
   },
 ]
 
