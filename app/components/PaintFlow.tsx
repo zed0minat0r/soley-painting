@@ -88,20 +88,8 @@ const NODES = [
   },
 ]
 
-const NODE_X = [8, 24, 40, 56, 72]
-const NODE_Y = 20
-
-function buildPath(nodeXArr: number[], y: number): string {
-  const pts = nodeXArr.map((x) => ({ x, y }))
-  let d = `M ${pts[0].x} ${pts[0].y}`
-  for (let i = 1; i < pts.length; i++) {
-    const midX = (pts[i - 1].x + pts[i].x) / 2
-    d += ` C ${midX} ${pts[i - 1].y - 4}, ${midX} ${pts[i].y - 4}, ${pts[i].x} ${pts[i].y}`
-  }
-  return d
-}
-
-const PATH_D = buildPath(NODE_X, NODE_Y)
+// Wavy SVG path removed when the timeline shifted from "floating wave + icons"
+// to "horizontal connector line behind icons" (cleaner visual relationship).
 
 export default function PaintFlow() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -233,7 +221,10 @@ export default function PaintFlow() {
           </p>
         </div>
 
-        {/* SVG flow diagram */}
+        {/* Process steps — 5 icons connected by a straight horizontal line
+            on desktop, stacked vertically on mobile. The SVG wave-and-dots
+            diagram was removed because it floated above the icons with no
+            visual relationship to them — the icon row IS the timeline now. */}
         <div
           style={{
             position: 'relative',
@@ -242,69 +233,35 @@ export default function PaintFlow() {
             transition: 'opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s',
           }}
         >
-          <svg
-            viewBox="0 0 80 40"
-            style={{
-              width: '100%',
-              height: 'auto',
-              overflow: 'visible',
-              display: 'block',
-            }}
-            preserveAspectRatio="xMidYMid meet"
-          >
-            <defs>
-              <linearGradient id="flow-gradient-dark" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#244238" />
-                <stop offset="100%" stopColor="#C9A876" />
-              </linearGradient>
-            </defs>
-
-            {/* Track path — subtle dark line */}
-            <path
-              d={PATH_D}
-              stroke="rgba(244,237,222,0.1)"
-              strokeWidth="0.5"
-              fill="none"
-            />
-
-            {/* Static gradient overlay — line is fully drawn, no animation */}
-            <path
-              d={PATH_D}
-              stroke="url(#flow-gradient-dark)"
-              strokeWidth="0.9"
-              fill="none"
-              strokeLinecap="round"
-            />
-
-            {/* Static nodes — no traveling dot, no pulsing, no splatter */}
-            {NODE_X.map((nx, i) => (
-              <g key={i}>
-                <circle
-                  cx={nx}
-                  cy={NODE_Y}
-                  r={2.3}
-                  fill="var(--color-umber)"
-                  stroke="rgba(244,237,222,0.35)"
-                  strokeWidth={0.4}
-                />
-                <circle
-                  cx={nx}
-                  cy={NODE_Y}
-                  r={0.65}
-                  fill="rgba(244,237,222,0.55)"
-                />
-              </g>
-            ))}
-          </svg>
-
-          {/* Node labels + swatch tiles */}
+          {/* 5-step timeline — icon circles connected by a horizontal line.
+              The line sits BEHIND the circles (via z-index) so each circle
+              visually punches through it. Spans from first-icon center to
+              last-icon center using % insets that scale with the row. */}
           <div
             className="paintflow-node-labels"
             style={{
               display: 'flex',
               justifyContent: 'space-between',
+              position: 'relative',
             }}
           >
+            {/* Connector line — behind icons (z-index 0). Sits at the icon's
+                vertical center. The 10%/90% insets place its endpoints under
+                the FIRST and LAST icon circles (each takes ~20% of width). */}
+            <div
+              aria-hidden
+              className="paintflow-connector"
+              style={{
+                position: 'absolute',
+                left: '10%',
+                right: '10%',
+                top: '34px', /* y-center of the 48px icon circle (8px swatch + 2px gap + 24px = ~34px) */
+                height: '1px',
+                background: 'linear-gradient(90deg, rgba(36,66,56,0.6), rgba(201,168,118,0.6))',
+                zIndex: 0,
+                pointerEvents: 'none',
+              }}
+            />
             {NODES.map((node, i) => {
               const isPulsing = false  // no traveling-dot pulse anymore
               return (
@@ -335,22 +292,21 @@ export default function PaintFlow() {
                     title={NODE_SWATCH_LABELS[i]}
                   />
 
-                  {/* Icon circle */}
+                  {/* Icon circle — z-index 1 sits above the connector line */}
                   <div
                     className="paintflow-node-icon"
                     style={{
                       width: '48px',
                       height: '48px',
                       borderRadius: '50%',
-                      background: isPulsing ? 'rgba(194,96,58,0.16)' : 'rgba(244,237,222,0.06)',
-                      border: isPulsing ? '1px solid rgba(194,96,58,0.55)' : '1px solid rgba(244,237,222,0.15)',
+                      background: 'var(--color-umber)',
+                      border: '1px solid rgba(244,237,222,0.25)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: isPulsing ? '#2E5247' : 'rgba(244,237,222,0.65)',
-                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                      transform: isPulsing ? 'scale(1.18)' : 'scale(1)',
-                      boxShadow: isPulsing ? '0 0 14px rgba(194,96,58,0.35)' : 'none',
+                      color: 'rgba(244,237,222,0.75)',
+                      position: 'relative',
+                      zIndex: 1,
                     }}
                   >
                     {node.icon}

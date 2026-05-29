@@ -525,10 +525,11 @@ a:focus-visible {
     text-align: left;
   }
 
-  /* FAQ: single column on mobile */
+  /* FAQ: single column on mobile (!important wins over the base .faq-grid
+     declaration that appears AFTER this media query in source order) */
   .faq-grid {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
+    grid-template-columns: 1fr !important;
+    gap: 2.5rem !important;
   }
   .faq-header {
     max-width: 100%;
