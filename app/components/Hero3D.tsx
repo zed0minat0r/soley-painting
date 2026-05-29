@@ -81,19 +81,21 @@ export default function Hero3D() {
         />
       ))}
 
-      {/* Ambient glow */}
+      {/* Ambient spotlight — centered on the brush's visual mass (bristles +
+          paint, which sit in the upper portion of the canvas-wrap, not on the
+          mathematical brush center which would put the glow too low). */}
       <div
         aria-hidden
         style={{
           position: 'absolute',
           left: '50%',
-          top: '52%',
+          top: '46%',
           transform: 'translate(-50%, -50%)',
-          width: 'min(700px, 100vw)',
-          height: 'min(700px, 100vw)',
+          width: 'min(560px, 90vw)',
+          height: 'min(560px, 90vw)',
           borderRadius: '50%',
           background:
-            'radial-gradient(circle, rgba(36,66,56,0.10) 0%, rgba(201,168,118,0.05) 55%, transparent 80%)',
+            'radial-gradient(circle, rgba(201,168,118,0.16) 0%, rgba(36,66,56,0.08) 45%, transparent 75%)',
           pointerEvents: 'none',
         }}
       />
@@ -160,7 +162,8 @@ export default function Hero3D() {
           position: 'relative',
         }}
       >
-        {/* Backlight glow — radial warm wash that lifts the brush off the umber section */}
+        {/* Backlight glow — tight spotlight centered on the brush bristles
+            (upper portion of the canvas-wrap, where the visual mass sits). */}
         <div
           aria-hidden
           style={{
@@ -168,8 +171,8 @@ export default function Hero3D() {
             inset: 0,
             pointerEvents: 'none',
             background:
-              'radial-gradient(circle at 50% 52%, rgba(36,66,56,0.22) 0%, rgba(61,42,30,0) 55%), radial-gradient(circle at 35% 35%, rgba(201,168,118,0.14) 0%, rgba(61,42,30,0) 50%)',
-            filter: 'blur(8px)',
+              'radial-gradient(circle at 50% 42%, rgba(201,168,118,0.22) 0%, rgba(36,66,56,0.12) 40%, rgba(20,36,29,0) 70%)',
+            filter: 'blur(6px)',
           }}
         />
         <Hero3DCanvas />
