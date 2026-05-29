@@ -1,13 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import Hero3DCanvas from './Hero3DCanvas'
 
-/* ── Soley Painting — Liquid Paint Pour Hero
-   Technique: A continuous viscous stream of paint pours from the top of the
-   canvas, falls under gravity, and pools at the bottom. The stream cycles
-   through the brand palette (rust → ochre → stone → umber). SVG turbulence
-   + feDisplacementMap give the stream its organic wobble. Pool ripples and
-   falling droplets are SMIL-animated. No new deps, no WebGL.
+/* ── Soley Painting — Rotating 3D Paintbrush Hero
+   Centerpiece: a real WebGL paintbrush (handle, ferrule, bristles, paint-loaded
+   tip) rotating continuously on its long axis. The paint on the bristle tip
+   cycles through the brand palette. Ported from Penn Tech's R3F cube technique.
 */
 
 // ── Ambient drifting particles (background atmosphere) ────────────────────
@@ -25,27 +23,7 @@ const PARTICLES: Particle[] = [
   { id:9, x:70, y:55, r:2.5, color:'#BF5B38', opacity:0.16, dur:17, delay:2.0 },
 ]
 
-// ── Paint pour palette cycle ──────────────────────────────────────────────
-const PAINT_COLORS = ['#BF5B38', '#B8884A', '#5C4838', '#3D2A1E']
-const COLOR_NAMES  = ['Rust', 'Ochre', 'Stone', 'Umber']
-const SECONDS_PER_COLOR = 4
-const TOTAL_CYCLE_SECONDS = SECONDS_PER_COLOR * PAINT_COLORS.length
-
-// Build a values string for SMIL stop-color cycling, looping back to the first
-const colorCycleValues = [...PAINT_COLORS, PAINT_COLORS[0]].join('; ')
-// Pool color lags slightly behind the stream — start one slot delayed
-const poolColorValues = [...PAINT_COLORS.slice(-1), ...PAINT_COLORS].join('; ')
-
 export default function Hero3D() {
-  const [colorIdx, setColorIdx] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setColorIdx(prev => (prev + 1) % PAINT_COLORS.length)
-    }, SECONDS_PER_COLOR * 1000)
-    return () => clearInterval(interval)
-  }, [])
-
   return (
     <section
       id="top"
@@ -241,212 +219,29 @@ export default function Hero3D() {
         Owner-operated. Same crew start to finish. Free walkthrough, written quote in 24 hours.
       </p>
 
-      {/* ── LIQUID PAINT POUR CENTERPIECE ── */}
+      {/* ── 3D PAINTBRUSH CENTERPIECE ── */}
       <div
         className="hero-canvas-wrap"
         style={{
-          width: 'min(640px, 92vw)',
-          aspectRatio: '16/7',
+          width: 'min(620px, 92vw)',
+          aspectRatio: '1 / 1',
+          maxHeight: '62vh',
           position: 'relative',
-          borderRadius: '6px',
-          overflow: 'hidden',
-          background: '#F4EDE3',
-          boxShadow:
-            '0 32px 80px rgba(0,0,0,0.55), 0 8px 24px rgba(0,0,0,0.3)',
         }}
       >
-        {/* Linen wall surface texture wash */}
+        {/* Backlight glow — radial warm wash that lifts the brush off the umber section */}
         <div
           aria-hidden
           style={{
             position: 'absolute',
             inset: 0,
-            background: `
-              radial-gradient(ellipse at 15% 25%, rgba(191,91,56,0.04) 0%, transparent 55%),
-              radial-gradient(ellipse at 85% 75%, rgba(184,136,74,0.03) 0%, transparent 55%)
-            `,
             pointerEvents: 'none',
-            zIndex: 1,
+            background:
+              'radial-gradient(circle at 50% 52%, rgba(191,91,56,0.22) 0%, rgba(61,42,30,0) 55%), radial-gradient(circle at 35% 35%, rgba(184,136,74,0.14) 0%, rgba(61,42,30,0) 50%)',
+            filter: 'blur(8px)',
           }}
         />
-
-        <svg
-          viewBox="0 0 560 245"
-          preserveAspectRatio="xMidYMid meet"
-          width="100%"
-          height="100%"
-          style={{
-            display: 'block',
-            position: 'relative',
-            zIndex: 2,
-          }}
-          aria-label="Liquid paint pouring through the Soley brand palette"
-        >
-          <defs>
-            {/* Viscous distortion — gives the stream organic wobble */}
-            <filter id="viscous" x="-15%" y="-5%" width="130%" height="115%">
-              <feTurbulence type="fractalNoise" baseFrequency="0.008 0.025" numOctaves="2" seed="3">
-                <animate attributeName="baseFrequency"
-                         values="0.008 0.025; 0.011 0.03; 0.007 0.022; 0.009 0.028; 0.008 0.025"
-                         dur="10s" repeatCount="indefinite" />
-              </feTurbulence>
-              <feDisplacementMap in="SourceGraphic" scale="3.5" />
-            </filter>
-
-            {/* Pool sheen — white highlight on top of pool */}
-            <linearGradient id="pool-sheen" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"  stopColor="#ffffff" stopOpacity="0.30" />
-              <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-            </linearGradient>
-
-            {/* Pool inner-shadow rim */}
-            <radialGradient id="pool-rim" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"  stopColor="#000000" stopOpacity="0" />
-              <stop offset="85%" stopColor="#000000" stopOpacity="0" />
-              <stop offset="100%" stopColor="#000000" stopOpacity="0.35" />
-            </radialGradient>
-
-            {/* Stream highlight band — lighter centerline */}
-            <linearGradient id="stream-highlight" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"  stopColor="#ffffff" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-            </linearGradient>
-
-            {/* Background subtle vignette to lift the pour visually */}
-            <radialGradient id="canvas-vignette" cx="50%" cy="50%" r="65%">
-              <stop offset="0%"  stopColor="#F4EDE3" stopOpacity="0" />
-              <stop offset="100%" stopColor="#1A0F08" stopOpacity="0.10" />
-            </radialGradient>
-          </defs>
-
-          {/* Subtle horizontal grain — suggests a flat wall surface */}
-          {[30, 60, 90, 120, 150, 180, 205].map((y, i) => (
-            <line key={i} x1="0" y1={y} x2="560" y2={y} stroke="#E0D5C5" strokeWidth="0.4" opacity={0.32} />
-          ))}
-
-          {/* Canvas vignette */}
-          <rect x="0" y="0" width="560" height="245" fill="url(#canvas-vignette)" />
-
-          {/* ── PAINT STREAM (with viscous distortion filter) ── */}
-          <g filter="url(#viscous)">
-            {/* Stream body — thicker, taller, widens into the pool */}
-            <path
-              d="M 264 0 L 261 40 L 258 80 L 261 120 L 258 160 L 256 200 L 254 222 L 306 222 L 304 200 L 302 160 L 299 120 L 302 80 L 299 40 L 296 0 Z"
-            >
-              <animate
-                attributeName="fill"
-                values={colorCycleValues}
-                dur={`${TOTAL_CYCLE_SECONDS}s`}
-                repeatCount="indefinite"
-              />
-            </path>
-
-            {/* Centerline highlight (wet sheen down the middle) */}
-            <path
-              d="M 273 0 L 272 70 L 273 140 L 274 210 L 286 210 L 287 140 L 286 70 L 287 0 Z"
-              fill="url(#stream-highlight)"
-            />
-
-            {/* Falling droplets — staggered, repeating */}
-            {[0, 0.6, 1.3, 2.1, 2.9].map((delay, i) => (
-              <circle key={i} cx={278 + (i % 2 === 0 ? -3 : 3)} cy="0" r={1.8 + (i % 2) * 0.7}>
-                <animate
-                  attributeName="cy"
-                  from="-10" to="225"
-                  dur="2.6s"
-                  begin={`${delay}s`}
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="opacity"
-                  values="0; 0.75; 0.75; 0"
-                  keyTimes="0; 0.1; 0.85; 1"
-                  dur="2.6s"
-                  begin={`${delay}s`}
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="fill"
-                  values={colorCycleValues}
-                  dur={`${TOTAL_CYCLE_SECONDS}s`}
-                  repeatCount="indefinite"
-                />
-              </circle>
-            ))}
-          </g>
-
-          {/* ── PAINT POOL — outside the viscous filter for a steadier rim ── */}
-          <g>
-            {/* Pool shadow on linen — soft darkness underneath */}
-            <ellipse cx="280" cy="232" rx="200" ry="11" fill="#1A0F08" opacity="0.10" />
-
-            {/* Pool body — larger and more present */}
-            <ellipse cx="280" cy="222" rx="200" ry="16">
-              <animate
-                attributeName="fill"
-                values={poolColorValues}
-                dur={`${TOTAL_CYCLE_SECONDS}s`}
-                repeatCount="indefinite"
-              />
-              <animate
-                attributeName="rx"
-                values="196; 204; 198; 202; 196"
-                dur="6s"
-                repeatCount="indefinite"
-              />
-            </ellipse>
-
-            {/* Pool rim shadow */}
-            <ellipse cx="280" cy="222" rx="200" ry="16" fill="url(#pool-rim)" />
-
-            {/* Ripples — three staggered concentric ripples emanating from impact */}
-            {[0, 1.2, 2.4].map((delay, i) => (
-              <ellipse key={i} cx="280" cy="218" fill="none" strokeWidth="1.4">
-                <animate attributeName="rx" from="12" to="160" dur="3.6s" begin={`${delay}s`} repeatCount="indefinite" />
-                <animate attributeName="ry" from="2" to="12"   dur="3.6s" begin={`${delay}s`} repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.6; 0.5; 0" keyTimes="0; 0.4; 1" dur="3.6s" begin={`${delay}s`} repeatCount="indefinite" />
-                <animate attributeName="stroke" values={poolColorValues} dur={`${TOTAL_CYCLE_SECONDS}s`} repeatCount="indefinite" />
-              </ellipse>
-            ))}
-
-            {/* Pool sheen — white highlight on top */}
-            <ellipse cx="280" cy="216" rx="194" ry="6" fill="url(#pool-sheen)" />
-
-            {/* Impact splash spots — tiny droplet beads around the impact point */}
-            <circle cx="244" cy="216" r="1.6" opacity="0.55">
-              <animate attributeName="fill" values={poolColorValues} dur={`${TOTAL_CYCLE_SECONDS}s`} repeatCount="indefinite" />
-            </circle>
-            <circle cx="314" cy="215" r="2.0" opacity="0.55">
-              <animate attributeName="fill" values={poolColorValues} dur={`${TOTAL_CYCLE_SECONDS}s`} repeatCount="indefinite" />
-            </circle>
-            <circle cx="222" cy="220" r="1.2" opacity="0.45">
-              <animate attributeName="fill" values={poolColorValues} dur={`${TOTAL_CYCLE_SECONDS}s`} repeatCount="indefinite" />
-            </circle>
-            <circle cx="336" cy="222" r="1.6" opacity="0.50">
-              <animate attributeName="fill" values={poolColorValues} dur={`${TOTAL_CYCLE_SECONDS}s`} repeatCount="indefinite" />
-            </circle>
-            <circle cx="200" cy="224" r="0.9" opacity="0.40">
-              <animate attributeName="fill" values={poolColorValues} dur={`${TOTAL_CYCLE_SECONDS}s`} repeatCount="indefinite" />
-            </circle>
-            <circle cx="360" cy="226" r="1.1" opacity="0.42">
-              <animate attributeName="fill" values={poolColorValues} dur={`${TOTAL_CYCLE_SECONDS}s`} repeatCount="indefinite" />
-            </circle>
-          </g>
-
-          {/* Color name label — bottom right */}
-          <text
-            x={552}
-            y={238}
-            textAnchor="end"
-            fontFamily="var(--font-body), sans-serif"
-            fontSize="10"
-            letterSpacing="2"
-            fill="rgba(34,24,16,0.32)"
-            style={{ textTransform: 'uppercase' }}
-          >
-            {COLOR_NAMES[colorIdx]}  {colorIdx + 1}/{PAINT_COLORS.length}
-          </text>
-        </svg>
+        <Hero3DCanvas />
       </div>
 
       {/* Body copy */}
