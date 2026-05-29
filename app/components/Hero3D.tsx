@@ -60,75 +60,6 @@ export default function Hero3D() {
         <rect x="0" y="0" width="100%" height="100%" fill="url(#gobo-ochre)" />
       </svg>
 
-      {/* Drop-cloth corner — bottom-left */}
-      <svg
-        aria-hidden
-        viewBox="0 0 220 180"
-        style={{ position:'absolute', bottom:0, left:0, width:'min(220px,28vw)', height:'auto', pointerEvents:'none', zIndex:1, opacity:0.55 }}
-      >
-        <path d="M0,180 L0,60 Q18,50 30,72 Q45,40 62,68 Q80,35 95,65 Q112,28 128,62 Q145,38 158,66 Q172,45 185,70 L220,180 Z"
-              fill="#D4C9B8" opacity="0.6" />
-        <path d="M0,180 L0,85 Q12,78 22,90 Q35,65 50,88 Q65,58 78,85 Q92,55 105,82 L95,180 Z"
-              fill="#C8BC9E" opacity="0.5" />
-        <line x1="28" y1="72" x2="20" y2="180" stroke="#A8987C" strokeWidth="0.8" opacity="0.35" />
-        <line x1="65" y1="68" x2="55" y2="180" stroke="#A8987C" strokeWidth="0.8" opacity="0.35" />
-        <line x1="96" y1="65" x2="88" y2="180" stroke="#A8987C" strokeWidth="0.8" opacity="0.3" />
-        <ellipse cx="38" cy="140" rx="12" ry="7" fill="#BF5B38" opacity="0.22" transform="rotate(-8,38,140)" />
-        <ellipse cx="75" cy="160" rx="8" ry="5" fill="#B8884A" opacity="0.18" transform="rotate(5,75,160)" />
-      </svg>
-
-      {/* Brush rest ledge — right side */}
-      <svg
-        aria-hidden
-        viewBox="0 0 140 60"
-        style={{ position:'absolute', right:'4%', bottom:'18%', width:'min(140px,18vw)', height:'auto', pointerEvents:'none', zIndex:1, opacity:0.6 }}
-      >
-        <rect x="0" y="38" width="140" height="8" rx="2" fill="#C8B89A" />
-        <rect x="0" y="44" width="140" height="4" rx="1" fill="#A89070" opacity="0.6" />
-        <rect x="10" y="24" width="88" height="14" rx="7" fill="#3D2314" />
-        <rect x="96" y="26" width="18" height="10" rx="5" fill="#5C3420" />
-        <rect x="9" y="26" width="10" height="10" rx="2" fill="#C8B8A2" stroke="#A8947E" strokeWidth="0.5" />
-        <path d="M9,29 Q2,26 0,31 Q2,36 9,33" fill="#BF5B38" opacity="0.9" />
-        <path d="M9,31 Q3,28 1,31 Q3,34 9,32" fill="#B8884A" opacity="0.7" />
-        <ellipse cx="4" cy="43" rx="6" ry="2.5" fill="#BF5B38" opacity="0.3" />
-        <rect x="18" y="28" width="72" height="10" rx="5" fill="#4A2D1A" opacity="0.7" />
-        <rect x="17" y="29" width="8" height="8" rx="1.5" fill="#C8B8A2" stroke="#A8947E" strokeWidth="0.4" />
-        <path d="M17,31 Q11,29 9,32 Q11,35 17,33" fill="#B8884A" opacity="0.85" />
-      </svg>
-
-      {/* Paint drips — rust/ochre/ochre/rust */}
-      <svg
-        aria-hidden
-        viewBox="0 0 700 60"
-        preserveAspectRatio="none"
-        style={{ position:'absolute', bottom:0, left:0, right:0, width:'100%', height:'min(60px,8vh)', pointerEvents:'none', zIndex:1 }}
-      >
-        <g>
-          <animateTransform attributeName="transform" type="translate" values="0,0; 0,4; 0,0" dur="10s" repeatCount="indefinite" additive="sum" />
-          <ellipse cx="115" cy="0" rx="5" ry="3" fill="#BF5B38" opacity="0.7" />
-          <path d="M110,0 Q112,28 115,42 Q118,28 120,0 Z" fill="#BF5B38" opacity="0.65" />
-          <ellipse cx="115" cy="44" rx="5" ry="6" fill="#BF5B38" opacity="0.6" />
-        </g>
-        <g>
-          <animateTransform attributeName="transform" type="translate" values="0,0; 0,6; 0,0" dur="13s" repeatCount="indefinite" additive="sum" />
-          <ellipse cx="255" cy="0" rx="4" ry="2.5" fill="#B8884A" opacity="0.65" />
-          <path d="M251,0 Q253,22 255,34 Q257,22 259,0 Z" fill="#B8884A" opacity="0.6" />
-          <ellipse cx="255" cy="36" rx="4" ry="5" fill="#B8884A" opacity="0.55" />
-        </g>
-        <g>
-          <animateTransform attributeName="transform" type="translate" values="0,0; 0,5; 0,0" dur="11.5s" repeatCount="indefinite" additive="sum" />
-          <ellipse cx="420" cy="0" rx="3.5" ry="2" fill="#B8884A" opacity="0.6" />
-          <path d="M416.5,0 Q418,18 420,28 Q422,18 423.5,0 Z" fill="#B8884A" opacity="0.55" />
-          <ellipse cx="420" cy="30" rx="3.5" ry="4.5" fill="#B8884A" opacity="0.5" />
-        </g>
-        <g>
-          <animateTransform attributeName="transform" type="translate" values="0,0; 0,3; 0,0" dur="9s" repeatCount="indefinite" additive="sum" />
-          <ellipse cx="575" cy="0" rx="4.5" ry="2.5" fill="#BF5B38" opacity="0.55" />
-          <path d="M570.5,0 Q572.5,20 575,32 Q577.5,20 579.5,0 Z" fill="#BF5B38" opacity="0.5" />
-          <ellipse cx="575" cy="33" rx="4.5" ry="5.5" fill="#BF5B38" opacity="0.45" />
-        </g>
-      </svg>
-
       {/* Constant-velocity drifting paint particles */}
       {PARTICLES.map(p => (
         <div
@@ -279,12 +210,16 @@ export default function Hero3D() {
 
       {/* Trust signals */}
       <div
+        className="hero-trust-signals"
         style={{
           marginTop: '3rem',
           paddingTop: '2rem',
+          paddingLeft: '1.5rem',
+          paddingRight: '1.5rem',
           borderTop: '1px solid rgba(244, 237, 237, 0.12)',
           display: 'flex',
-          gap: '3rem',
+          gap: '2.5rem',
+          rowGap: '1.5rem',
           flexWrap: 'wrap',
           justifyContent: 'center',
           width: '100%',
@@ -321,40 +256,6 @@ export default function Hero3D() {
         ))}
       </div>
 
-      {/* Scroll indicator */}
-      <div
-        aria-label="Scroll down"
-        style={{
-          position: 'absolute',
-          bottom: '2rem',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '0.5rem',
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: '0.875rem',
-            letterSpacing: '0.3em',
-            textTransform: 'uppercase',
-            color: 'rgba(244, 237, 227, 0.35)',
-          }}
-        >
-          Scroll
-        </span>
-        <div
-          style={{
-            width: '1px',
-            height: '36px',
-            background: 'linear-gradient(to bottom, rgba(191,91,56,0.6), transparent)',
-          }}
-          className="animate-bounce-x"
-        />
-      </div>
     </section>
   )
 }

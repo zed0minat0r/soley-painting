@@ -69,32 +69,24 @@ function Paintbrush() {
     return shape
   }, [])
 
-  // Vertical bristle striations — dense visible lines on the broad face so
-  // the tuft reads unambiguously as bristles.
+  // Vertical bristle striations — DENSE many-line packing so the broad face
+  // reads as a real brush, not a rectangle.
   const bristleLines = useMemo(() => {
     const lines: { x: number; xTip: number; height: number; thick: number; shade: string }[] = []
-    const N = 32
+    const N = 70
     for (let i = 0; i < N; i++) {
       const tx = i / (N - 1) - 0.5
       // Base of bristle pack spans x = -0.72 .. 0.72 (matches bristleShape baseHalf)
       // Tip of bristle pack spans x = -0.85 .. 0.85 (tipHalf — splayed)
-      const xBase = tx * 1.40   // close to base width 1.44 (= 0.72 * 2)
-      const xTip  = tx * 1.66   // close to tip width 1.70 (= 0.85 * 2)
-      // Mix of widths + shades so the striations don't look mechanical
-      const thick = i % 3 === 0 ? 0.028 : 0.022
-      const shade = i % 5 === 0 ? '#5C4838' : i % 3 === 0 ? '#7A5F44' : '#8F7456'
+      const xBase = tx * 1.40
+      const xTip  = tx * 1.66
+      // Vary width + shade so packed lines don't look like a regular grating
+      const thick = i % 4 === 0 ? 0.020 : i % 3 === 0 ? 0.016 : 0.012
+      const shade = i % 6 === 0 ? '#1F120A' : i % 4 === 0 ? '#3D2A1E' : i % 3 === 0 ? '#5C4838' : '#7A5F44'
       lines.push({ x: xBase, xTip, height: 1.02, thick, shade })
     }
     return lines
   }, [])
-
-  // Bristle clump rings — three faint horizontal bands across the tuft,
-  // suggesting the way bristles bend / clump together at multiple heights
-  const clumpBands = useMemo(() => [
-    { y: 0.95, opacity: 0.35 },
-    { y: 1.30, opacity: 0.28 },
-    { y: 1.60, opacity: 0.22 },
-  ], [])
 
   useFrame((state) => {
     const t = state.clock.elapsedTime
@@ -228,48 +220,6 @@ function Paintbrush() {
         )
       })}
 
-      {/* Horizontal clump bands — subtle dark bands where bristle bundles
-          naturally clump together, visible across the broad face */}
-      {clumpBands.map((band, i) => (
-        <group key={`band-${i}`}>
-          <mesh position={[0, band.y, 0.135]}>
-            <boxGeometry args={[1.55, 0.022, 0.004]} />
-            <meshStandardMaterial
-              color="#6F5840"
-              roughness={0.95}
-              metalness={0}
-              transparent
-              opacity={band.opacity}
-            />
-          </mesh>
-          <mesh position={[0, band.y, -0.135]}>
-            <boxGeometry args={[1.55, 0.022, 0.004]} />
-            <meshStandardMaterial
-              color="#6F5840"
-              roughness={0.95}
-              metalness={0}
-              transparent
-              opacity={band.opacity}
-            />
-          </mesh>
-        </group>
-      ))}
-
-      {/* Edge-view bristle striations — short dark lines on the THIN side of
-          the tuft, so even when the brush is rotated edge-on the bristle
-          texture is still visible. */}
-      {[-0.66, -0.33, 0, 0.33, 0.66].map((y, i) => (
-        <group key={`edge-${i}`}>
-          <mesh position={[0.86, 1.18 - 0.45 + y * 0.5, 0]} rotation={[0, Math.PI / 2, 0]}>
-            <boxGeometry args={[0.18, 0.018, 0.002]} />
-            <meshStandardMaterial color="#6F5840" roughness={0.95} metalness={0} />
-          </mesh>
-          <mesh position={[-0.86, 1.18 - 0.45 + y * 0.5, 0]} rotation={[0, Math.PI / 2, 0]}>
-            <boxGeometry args={[0.18, 0.018, 0.002]} />
-            <meshStandardMaterial color="#6F5840" roughness={0.95} metalness={0} />
-          </mesh>
-        </group>
-      ))}
 
       {/* ── PAINT-SOAKED BRISTLE BASE — translucent layer at the base where
           paint has wicked up from the load ── */}
