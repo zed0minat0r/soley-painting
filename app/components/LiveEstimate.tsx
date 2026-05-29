@@ -120,15 +120,15 @@ export default function LiveEstimate() {
     fontSize: '0.875rem',
     letterSpacing: '0.14em',
     textTransform: 'uppercase',
-    color: 'rgba(245,240,234,0.45)',
+    color: 'rgba(244,237,222,0.45)',
     marginBottom: '0.375rem',
   }
 
   /* Shared field box style */
   const fieldBox = (active: boolean): React.CSSProperties => ({
     padding: '0.75rem 1rem',
-    background: active ? 'rgba(194,96,58,0.06)' : 'rgba(245,240,234,0.04)',
-    border: `1px solid ${active ? 'rgba(194,96,58,0.7)' : 'rgba(245,240,234,0.12)'}`,
+    background: active ? 'rgba(194,96,58,0.06)' : 'rgba(244,237,222,0.04)',
+    border: `1px solid ${active ? 'rgba(194,96,58,0.7)' : 'rgba(244,237,222,0.12)'}`,
     fontFamily: 'var(--font-body)',
     fontSize: '0.9375rem',
     color: 'var(--color-chalk)',
@@ -199,7 +199,7 @@ export default function LiveEstimate() {
                 fontSize: '0.875rem',
                 letterSpacing: '0.3em',
                 textTransform: 'uppercase',
-                color: 'var(--color-terra)',
+                color: 'var(--color-ochre)',
                 marginBottom: '1rem',
               }}
             >
@@ -274,7 +274,7 @@ export default function LiveEstimate() {
                     }}
                   >
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                      <path d="M2 5L4.2 7.5L8 3" stroke="#C2603A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M2 5L4.2 7.5L8 3" stroke="#2E5247" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </span>
                   {item}
@@ -287,7 +287,7 @@ export default function LiveEstimate() {
           <div
             style={{
               background: 'var(--color-umber)',
-              border: '1px solid rgba(245,240,234,0.08)',
+              border: '1px solid rgba(244,237,222,0.08)',
               padding: '2rem 2rem 1.75rem',
               position: 'relative',
               /* Fixed height: no layout jump as fields fill */
@@ -313,7 +313,7 @@ export default function LiveEstimate() {
                   fontSize: '0.875rem',
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
-                  color: isSent ? 'var(--color-terra)' : 'rgba(245,240,234,0.4)',
+                  color: isSent ? 'var(--color-terra)' : 'rgba(244,237,222,0.4)',
                   transition: 'color 0.4s ease',
                   margin: 0,
                 }}
@@ -326,8 +326,8 @@ export default function LiveEstimate() {
                   width: '7px',
                   height: '7px',
                   borderRadius: '50%',
-                  background: isSent ? 'var(--color-terra)' : 'rgba(184,136,74,0.6)',
-                  boxShadow: isSent ? '0 0 8px rgba(194,96,58,0.6)' : '0 0 6px rgba(184,136,74,0.4)',
+                  background: isSent ? 'var(--color-terra)' : 'rgba(184,115,51,0.6)',
+                  boxShadow: isSent ? '0 0 8px rgba(194,96,58,0.6)' : '0 0 6px rgba(184,115,51,0.4)',
                   transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                   flexShrink: 0,
                 }}
@@ -340,7 +340,7 @@ export default function LiveEstimate() {
               <div>
                 <label style={labelStyle}>Project type</label>
                 <div style={fieldBox(cursorField === 'type')}>
-                  {typeValue || (phase === 'idle' && <span style={{ color: 'rgba(245,240,234,0.28)' }}>Interior, exterior, commercial…</span>)}
+                  {typeValue || (phase === 'idle' && <span style={{ color: 'rgba(244,237,222,0.28)' }}>Interior, exterior, commercial…</span>)}
                   {blinkCursor(cursorField === 'type')}
                 </div>
               </div>
@@ -349,7 +349,7 @@ export default function LiveEstimate() {
               <div>
                 <label style={labelStyle}>Property address</label>
                 <div style={fieldBox(cursorField === 'address')}>
-                  {addressValue || (phase === 'idle' && <span style={{ color: 'rgba(245,240,234,0.28)' }}>Street address…</span>)}
+                  {addressValue || (phase === 'idle' && <span style={{ color: 'rgba(244,237,222,0.28)' }}>Street address…</span>)}
                   {blinkCursor(cursorField === 'address')}
                 </div>
               </div>
@@ -363,7 +363,7 @@ export default function LiveEstimate() {
                     minHeight: '72px',
                   }}
                 >
-                  {messageValue || (phase === 'idle' && <span style={{ color: 'rgba(245,240,234,0.28)' }}>Tell us about your project…</span>)}
+                  {messageValue || (phase === 'idle' && <span style={{ color: 'rgba(244,237,222,0.28)' }}>Tell us about your project…</span>)}
                   {blinkCursor(cursorField === 'message')}
                 </div>
               </div>
@@ -409,7 +409,7 @@ export default function LiveEstimate() {
                     style={{
                       fontFamily: 'var(--font-body)',
                       fontSize: '0.875rem',
-                      color: 'var(--color-terra)',
+                      color: 'var(--color-ochre)',
                       animation: 'pop-in 0.35s cubic-bezier(0.16,1,0.3,1) 0.1s both',
                     }}
                   >
@@ -429,7 +429,7 @@ export default function LiveEstimate() {
                     fontSize: '0.875rem',
                     letterSpacing: '0.1em',
                     textTransform: 'uppercase',
-                    color: 'rgba(245,240,234,0.55)',
+                    color: 'rgba(244,237,222,0.55)',
                     transition: 'background 0.4s ease',
                     userSelect: 'none',
                   }}

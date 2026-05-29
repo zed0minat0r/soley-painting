@@ -71,14 +71,14 @@ export default function Footer() {
               }}
             >
               Soley<br />
-              <span style={{ color: 'var(--color-terra)' }}>Painting</span>
+              <span style={{ color: 'var(--color-ochre)' }}>Painting</span>
             </p>
             <p
               style={{
                 fontFamily: 'var(--font-body)',
                 fontSize: '0.875rem',
                 lineHeight: 1.7,
-                color: 'rgba(245,240,234,0.5)',
+                color: 'rgba(244,237,222,0.5)',
                 maxWidth: '28ch',
                 marginBottom: '1.75rem',
               }}
@@ -105,7 +105,7 @@ export default function Footer() {
                   fontSize: '0.875rem',
                   letterSpacing: '0.16em',
                   textTransform: 'uppercase',
-                  color: 'rgba(245,240,234,0.35)',
+                  color: 'rgba(244,237,222,0.35)',
                   marginBottom: '1.25rem',
                 }}
               >
@@ -119,7 +119,7 @@ export default function Footer() {
                       style={{
                         fontFamily: 'var(--font-body)',
                         fontSize: '0.875rem',
-                        color: 'rgba(245,240,234,0.58)',
+                        color: 'rgba(244,237,222,0.58)',
                         textDecoration: 'none',
                         transition: 'color 0.2s ease',
                         display: 'inline-flex',
@@ -127,7 +127,7 @@ export default function Footer() {
                         minHeight: '44px',
                       }}
                       onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = 'var(--color-terra)')}
-                      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(245,240,234,0.58)')}
+                      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(244,237,222,0.58)')}
                     >
                       {link.label}
                     </a>
@@ -142,7 +142,7 @@ export default function Footer() {
       {/* Bottom bar */}
       <div
         style={{
-          borderTop: '1px solid rgba(245,240,234,0.1)',
+          borderTop: '1px solid rgba(244,237,222,0.1)',
         }}
       >
         <div
@@ -159,7 +159,7 @@ export default function Footer() {
             style={{
               fontFamily: 'var(--font-body)',
               fontSize: '0.875rem',
-              color: 'rgba(245,240,234,0.3)',
+              color: 'rgba(244,237,222,0.3)',
             }}
           >
             &copy; {new Date().getFullYear()} Soley Painting. All rights reserved.
@@ -172,7 +172,7 @@ export default function Footer() {
               fontSize: '0.875rem', /* Pixel cycle 8: bumped from 0.7rem (11.2px) → 13px floor */
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
-              color: 'rgba(245,240,234,0.28)',
+              color: 'rgba(244,237,222,0.28)',
             }}
           >
             Social channels coming soon

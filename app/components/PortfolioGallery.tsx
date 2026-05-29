@@ -9,68 +9,68 @@ const CHIPS: Category[] = ['ALL', 'INTERIOR', 'EXTERIOR', 'COMMERCIAL', 'CABINET
 
 /* ── Swatch colors per category (brand tokens) ──────────────────────────── */
 const SWATCH: Record<Exclude<Category, 'ALL'>, string> = {
-  INTERIOR:         '#BF5B38', // rust
-  EXTERIOR:         '#B8884A', // ochre
-  COMMERCIAL:       '#B8884A', // ochre
-  'CABINET & TRIM': '#EAE0D4', // stone
-  SPECIALTY:        '#8C4A2F', // dark terra
+  INTERIOR:         '#244238', // rust
+  EXTERIOR:         '#B87333', // ochre
+  COMMERCIAL:       '#B87333', // ochre
+  'CABINET & TRIM': '#EEE4D0', // stone
+  SPECIALTY:        '#1E3A2E', // dark terra
 }
 
 /* ── Border accent per category (used for hover left-rail) ─────────────── */
 const ACCENT: Record<Exclude<Category, 'ALL'>, string> = {
-  INTERIOR:         '#BF5B38',
-  EXTERIOR:         '#B8884A',
-  COMMERCIAL:       '#B8884A',
-  'CABINET & TRIM': '#8C7B72',
-  SPECIALTY:        '#8C4A2F',
+  INTERIOR:         '#244238',
+  EXTERIOR:         '#B87333',
+  COMMERCIAL:       '#B87333',
+  'CABINET & TRIM': '#7D8B7A',
+  SPECIALTY:        '#1E3A2E',
 }
 
 /* ── SVG painted swatches per category ─────────────────────────────────── */
 const SWATCH_SVG: Record<Exclude<Category, 'ALL'>, string> = {
   INTERIOR: `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
-      <rect width="400" height="300" fill="#3D2B1F"/>
-      <ellipse cx="200" cy="150" rx="160" ry="80" fill="#BF5B38" fill-opacity="0.32" transform="rotate(-8 200 150)"/>
-      <rect x="80" y="80" width="240" height="10" rx="5" fill="#BF5B38" fill-opacity="0.22" transform="rotate(4 200 85)"/>
-      <rect x="100" y="110" width="180" height="7" rx="3" fill="#F4EDE3" fill-opacity="0.10"/>
-      <ellipse cx="200" cy="160" rx="90" ry="28" fill="#BF5B38" fill-opacity="0.18" transform="rotate(5 200 160)"/>
-      <rect x="40" y="200" width="320" height="6" rx="3" fill="#B8884A" fill-opacity="0.14" transform="rotate(-3 200 203)"/>
+      <rect width="400" height="300" fill="#0F1E18"/>
+      <ellipse cx="200" cy="150" rx="160" ry="80" fill="#244238" fill-opacity="0.32" transform="rotate(-8 200 150)"/>
+      <rect x="80" y="80" width="240" height="10" rx="5" fill="#244238" fill-opacity="0.22" transform="rotate(4 200 85)"/>
+      <rect x="100" y="110" width="180" height="7" rx="3" fill="#F2EBD9" fill-opacity="0.10"/>
+      <ellipse cx="200" cy="160" rx="90" ry="28" fill="#244238" fill-opacity="0.18" transform="rotate(5 200 160)"/>
+      <rect x="40" y="200" width="320" height="6" rx="3" fill="#B87333" fill-opacity="0.14" transform="rotate(-3 200 203)"/>
     </svg>`,
   EXTERIOR: `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
-      <rect width="400" height="300" fill="#3D2B1F"/>
-      <ellipse cx="200" cy="140" rx="170" ry="60" fill="#B8884A" fill-opacity="0.30" transform="rotate(6 200 140)"/>
-      <rect x="60" y="90" width="280" height="9" rx="4" fill="#B8884A" fill-opacity="0.20" transform="rotate(-5 200 94)"/>
-      <ellipse cx="160" cy="180" rx="120" ry="35" fill="#BF5B38" fill-opacity="0.22" transform="rotate(10 160 180)"/>
-      <rect x="30" y="220" width="340" height="7" rx="3" fill="#F4EDE3" fill-opacity="0.08"/>
-      <ellipse cx="240" cy="110" rx="70" ry="20" fill="#B8884A" fill-opacity="0.15"/>
+      <rect width="400" height="300" fill="#0F1E18"/>
+      <ellipse cx="200" cy="140" rx="170" ry="60" fill="#B87333" fill-opacity="0.30" transform="rotate(6 200 140)"/>
+      <rect x="60" y="90" width="280" height="9" rx="4" fill="#B87333" fill-opacity="0.20" transform="rotate(-5 200 94)"/>
+      <ellipse cx="160" cy="180" rx="120" ry="35" fill="#244238" fill-opacity="0.22" transform="rotate(10 160 180)"/>
+      <rect x="30" y="220" width="340" height="7" rx="3" fill="#F2EBD9" fill-opacity="0.08"/>
+      <ellipse cx="240" cy="110" rx="70" ry="20" fill="#B87333" fill-opacity="0.15"/>
     </svg>`,
   COMMERCIAL: `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
-      <rect width="400" height="300" fill="#3D2B1F"/>
-      <rect x="50" y="70" width="300" height="14" rx="7" fill="#B8884A" fill-opacity="0.28" transform="rotate(2 200 77)"/>
-      <rect x="80" y="100" width="240" height="9" rx="4" fill="#B8884A" fill-opacity="0.20" transform="rotate(-3 200 104)"/>
-      <ellipse cx="200" cy="165" rx="150" ry="55" fill="#BF5B38" fill-opacity="0.14" transform="rotate(8 200 165)"/>
-      <rect x="30" y="190" width="340" height="7" rx="3" fill="#B8884A" fill-opacity="0.18" transform="rotate(-2 200 193)"/>
-      <rect x="100" y="220" width="200" height="6" rx="3" fill="#F4EDE3" fill-opacity="0.07"/>
+      <rect width="400" height="300" fill="#0F1E18"/>
+      <rect x="50" y="70" width="300" height="14" rx="7" fill="#B87333" fill-opacity="0.28" transform="rotate(2 200 77)"/>
+      <rect x="80" y="100" width="240" height="9" rx="4" fill="#B87333" fill-opacity="0.20" transform="rotate(-3 200 104)"/>
+      <ellipse cx="200" cy="165" rx="150" ry="55" fill="#244238" fill-opacity="0.14" transform="rotate(8 200 165)"/>
+      <rect x="30" y="190" width="340" height="7" rx="3" fill="#B87333" fill-opacity="0.18" transform="rotate(-2 200 193)"/>
+      <rect x="100" y="220" width="200" height="6" rx="3" fill="#F2EBD9" fill-opacity="0.07"/>
     </svg>`,
   'CABINET & TRIM': `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
-      <rect width="400" height="300" fill="#3D2B1F"/>
-      <rect x="30" y="60" width="340" height="12" rx="6" fill="#EAE0D4" fill-opacity="0.35" transform="rotate(1 200 66)"/>
-      <rect x="60" y="90" width="280" height="8" rx="4" fill="#B8884A" fill-opacity="0.22"/>
-      <rect x="90" y="115" width="220" height="6" rx="3" fill="#B8884A" fill-opacity="0.18" transform="rotate(-2 200 118)"/>
-      <ellipse cx="200" cy="175" rx="130" ry="40" fill="#EAE0D4" fill-opacity="0.20" transform="rotate(4 200 175)"/>
-      <rect x="50" y="220" width="300" height="7" rx="3" fill="#F4EDE3" fill-opacity="0.08"/>
+      <rect width="400" height="300" fill="#0F1E18"/>
+      <rect x="30" y="60" width="340" height="12" rx="6" fill="#EEE4D0" fill-opacity="0.35" transform="rotate(1 200 66)"/>
+      <rect x="60" y="90" width="280" height="8" rx="4" fill="#B87333" fill-opacity="0.22"/>
+      <rect x="90" y="115" width="220" height="6" rx="3" fill="#B87333" fill-opacity="0.18" transform="rotate(-2 200 118)"/>
+      <ellipse cx="200" cy="175" rx="130" ry="40" fill="#EEE4D0" fill-opacity="0.20" transform="rotate(4 200 175)"/>
+      <rect x="50" y="220" width="300" height="7" rx="3" fill="#F2EBD9" fill-opacity="0.08"/>
     </svg>`,
   SPECIALTY: `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
-      <rect width="400" height="300" fill="#3D2B1F"/>
-      <ellipse cx="200" cy="130" rx="155" ry="65" fill="#8C4A2F" fill-opacity="0.30" transform="rotate(-10 200 130)"/>
-      <rect x="70" y="80" width="260" height="10" rx="5" fill="#8C4A2F" fill-opacity="0.24" transform="rotate(6 200 85)"/>
-      <ellipse cx="200" cy="180" rx="100" ry="32" fill="#BF5B38" fill-opacity="0.16" transform="rotate(-5 200 180)"/>
-      <rect x="40" y="210" width="320" height="8" rx="4" fill="#8C4A2F" fill-opacity="0.20" transform="rotate(2 200 214)"/>
-      <rect x="110" y="240" width="180" height="5" rx="2" fill="#F4EDE3" fill-opacity="0.07"/>
+      <rect width="400" height="300" fill="#0F1E18"/>
+      <ellipse cx="200" cy="130" rx="155" ry="65" fill="#1E3A2E" fill-opacity="0.30" transform="rotate(-10 200 130)"/>
+      <rect x="70" y="80" width="260" height="10" rx="5" fill="#1E3A2E" fill-opacity="0.24" transform="rotate(6 200 85)"/>
+      <ellipse cx="200" cy="180" rx="100" ry="32" fill="#244238" fill-opacity="0.16" transform="rotate(-5 200 180)"/>
+      <rect x="40" y="210" width="320" height="8" rx="4" fill="#1E3A2E" fill-opacity="0.20" transform="rotate(2 200 214)"/>
+      <rect x="110" y="240" width="180" height="5" rx="2" fill="#F2EBD9" fill-opacity="0.07"/>
     </svg>`,
 }
 
@@ -182,7 +182,7 @@ export default function PortfolioGallery() {
         style={{
           fontFamily: 'var(--font-body)',
           fontSize: '0.875rem',
-          color: 'rgba(245,240,234,0.45)',
+          color: 'rgba(244,237,222,0.45)',
           textAlign: 'center',
           letterSpacing: '0.06em',
           marginBottom: '2rem',

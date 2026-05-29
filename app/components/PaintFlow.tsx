@@ -16,7 +16,7 @@ import { useEffect, useRef, useState } from 'react'
        + Scout Site C (Mills) dark premium panel with warm accent rhythm.
    Replaced: simple feGaussianBlur bloom ring on lead dot (was outer glow ring, now splatter) */
 
-const NODE_SWATCHES = ['#BF5B38', '#B8884A', '#F4EDE3', '#B8884A', '#BF5B38']
+const NODE_SWATCHES = ['#244238', '#B87333', '#F2EBD9', '#B87333', '#244238']
 const NODE_SWATCH_LABELS = ['Rust', 'Ochre', 'Linen', 'Ochre', 'Finish']
 
 const NODES = [
@@ -189,7 +189,7 @@ export default function PaintFlow() {
       {/* Top border stroke */}
       <div style={{
         position: 'absolute', top: '6px', left: '6px', right: '6px', height: '2px',
-        background: 'rgba(245,240,234,0.18)',
+        background: 'rgba(244,237,222,0.18)',
         transformOrigin: 'left center',
         transform: borderDrawn ? 'scaleX(1)' : 'scaleX(0)',
         transition: 'transform 0.6s cubic-bezier(0.16,1,0.3,1) 0s',
@@ -198,7 +198,7 @@ export default function PaintFlow() {
       {/* Right border stroke */}
       <div style={{
         position: 'absolute', top: '6px', right: '6px', bottom: '6px', width: '2px',
-        background: 'rgba(245,240,234,0.18)',
+        background: 'rgba(244,237,222,0.18)',
         transformOrigin: 'top center',
         transform: borderDrawn ? 'scaleY(1)' : 'scaleY(0)',
         transition: 'transform 0.5s cubic-bezier(0.16,1,0.3,1) 0.55s',
@@ -207,7 +207,7 @@ export default function PaintFlow() {
       {/* Bottom border stroke */}
       <div style={{
         position: 'absolute', bottom: '6px', left: '6px', right: '6px', height: '2px',
-        background: 'rgba(245,240,234,0.18)',
+        background: 'rgba(244,237,222,0.18)',
         transformOrigin: 'right center',
         transform: borderDrawn ? 'scaleX(1)' : 'scaleX(0)',
         transition: 'transform 0.5s cubic-bezier(0.16,1,0.3,1) 1.0s',
@@ -216,7 +216,7 @@ export default function PaintFlow() {
       {/* Left border stroke */}
       <div style={{
         position: 'absolute', top: '6px', left: '6px', bottom: '6px', width: '2px',
-        background: 'rgba(245,240,234,0.18)',
+        background: 'rgba(244,237,222,0.18)',
         transformOrigin: 'bottom center',
         transform: borderDrawn ? 'scaleY(1)' : 'scaleY(0)',
         transition: 'transform 0.5s cubic-bezier(0.16,1,0.3,1) 1.45s',
@@ -277,7 +277,7 @@ export default function PaintFlow() {
                 fontSize: '0.875rem',
                 letterSpacing: '0.3em',
                 textTransform: 'uppercase',
-                color: 'var(--color-terra)',
+                color: 'var(--color-ochre)',
                 marginBottom: '0.75rem',
               }}
             >
@@ -293,7 +293,7 @@ export default function PaintFlow() {
               }}
             >
               Wall to finish —<br />
-              <em style={{ color: 'var(--color-terra)' }}>nothing skipped.</em>
+              <em style={{ color: 'var(--color-ochre)' }}>nothing skipped.</em>
             </h2>
           </div>
           <p
@@ -301,7 +301,7 @@ export default function PaintFlow() {
               fontFamily: 'var(--font-body)',
               fontSize: '1rem',
               lineHeight: 1.72,
-              color: 'rgba(245,240,234,0.55)',
+              color: 'rgba(244,237,222,0.55)',
               maxWidth: '34ch',
             }}
           >
@@ -331,15 +331,15 @@ export default function PaintFlow() {
           >
             <defs>
               <linearGradient id="flow-gradient-dark" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#BF5B38" />
-                <stop offset="100%" stopColor="#B8884A" />
+                <stop offset="0%" stopColor="#244238" />
+                <stop offset="100%" stopColor="#B87333" />
               </linearGradient>
             </defs>
 
             {/* Track path — subtle dark line */}
             <path
               d={PATH_D}
-              stroke="rgba(245,240,234,0.1)"
+              stroke="rgba(244,237,222,0.1)"
               strokeWidth="0.5"
               fill="none"
             />
@@ -370,7 +370,7 @@ export default function PaintFlow() {
                   cx={ghostPos.x}
                   cy={ghostPos.y}
                   r={ghostRadius}
-                  fill="#C2603A"
+                  fill="#2E5247"
                   opacity={GHOST_OPACITIES[gi]}
                 />
               )
@@ -391,7 +391,7 @@ export default function PaintFlow() {
                   cx={dot1.x}
                   cy={dot1.y}
                   r="0.85"
-                  fill="#C2603A"
+                  fill="#2E5247"
                 />
               </>
             )}
@@ -413,7 +413,7 @@ export default function PaintFlow() {
                         cx={nx + dx}
                         cy={NODE_Y + dy}
                         r={splatterR}
-                        fill="#C2603A"
+                        fill="#2E5247"
                         opacity={0.55}
                       />
                     )
@@ -424,7 +424,7 @@ export default function PaintFlow() {
                     cy={NODE_Y}
                     r={isPulsing ? 2.9 : 2.3}
                     fill="var(--color-umber)"
-                    stroke={isPulsing ? '#C2603A' : 'rgba(245,240,234,0.25)'}
+                    stroke={isPulsing ? '#2E5247' : 'rgba(244,237,222,0.25)'}
                     strokeWidth={isPulsing ? 0.55 : 0.4}
                     style={{
                       transition: 'r 0.25s ease, stroke 0.25s ease, stroke-width 0.25s ease',
@@ -435,7 +435,7 @@ export default function PaintFlow() {
                     cx={nx}
                     cy={NODE_Y}
                     r={isPulsing ? 1.0 : 0.65}
-                    fill={isPulsing ? '#C2603A' : 'rgba(245,240,234,0.4)'}
+                    fill={isPulsing ? '#2E5247' : 'rgba(244,237,222,0.4)'}
                     style={{ transition: 'r 0.25s ease, fill 0.25s ease' }}
                   />
                 </g>
@@ -488,12 +488,12 @@ export default function PaintFlow() {
                       width: '48px',
                       height: '48px',
                       borderRadius: '50%',
-                      background: isPulsing ? 'rgba(194,96,58,0.16)' : 'rgba(245,240,234,0.06)',
-                      border: isPulsing ? '1px solid rgba(194,96,58,0.55)' : '1px solid rgba(245,240,234,0.15)',
+                      background: isPulsing ? 'rgba(194,96,58,0.16)' : 'rgba(244,237,222,0.06)',
+                      border: isPulsing ? '1px solid rgba(194,96,58,0.55)' : '1px solid rgba(244,237,222,0.15)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: isPulsing ? '#C2603A' : 'rgba(245,240,234,0.65)',
+                      color: isPulsing ? '#2E5247' : 'rgba(244,237,222,0.65)',
                       transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                       transform: isPulsing ? 'scale(1.18)' : 'scale(1)',
                       boxShadow: isPulsing ? '0 0 14px rgba(194,96,58,0.35)' : 'none',
@@ -510,7 +510,7 @@ export default function PaintFlow() {
                       fontSize: '0.875rem',
                       letterSpacing: '0.08em',
                       textTransform: 'uppercase',
-                      color: isPulsing ? '#C2603A' : 'rgba(245,240,234,0.8)',
+                      color: isPulsing ? '#2E5247' : 'rgba(244,237,222,0.8)',
                       transition: 'color 0.3s ease',
                     }}
                   >
@@ -520,7 +520,7 @@ export default function PaintFlow() {
                     style={{
                       fontFamily: 'var(--font-body)',
                       fontSize: '0.875rem',
-                      color: 'rgba(245,240,234,0.4)',
+                      color: 'rgba(244,237,222,0.4)',
                       textAlign: 'center',
                       lineHeight: 1.4,
                     }}

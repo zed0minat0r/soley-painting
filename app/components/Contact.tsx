@@ -250,7 +250,7 @@ export default function Contact() {
                 <p
                   style={{
                     fontFamily: 'var(--font-body)',
-                    color: 'rgba(245,240,234,0.6)',
+                    color: 'rgba(244,237,222,0.6)',
                     fontSize: '0.9375rem',
                   }}
                 >
@@ -274,7 +274,7 @@ export default function Contact() {
                   style={{
                     fontFamily: 'var(--font-body)',
                     fontSize: '0.875rem',
-                    color: 'rgba(245,240,234,0.45)',
+                    color: 'rgba(244,237,222,0.45)',
                     marginBottom: '2rem',
                   }}
                 >
@@ -291,7 +291,7 @@ export default function Contact() {
                           fontSize: '0.875rem', /* Pixel cycle 8: bumped from 0.6875rem (11px) → 13px floor */
                           letterSpacing: '0.12em',
                           textTransform: 'uppercase',
-                          color: 'rgba(245,240,234,0.45)',
+                          color: 'rgba(244,237,222,0.45)',
                           display: 'block',
                           marginBottom: '0.4rem',
                         }}
@@ -316,7 +316,7 @@ export default function Contact() {
                           fontSize: '0.875rem', /* Pixel cycle 8: bumped from 0.6875rem (11px) → 13px floor */
                           letterSpacing: '0.12em',
                           textTransform: 'uppercase',
-                          color: 'rgba(245,240,234,0.45)',
+                          color: 'rgba(244,237,222,0.45)',
                           display: 'block',
                           marginBottom: '0.4rem',
                         }}
@@ -342,7 +342,7 @@ export default function Contact() {
                         fontSize: '0.875rem', /* Pixel cycle 8: bumped from 0.6875rem (11px) → 13px floor */
                         letterSpacing: '0.12em',
                         textTransform: 'uppercase',
-                        color: 'rgba(245,240,234,0.45)',
+                        color: 'rgba(244,237,222,0.45)',
                         display: 'block',
                         marginBottom: '0.4rem',
                       }}
@@ -368,7 +368,7 @@ export default function Contact() {
                         fontSize: '0.875rem', /* Pixel cycle 8: bumped from 0.6875rem (11px) → 13px floor */
                         letterSpacing: '0.12em',
                         textTransform: 'uppercase',
-                        color: 'rgba(245,240,234,0.45)',
+                        color: 'rgba(244,237,222,0.45)',
                         display: 'block',
                         marginBottom: '0.4rem',
                       }}

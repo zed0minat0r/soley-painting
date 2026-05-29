@@ -6,16 +6,16 @@
 import { useScroll, useVelocity, useTransform, useSpring, motion } from 'framer-motion'
 
 // Drop Cloth & Rust palette — rust / ochre / linen / stone rotation.
-// No teal. Stone (#EAE0D4) added as warm mid-tone contrast.
+// No teal. Stone (#EEE4D0) added as warm mid-tone contrast.
 const ITEMS = [
-  { label: 'Interior Painting',   color: '#F4EDE3' },   // linen
-  { label: 'Exterior Painting',   color: '#BF5B38' },   // rust
-  { label: 'Commercial',          color: '#B8884A' },   // ochre
-  { label: 'Cabinet & Trim',      color: '#EAE0D4' },   // stone
-  { label: 'Specialty Coatings',  color: '#BF5B38' },   // rust
-  { label: 'Surface Prep',        color: '#B8884A' },   // ochre
-  { label: 'Color Consultation',  color: '#F4EDE3' },   // linen
-  { label: 'Free Estimate',       color: '#EAE0D4' },   // stone
+  { label: 'Interior Painting',   color: '#F2EBD9' },   // linen
+  { label: 'Exterior Painting',   color: '#244238' },   // rust
+  { label: 'Commercial',          color: '#B87333' },   // ochre
+  { label: 'Cabinet & Trim',      color: '#EEE4D0' },   // stone
+  { label: 'Specialty Coatings',  color: '#244238' },   // rust
+  { label: 'Surface Prep',        color: '#B87333' },   // ochre
+  { label: 'Color Consultation',  color: '#F2EBD9' },   // linen
+  { label: 'Free Estimate',       color: '#EEE4D0' },   // stone
 ]
 
 // Duplicate for seamless loop
@@ -33,8 +33,8 @@ export default function ServicesMarquee() {
         background: 'var(--color-umber)',
         padding: '1.5rem 0',
         overflow: 'hidden',
-        borderTop: '1px solid rgba(245,240,234,0.08)',
-        borderBottom: '1px solid rgba(245,240,234,0.08)',
+        borderTop: '1px solid rgba(244,237,222,0.08)',
+        borderBottom: '1px solid rgba(244,237,222,0.08)',
       }}
     >
       <motion.div

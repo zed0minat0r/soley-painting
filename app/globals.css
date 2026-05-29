@@ -2,19 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Brand CSS Custom Properties — Drop Cloth & Rust palette ─────────── */
+/* ── Brand CSS Custom Properties — Forest, Bone, Copper palette ─────── */
 :root {
-  /* Primary tokens — Drop Cloth & Rust (Scout Round 5, commit 40979ad) */
-  --color-rust:   #BF5B38;  /* primary brand — was terracotta #C2603A */
-  --color-linen:  #F4EDE3;  /* main background — was chalk #F5F0EA */
-  --color-stone:  #EAE0D4;  /* alt warm background (NEW) */
-  --color-umber:  #221810;  /* text/footer — was #2C1F16 */
-  --color-ochre:  #B8884A;  /* hover/accent only, max 5% pixel real estate — was gold #B8935A */
-  /* Backward-compat aliases — keep components that reference old tokens working */
+  /* Primary tokens — Forest + Bone + Copper. Token names kept (rust/ochre/
+     umber/linen) for backward compat across components — only the values
+     change. */
+  --color-rust:   #244238;  /* primary brand — deep hunter green (was #244238) */
+  --color-linen:  #F2EBD9;  /* main background — warm bone (was #F2EBD9) */
+  --color-stone:  #EEE4D0;  /* alt warm background — slightly warmer bone */
+  --color-umber:  #14241D;  /* text / dark sections — very deep forest (was #14241D) */
+  --color-ochre:  #B87333;  /* accent — burnished copper (was #B87333) */
+  /* Aliases */
   --color-terra:  var(--color-rust);
   --color-chalk:  var(--color-linen);
   --color-gold:   var(--color-ochre);
-  --color-slate:  #8C7B72;  /* mid-tone warm gray — chip borders/inactive text */
+  --color-slate:  #7D8B7A;  /* sage gray — chip borders / inactive text */
 
   --font-heading: "Cormorant Garamond", Georgia, serif;
   --font-body:    "DM Sans", system-ui, sans-serif;
@@ -102,7 +104,7 @@
     font-size: 0.875rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    border: 1px solid rgba(245, 240, 234, 0.4);
+    border: 1px solid rgba(244, 237, 222, 0.4);
     position: relative;
     cursor: pointer;
     text-decoration: none;
@@ -148,14 +150,14 @@
 .glow-hero {
   text-shadow:
     0 0 1px #fff,
-    0 0 10px rgba(191, 91, 56, 0.75),
-    0 0 28px rgba(184, 136, 74, 0.35);
+    0 0 10px rgba(36, 66, 56, 0.75),
+    0 0 28px rgba(184, 115, 51, 0.35);
 }
 .glow-sub {
   text-shadow:
     0 0 1px rgba(255,255,255,0.5),
-    0 0 8px rgba(184, 136, 74, 0.55),
-    0 0 20px rgba(191, 91, 56, 0.25);
+    0 0 8px rgba(184, 115, 51, 0.55),
+    0 0 20px rgba(36, 66, 56, 0.25);
 }
 /* ── SSR-safe scroll reveal (catalog item #9) ─────────────────────────
    Hidden state ships in SSR HTML — no hydration flash                    */
@@ -252,8 +254,8 @@
 .form-field {
   width: 100%;
   padding: 0.875rem 1rem;
-  background: rgba(245, 240, 234, 0.06);
-  border: 1px solid rgba(245, 240, 234, 0.2);
+  background: rgba(244, 237, 222, 0.06);
+  border: 1px solid rgba(244, 237, 222, 0.2);
   color: var(--color-chalk);
   font-family: var(--font-body);
   font-size: 0.9375rem;
@@ -262,7 +264,7 @@
   transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .form-field::placeholder {
-  color: rgba(245, 240, 234, 0.35);
+  color: rgba(244, 237, 222, 0.35);
 }
 .form-field:focus {
   border-color: var(--color-terra);
@@ -276,7 +278,7 @@
   background: rgba(194, 96, 58, 0.05);
 }
 .form-field:focus::placeholder {
-  color: rgba(245, 240, 234, 0.5);
+  color: rgba(244, 237, 222, 0.5);
 }
 
 /* ── Page-wide :focus-visible a11y sweep (Spark cycle 7, Frame B)
@@ -596,7 +598,7 @@ a:focus-visible {
 .portfolio-headline {
   font-family: var(--font-heading);
   font-size: clamp(2rem, 4vw, 3.25rem);
-  color: var(--color-slate);
+  color: var(--color-umber);
   line-height: 1.1;
   margin-bottom: 1.1rem;
 }
@@ -752,7 +754,7 @@ a:focus-visible {
   font-family: var(--font-body);
   font-style: italic;
   font-size: 0.875rem;
-  color: rgba(245, 240, 234, 0.88);
+  color: rgba(244, 237, 222, 0.88);
   letter-spacing: 0.04em;
   text-align: center;
   padding: 0 1rem;
@@ -932,7 +934,7 @@ a:focus-visible {
 }
 
 /* ── Process→Contact section-transition: paint-bleed ramp (Spark Frame A)
-   Seam: Process (umber #221810) → Contact (chalk #F4EDE3) — hardest cut
+   Seam: Process (umber #14241D) → Contact (chalk #F2EBD9) — hardest cut
    on the page; no SectionDivider between them.
    Treatment: Contact::before extends upward with a negative top offset to
    physically overlap the bottom of the Process section, painting a rust
@@ -964,9 +966,9 @@ a:focus-visible {
   /* rust edge (Process side) → warm tint → transparent (Contact side) */
   background: linear-gradient(
     to bottom,
-    rgba(191, 91, 56, 0.52) 0%,
-    rgba(191, 91, 56, 0.22) 38%,
-    rgba(191, 91, 56, 0.06) 65%,
+    rgba(36, 66, 56, 0.52) 0%,
+    rgba(36, 66, 56, 0.22) 38%,
+    rgba(36, 66, 56, 0.06) 65%,
     transparent 100%
   );
   pointer-events: none;

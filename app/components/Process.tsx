@@ -193,7 +193,7 @@ export default function Process() {
               fontSize: '0.875rem',
               letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: 'var(--color-terra)',
+              color: 'var(--color-ochre)',
               marginBottom: '1rem',
             }}
           >
@@ -281,7 +281,7 @@ export default function Process() {
                   padding: '1rem 1.25rem',
                   background: i === activeStep ? 'rgba(194,96,58,0.12)' : 'transparent',
                   border: 'none',
-                  borderLeft: `3px solid ${i === activeStep ? 'var(--color-terra)' : 'rgba(245,240,234,0.08)'}`,
+                  borderLeft: `3px solid ${i === activeStep ? 'var(--color-terra)' : 'rgba(244,237,222,0.08)'}`,
                   cursor: 'pointer',
                   textAlign: 'left',
                   transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -294,7 +294,7 @@ export default function Process() {
                     fontSize: '0.875rem',
                     fontWeight: 600,
                     letterSpacing: '0.12em',
-                    color: i === activeStep ? 'var(--color-terra)' : 'rgba(245,240,234,0.3)',
+                    color: i === activeStep ? 'var(--color-terra)' : 'rgba(244,237,222,0.3)',
                     minWidth: '1.5rem',
                   }}
                 >
@@ -305,7 +305,7 @@ export default function Process() {
                     fontFamily: 'var(--font-body)',
                     fontSize: '0.9375rem',
                     fontWeight: 500,
-                    color: i === activeStep ? 'var(--color-chalk)' : 'rgba(245,240,234,0.45)',
+                    color: i === activeStep ? 'var(--color-chalk)' : 'rgba(244,237,222,0.45)',
                   }}
                 >
                   {s.title}
@@ -338,7 +338,7 @@ export default function Process() {
                   fontWeight: 700,
                   fontSize: 'clamp(3.5rem, 6vw, 5.5rem)',
                   lineHeight: 1,
-                  color: 'var(--color-terra)',
+                  color: 'var(--color-ochre)',
                   opacity: 1,  // full opacity — not a ghost
                   letterSpacing: '-0.02em',
                 }}
@@ -350,7 +350,7 @@ export default function Process() {
                 style={{
                   flex: 1,
                   height: '2px',
-                  background: 'rgba(245,240,234,0.1)',
+                  background: 'rgba(244,237,222,0.1)',
                   position: 'relative',
                   overflow: 'hidden',
                   alignSelf: 'center',
@@ -395,7 +395,7 @@ export default function Process() {
                 fontFamily: 'var(--font-body)',
                 fontSize: '1.0625rem',
                 lineHeight: 1.75,
-                color: 'rgba(245,240,234,0.7)',
+                color: 'rgba(244,237,222,0.7)',
                 marginBottom: '2rem',
                 maxWidth: '54ch',
               }}
@@ -414,7 +414,7 @@ export default function Process() {
                     gap: '0.875rem',
                     fontFamily: 'var(--font-body)',
                     fontSize: '0.9375rem',
-                    color: 'rgba(245,240,234,0.8)',
+                    color: 'rgba(244,237,222,0.8)',
                     marginBottom: '0.875rem',
                   }}
                 >

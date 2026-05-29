@@ -1,12 +1,11 @@
 import type { Config } from 'tailwindcss'
 
-// Soley Painting — Drop Cloth & Rust palette (Scout Round 5, commit 40979ad)
-// --color-rust   #BF5B38  Rust    — primary brand (was terracotta #C2603A)
-// --color-linen  #F4EDE3  Linen   — main background (was chalk #F5F0EA)
-// --color-stone  #EAE0D4  Stone   — alt warm background (new)
-// --color-umber  #221810  Umber   — text/footer (was #2C1F16)
-// --color-ochre  #B8884A  Ochre   — hover/accent (max 5% pixels; was gold #B8935A)
-// Teal #2D7A70 DELETED from palette.
+// Soley Painting — Forest, Bone, Copper palette
+// --color-rust   #244238  Forest  — primary brand (deep hunter green)
+// --color-linen  #F2EBD9  Bone    — main background
+// --color-stone  #EEE4D0  Warm Bone — alt background
+// --color-umber  #14241D  Deep Forest — text/dark sections
+// --color-ochre  #B87333  Copper  — accent
 const config: Config = {
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -16,76 +15,76 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Primary tokens — new names
+        // Primary tokens — Forest / Bone / Copper
         rust: {
-          DEFAULT: '#BF5B38',
-          light: '#D4775A',
-          dark: '#A34E2D',
+          DEFAULT: '#244238',  // forest primary
+          light: '#3A5C50',
+          dark: '#173028',
         },
         linen: {
-          DEFAULT: '#F4EDE3',
-          dark: '#EAE0D4',
+          DEFAULT: '#F2EBD9',  // bone
+          dark: '#EEE4D0',
         },
         stone: {
-          DEFAULT: '#EAE0D4',
-          dark: '#D8CCB8',
+          DEFAULT: '#EEE4D0',
+          dark: '#DCCFB2',
         },
         ochre: {
-          DEFAULT: '#B8884A',
-          light: '#CDA96D',
-          dark: '#9A7A45',
+          DEFAULT: '#B87333',  // copper
+          light: '#D08F4C',
+          dark: '#8E5824',
         },
         umber: {
-          DEFAULT: '#221810',
-          mid: '#4A3527',
-          light: '#6B4E3B',
+          DEFAULT: '#14241D',  // deep forest
+          mid: '#2C443A',
+          light: '#4A6256',
         },
-        // Backward-compat aliases (old names → new values)
+        // Backward-compat aliases
         terra: {
-          DEFAULT: '#BF5B38',
-          light: '#D4775A',
-          dark: '#A34E2D',
+          DEFAULT: '#244238',
+          light: '#3A5C50',
+          dark: '#173028',
         },
         chalk: {
-          DEFAULT: '#F4EDE3',
-          dark: '#EAE0D4',
+          DEFAULT: '#F2EBD9',
+          dark: '#EEE4D0',
         },
         gold: {
-          DEFAULT: '#B8884A',
-          light: '#CDA96D',
-          dark: '#9A7A45',
+          DEFAULT: '#B87333',
+          light: '#D08F4C',
+          dark: '#8E5824',
         },
-        // keep legacy primaries for any existing refs
+        // Legacy primary scale — recoloured to a green ramp
         primary: {
-          50: '#fef5f0',
-          100: '#fde7da',
-          200: '#fbcab0',
-          300: '#f8a581',
-          400: '#f47e51',
-          500: '#BF5B38',
-          600: '#A34E2D',
-          700: '#8a3420',
-          800: '#702517',
-          900: '#5a1d12',
+          50: '#F0F4F2',
+          100: '#D7E1DB',
+          200: '#B6CABE',
+          300: '#8FAFA0',
+          400: '#5F8C7A',
+          500: '#244238',
+          600: '#1C3329',
+          700: '#142822',
+          800: '#0E1F1B',
+          900: '#091612',
         },
-        // accent tokens — ochre replaces teal
+        // accent — copper scale
         accent: {
-          400: '#CDA96D',
-          500: '#B8884A',
-          600: '#9A7A45',
+          400: '#D08F4C',
+          500: '#B87333',
+          600: '#8E5824',
         },
         dark: {
-          100: '#F5F0EA',
-          200: '#EBE4DB',
-          300: '#6B4E3B',
-          400: '#4A3527',
-          500: '#3A2A1E',
-          600: '#2C1F16',
-          700: '#221710',
-          800: '#180F0A',
-          900: '#100A06',
-          925: '#0A0603',
-          950: '#060300',
+          100: '#F4EDDE',
+          200: '#EAE0CB',
+          300: '#5C7068',
+          400: '#3F564B',
+          500: '#2A3F35',
+          600: '#1F3028',
+          700: '#152420',
+          800: '#0F1A17',
+          900: '#0A1310',
+          925: '#070D0B',
+          950: '#040806',
         },
       },
       fontFamily: {

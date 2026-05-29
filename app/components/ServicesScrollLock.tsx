@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react'
 
 /* ── Brand accent bar colors — Drop Cloth & Rust palette ─────────────────── */
 // Rotation: rust / stone / ochre / linen / rust (teal removed)
-const PANEL_BAR_COLORS = ['#BF5B38', '#EAE0D4', '#B8884A', '#F4EDE3', '#BF5B38']
+const PANEL_BAR_COLORS = ['#244238', '#EEE4D0', '#B87333', '#F2EBD9', '#244238']
 
 /* ── Service SVG icons — painter-trade visual language, matches SectionDivider/PaintFlow ── */
 // Each returns a 28x28 SVG with stroke in the panel accent color
@@ -101,9 +101,9 @@ const PANELS = [
   {
     id: 'interior',
     title: 'Interior',
-    accent: '#F5F0EA',
-    accentText: '#2C1F16',
-    bg: '#2C1F16',
+    accent: '#F4EDDE',
+    accentText: '#122520',
+    bg: '#122520',
     headline: 'Rooms that feel new — without moving furniture.',
     descriptor:
       'Walls, ceilings, trim, and crown molding. We protect every surface with drop-cloth floor-to-ceiling coverage before the first brush touches a wall.',
@@ -116,8 +116,8 @@ const PANELS = [
   {
     id: 'exterior',
     title: 'Exterior',
-    accent: '#EAE0D4',
-    accentText: '#221810',
+    accent: '#EEE4D0',
+    accentText: '#14241D',
     bg: '#1F1712',
     headline: 'Weather-ready from the first coat.',
     descriptor:
@@ -131,8 +131,8 @@ const PANELS = [
   {
     id: 'commercial',
     title: 'Commercial',
-    accent: '#C2603A',
-    accentText: '#F5F0EA',
+    accent: '#2E5247',
+    accentText: '#F4EDDE',
     bg: '#221812',
     headline: 'Professional finish. Minimal disruption.',
     descriptor:
@@ -146,9 +146,9 @@ const PANELS = [
   {
     id: 'cabinet',
     title: 'Cabinet & Trim',
-    accent: '#B8935A',
-    accentText: '#2C1F16',
-    bg: '#2C1F16',
+    accent: '#B87333',
+    accentText: '#122520',
+    bg: '#122520',
     headline: 'The highest-margin upgrade in any room.',
     descriptor:
       'Kitchen, bathroom, and built-in cabinets refinished with factory-grade finish quality. Spray-applied for a glass-smooth surface that holds color longer than brush-applied coatings.',
@@ -161,8 +161,8 @@ const PANELS = [
   {
     id: 'specialty',
     title: 'Specialty',
-    accent: '#C2603A',
-    accentText: '#F5F0EA',
+    accent: '#2E5247',
+    accentText: '#F4EDDE',
     bg: '#1A130E',
     headline: 'Beyond standard paint.',
     descriptor:
@@ -312,7 +312,7 @@ export default function ServicesScrollLock() {
               fontSize: '0.875rem',
               letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: 'rgba(245,240,234,0.5)',
+              color: 'rgba(244,237,222,0.5)',
             }}
           >
             Scroll to explore
@@ -387,7 +387,7 @@ export default function ServicesScrollLock() {
                   fontFamily: 'var(--font-body)',
                   fontSize: '0.875rem',
                   letterSpacing: '0.15em',
-                  color: 'rgba(245,240,234,0.25)',
+                  color: 'rgba(244,237,222,0.25)',
                   zIndex: 2,
                 }}
               >
@@ -480,7 +480,7 @@ export default function ServicesScrollLock() {
                           fontSize: '0.875rem',
                           letterSpacing: '0.18em',
                           textTransform: 'uppercase',
-                          color: 'rgba(245,240,234,0.45)',
+                          color: 'rgba(244,237,222,0.45)',
                         }}
                       >
                         Soley Painting
@@ -529,7 +529,7 @@ export default function ServicesScrollLock() {
                     fontFamily: 'var(--font-body)',
                     fontSize: '1rem',
                     lineHeight: 1.75,
-                    color: 'rgba(245,240,234,0.65)',
+                    color: 'rgba(244,237,222,0.65)',
                     maxWidth: '44ch',
                     marginBottom: '1.75rem',
                   }}
@@ -548,7 +548,7 @@ export default function ServicesScrollLock() {
                         gap: '0.75rem',
                         fontFamily: 'var(--font-body)',
                         fontSize: '0.875rem',
-                        color: 'rgba(245,240,234,0.78)',
+                        color: 'rgba(244,237,222,0.78)',
                         marginBottom: '0.625rem',
                       }}
                     >

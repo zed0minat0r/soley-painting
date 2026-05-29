@@ -93,7 +93,7 @@ function FAQItem({
     <div
       className="scroll-reveal"
       style={{
-        borderBottom: '1px solid rgba(245,240,234,0.12)',
+        borderBottom: '1px solid rgba(244,237,222,0.12)',
         transitionDelay: `${index * 0.07}s`,
       }}
     >
@@ -139,7 +139,7 @@ function FAQItem({
             fontSize: 'clamp(1.125rem, 2vw, 1.375rem)',
             fontWeight: 600,
             lineHeight: 1.2,
-            color: isOpen ? 'var(--color-chalk)' : 'rgba(245,240,234,0.75)',
+            color: isOpen ? 'var(--color-chalk)' : 'rgba(244,237,222,0.75)',
             transition: 'color 0.3s ease',
           }}
         >
@@ -186,7 +186,7 @@ function FAQItem({
             fontFamily: 'var(--font-body)',
             fontSize: '1rem',
             lineHeight: 1.72,
-            color: 'rgba(245,240,234,0.65)',
+            color: 'rgba(244,237,222,0.65)',
             paddingBottom: '1.625rem',
             paddingLeft: '1.375rem',
             margin: 0,
@@ -244,7 +244,7 @@ export default function FAQ() {
                 fontSize: '0.875rem',
                 letterSpacing: '0.3em',
                 textTransform: 'uppercase',
-                color: 'var(--color-terra)',
+                color: 'var(--color-ochre)',
                 marginBottom: '0.875rem',
               }}
             >
@@ -262,14 +262,14 @@ export default function FAQ() {
             >
               What people ask
               <br />
-              <em style={{ color: 'var(--color-terra)' }}>before they book.</em>
+              <em style={{ color: 'var(--color-ochre)' }}>before they book.</em>
             </h2>
             <p
               style={{
                 fontFamily: 'var(--font-body)',
                 fontSize: '1rem',
                 lineHeight: 1.72,
-                color: 'rgba(245,240,234,0.55)',
+                color: 'rgba(244,237,222,0.55)',
                 maxWidth: '32ch',
               }}
             >

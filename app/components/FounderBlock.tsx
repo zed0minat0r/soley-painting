@@ -62,7 +62,7 @@ export default function FounderBlock() {
           width: '420px',
           height: '420px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(184,136,74,0.08) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(184,115,51,0.08) 0%, transparent 70%)',
           pointerEvents: 'none',
         }}
       />
@@ -84,7 +84,7 @@ export default function FounderBlock() {
               fontSize: '0.875rem',
               letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: 'var(--color-terra)',
+              color: 'var(--color-ochre)',
               marginBottom: '1.25rem',
             }}
           >
@@ -102,14 +102,14 @@ export default function FounderBlock() {
           >
             Run by a small crew
             <br />
-            <em style={{ color: 'var(--color-terra)' }}>that actually shows up.</em>
+            <em style={{ color: 'var(--color-ochre)' }}>that actually shows up.</em>
           </h2>
           <p
             style={{
               fontFamily: 'var(--font-body)',
               fontSize: '1rem',
               lineHeight: 1.72,
-              color: 'rgba(245,240,234,0.6)',
+              color: 'rgba(244,237,222,0.6)',
             }}
           >
             Soley Painting is owner-operated. Every estimate, every walkthrough, and every
@@ -140,7 +140,7 @@ export default function FounderBlock() {
               fontFamily: 'var(--font-heading)',
               fontSize: '3.5rem',
               lineHeight: 1,
-              color: 'var(--color-terra)',
+              color: 'var(--color-ochre)',
               opacity: 0.55,
               userSelect: 'none',
             }}
@@ -168,7 +168,7 @@ export default function FounderBlock() {
               fontSize: '0.875rem',
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color: 'rgba(245,240,234,0.38)',
+              color: 'rgba(244,237,222,0.38)',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
@@ -203,7 +203,7 @@ export default function FounderBlock() {
                 paddingLeft: '0.875rem',
                 paddingTop: '0.375rem',
                 paddingBottom: '0.375rem',
-                background: 'rgba(245,240,234,0.03)',
+                background: 'rgba(244,237,222,0.03)',
                 flex: '1 1 180px',
                 minWidth: 0,
               }}
@@ -226,7 +226,7 @@ export default function FounderBlock() {
                   fontFamily: 'var(--font-body)',
                   fontSize: '0.9375rem',
                   lineHeight: 1.5,
-                  color: 'rgba(245,240,234,0.7)',
+                  color: 'rgba(244,237,222,0.7)',
                 }}
               >
                 {value}

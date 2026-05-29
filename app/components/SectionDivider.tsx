@@ -9,9 +9,9 @@ import { useEffect, useRef, useState } from 'react'
    IntersectionObserver-gated for perf. */
 
 const DROPS = [
-  { color: '#BF5B38', highlight: '#E8906A', delay: 0 },     // rust
-  { color: '#B8884A', highlight: '#D4B07A', delay: 0.15 },  // ochre (replaced teal)
-  { color: '#B8884A', highlight: '#CFA96A', delay: 0.3 },   // ochre warm
+  { color: '#244238', highlight: '#E8906A', delay: 0 },     // rust
+  { color: '#B87333', highlight: '#D4B07A', delay: 0.15 },  // ochre (replaced teal)
+  { color: '#B87333', highlight: '#CFA96A', delay: 0.3 },   // ochre warm
 ]
 
 export default function SectionDivider({ flip = false }: { flip?: boolean }) {
@@ -60,7 +60,7 @@ export default function SectionDivider({ flip = false }: { flip?: boolean }) {
   // Default to umber so dividers between dark sections don't read as a bright
   // cream stripe. `flip` now switches to chalk for transitions into light sections.
   const bg = flip ? 'var(--color-chalk)' : 'var(--color-umber)'
-  const hairlineOpacity = flip ? 'rgba(44,31,22,0.12)' : 'rgba(245,240,234,0.18)'
+  const hairlineOpacity = flip ? 'rgba(44,31,22,0.12)' : 'rgba(244,237,222,0.18)'
 
   return (
     <div
@@ -166,7 +166,7 @@ export default function SectionDivider({ flip = false }: { flip?: boolean }) {
             height: '12px',
             borderRadius: '50%',
             background: 'var(--color-ochre)',
-            boxShadow: '0 0 8px 3px rgba(184,136,74,0.55), 0 0 18px 6px rgba(184,136,74,0.25)',
+            boxShadow: '0 0 8px 3px rgba(184,115,51,0.55), 0 0 18px 6px rgba(184,115,51,0.25)',
             '--travel-w': '40%',
             animation: 'pulse-travel-left 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.9s infinite',
           } as React.CSSProperties}

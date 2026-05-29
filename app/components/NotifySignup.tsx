@@ -35,8 +35,8 @@ export default function NotifySignup() {
       aria-labelledby="notify-heading"
       style={{
         background: 'var(--color-stone)',
-        borderTop: '1px solid rgba(34,24,16,0.08)',
-        borderBottom: '1px solid rgba(34,24,16,0.08)',
+        borderTop: '1px solid rgba(20,36,29,0.08)',
+        borderBottom: '1px solid rgba(20,36,29,0.08)',
         padding: '5rem 1.5rem',
       }}
     >
@@ -111,7 +111,7 @@ export default function NotifySignup() {
             {/* Checkmark */}
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
               <circle cx="9" cy="9" r="9" fill="var(--color-rust)" />
-              <path d="M5 9.5 L7.8 12 L13 6.5" stroke="#F4EDE3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M5 9.5 L7.8 12 L13 6.5" stroke="#F2EBD9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             <span
               style={{
@@ -153,7 +153,7 @@ export default function NotifySignup() {
                 fontFamily: 'var(--font-body)',
                 fontSize: '1rem',
                 padding: '0.875rem 1.25rem',
-                border: '1.5px solid rgba(34,24,16,0.2)',
+                border: '1.5px solid rgba(20,36,29,0.2)',
                 borderRadius: '4px',
                 background: 'var(--color-linen)',
                 color: 'var(--color-umber)',
@@ -164,7 +164,7 @@ export default function NotifySignup() {
                 transition: 'border-color 0.18s',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'var(--color-rust)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(34,24,16,0.2)')}
+              onBlur={(e) => (e.target.style.borderColor = 'rgba(20,36,29,0.2)')}
             />
             <button
               type="submit"

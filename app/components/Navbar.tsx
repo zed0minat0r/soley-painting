@@ -62,7 +62,7 @@ export default function Navbar() {
           alignItems: 'center',
         }}
       >
-        Soley<span style={{ color: 'var(--color-terra)' }}> Painting</span>
+        Soley<span style={{ color: 'var(--color-ochre)' }}> Painting</span>
       </a>
 
       {/* Links — hidden on mobile, visible on desktop */}
@@ -82,7 +82,7 @@ export default function Navbar() {
               fontSize: '0.875rem',
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
-              color: 'rgba(245, 240, 234, 0.78)',
+              color: 'rgba(244, 237, 222, 0.78)',
               textDecoration: 'none',
               minHeight: '44px',
               display: 'inline-flex',

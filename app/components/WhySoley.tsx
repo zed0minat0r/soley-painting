@@ -460,7 +460,7 @@ export default function WhySoley() {
                 width: '400px',
                 height: '400px',
                 borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(191,91,56,0.08) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, rgba(36,66,56,0.08) 0%, transparent 70%)',
                 transform: 'translate(calc(var(--spotlight-x, -9999px) - 200px), calc(var(--spotlight-y, -9999px) - 200px))',
                 opacity: 'var(--spotlight-opacity, 0)' as React.CSSProperties['opacity'],
                 transition: 'opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
