@@ -87,33 +87,47 @@ function Paintbrush() {
   //  Paint edge:   y =  1.65 .. 1.81  (fresh thick paint strip on chisel edge)
   return (
     <group ref={groupRef} position={[0, -0.32, 0]} scale={0.95}>
-      {/* ── HANDLE — chunky beavertail / oval grip in dark stained wood ──
-          A house-painter's handle is fat and shaped — slightly wider at the
-          neck (toward the ferrule) and tapering through a wide grip area to
-          a rounded knob at the butt. We scale the cylinder slightly oval. */}
-      <mesh position={[0, -0.525, 0]} scale={[1, 1, 0.85]}>
-        <cylinderGeometry args={[0.34, 0.28, 1.45, 40]} />
+      {/* ── HANDLE — flat beavertail in dark stained wood ──
+          Real wall-brush handles are paddle-shaped: oval cross-section (much
+          wider X than Z), tapering from a wider neck near the ferrule down to
+          a rounded paddle tail. NOT cylindrical — that's the microphone look. */}
+
+      {/* Main handle — strongly flattened oval, tapered cylinder.
+          Z-scale 0.45 → cross-section is 2:1 wider on X than on Z. */}
+      <mesh position={[0, -0.475, 0]} scale={[1, 1, 0.45]}>
+        <cylinderGeometry args={[0.34, 0.22, 1.55, 48]} />
         <meshStandardMaterial color="#2A1810" roughness={0.55} metalness={0.15} />
       </mesh>
-      {/* Neck flare — the handle widens slightly just before the ferrule */}
-      <mesh position={[0, 0.12, 0]} scale={[1, 1, 0.85]}>
-        <cylinderGeometry args={[0.38, 0.34, 0.18, 40]} />
+
+      {/* Neck flare — slight widening where handle meets ferrule */}
+      <mesh position={[0, 0.16, 0]} scale={[1, 1, 0.45]}>
+        <cylinderGeometry args={[0.38, 0.34, 0.18, 48]} />
         <meshStandardMaterial color="#241208" roughness={0.55} metalness={0.15} />
       </mesh>
-      {/* Ochre branded ring — Soley accent near the butt */}
-      <mesh position={[0, -1.12, 0]} scale={[1, 1, 0.85]}>
-        <cylinderGeometry args={[0.29, 0.29, 0.08, 40]} />
+
+      {/* Champagne branded inlay — Soley accent on the broad face of the handle */}
+      <mesh position={[0, -0.92, 0]} scale={[1, 1, 0.45]}>
+        <cylinderGeometry args={[0.245, 0.245, 0.07, 48]} />
         <meshStandardMaterial color="#C9A876" roughness={0.4} metalness={0.35} />
       </mesh>
-      {/* Butt knob — round bulb at the end (classic Purdy / Wooster shape) */}
-      <mesh position={[0, -1.30, 0]} scale={[1, 0.85, 0.85]}>
-        <sphereGeometry args={[0.30, 28, 20]} />
+
+      {/* Butt — rounded paddle end. A flattened sphere matching the handle's
+          oval cross-section, so the tail reads as a rounded plank, not a bulb */}
+      <mesh position={[0, -1.255, 0]} scale={[1, 0.55, 0.45]}>
+        <sphereGeometry args={[0.22, 36, 22]} />
         <meshStandardMaterial color="#1F120A" roughness={0.6} metalness={0.1} />
       </mesh>
-      {/* Hang hole — small dark notch in the butt knob (small ring) */}
-      <mesh position={[0, -1.45, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.05, 0.014, 12, 24]} />
-        <meshStandardMaterial color="#0F0700" roughness={0.7} metalness={0.05} />
+
+      {/* Hang hole — small dark dot on each broad face, reads as a punched
+          hole when the broad face is to camera. Sits just outside the handle
+          surface so it doesn't z-fight. */}
+      <mesh position={[0, -1.15, 0.16]} rotation={[Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.045, 24]} />
+        <meshStandardMaterial color="#0A0500" roughness={0.85} metalness={0} side={2} />
+      </mesh>
+      <mesh position={[0, -1.15, -0.16]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.045, 24]} />
+        <meshStandardMaterial color="#0A0500" roughness={0.85} metalness={0} side={2} />
       </mesh>
 
       {/* ── FERRULE — wide oval polished stainless / brass band that clamps
