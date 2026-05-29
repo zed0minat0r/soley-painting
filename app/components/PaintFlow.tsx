@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 
 /* ── Catalog item #5 — Wall→Prep→Prime→Paint→Finish animated workflow ──
    Dark-slate background so terracotta dots bloom against it.
@@ -102,75 +102,14 @@ function buildPath(nodeXArr: number[], y: number): string {
 }
 
 const PATH_D = buildPath(NODE_X, NODE_Y)
-const PATH_LEN = 1
-
-const STRIP_COUNT = 6
-
-/* Splatter burst — 7 micro-dots fan out from node on arrival */
-const SPLATTER_ANGLES = [0, 51, 103, 154, 205, 257, 308]
-const SPLATTER_RADIUS = 4.5
-
-/* Ghost trail — 5 copies at decreasing opacity behind the lead dot */
-const GHOST_OFFSETS = [0.018, 0.035, 0.052, 0.068, 0.082]
-const GHOST_OPACITIES = [0.5, 0.35, 0.22, 0.13, 0.06]
 
 export default function PaintFlow() {
   const sectionRef = useRef<HTMLElement>(null)
-  const [drawn, setDrawn] = useState(false)
-  const [blindsOpen, setBlindsOpen] = useState(false)
-  const [pulsingNode, setPulsingNode] = useState<number>(-1)
-  const [dotPos, setDotPos] = useState(0)
-  const [borderDrawn, setBorderDrawn] = useState(false)
-
-  /* IntersectionObserver */
-  useEffect(() => {
-    const el = sectionRef.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setBlindsOpen(true)
-          setTimeout(() => setDrawn(true), 100)
-          setTimeout(() => setBorderDrawn(true), 250)
-        }
-      },
-      { threshold: 0.05, rootMargin: '-20px 0px' }
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
-
-  /* Dot animation — rAF loop when drawn */
-  useEffect(() => {
-    if (!drawn) return
-    let start: number | null = null
-    const duration = 3200
-    let raf: number
-
-    function tick(ts: number) {
-      if (start === null) start = ts
-      const elapsed = (ts - start) % (duration + 1600)
-      const progress = Math.min(elapsed / duration, 1)
-      setDotPos(progress)
-
-      const nodeIdx = Math.round(progress * (NODE_X.length - 1))
-      setPulsingNode(nodeIdx)
-
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [drawn])
-
-  function dotXY(t: number) {
-    const segment = t * (NODE_X.length - 1)
-    const i = Math.min(Math.floor(segment), NODE_X.length - 2)
-    const frac = segment - i
-    const x = NODE_X[i] + (NODE_X[i + 1] - NODE_X[i]) * frac
-    return { x, y: NODE_Y }
-  }
-
-  const dot1 = dotXY(dotPos)
+  // No more intersection-gated entry animations, no rAF traveling dot, no
+  // border-draw stagger. Section renders statically the first time it paints.
+  const drawn = true
+  const blindsOpen = true
+  const borderDrawn = true
 
   return (
     <section
@@ -235,26 +174,10 @@ export default function PaintFlow() {
         }}
       />
 
-      {/* Horizontal blind reveal strips — Codrops pattern */}
-      {Array.from({ length: STRIP_COUNT }).map((_, i) => (
-        <div
-          key={i}
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            top: `${(i / STRIP_COUNT) * 100}%`,
-            left: 0,
-            right: 0,
-            height: `${100 / STRIP_COUNT}%`,
-            background: 'var(--color-chalk)',
-            transformOrigin: 'center',
-            transform: blindsOpen ? 'scaleY(0)' : 'scaleY(1)',
-            transition: `transform 0.55s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.07}s`,
-            pointerEvents: 'none',
-            zIndex: 2,
-          }}
-        />
-      ))}
+      {/* Horizontal blind reveal strips removed — this was the "horizontal
+          blinder effect" the user reported. The entry animation overlaid
+          cream strips that scaled away on intersection. Section now renders
+          immediately. */}
 
       <div className="container-width" style={{ position: 'relative', zIndex: 3 }}>
         {/* Header */}
@@ -344,103 +267,34 @@ export default function PaintFlow() {
               fill="none"
             />
 
-            {/* Animated draw-in overlay */}
+            {/* Static gradient overlay — line is fully drawn, no animation */}
             <path
               d={PATH_D}
               stroke="url(#flow-gradient-dark)"
               strokeWidth="0.9"
               fill="none"
               strokeLinecap="round"
-              pathLength={PATH_LEN}
-              style={{
-                strokeDasharray: PATH_LEN,
-                strokeDashoffset: drawn ? 0 : PATH_LEN,
-                transition: drawn ? 'stroke-dashoffset 1.8s cubic-bezier(0.16,1,0.3,1)' : 'none',
-              }}
             />
 
-            {/* Ghost trail — 5 translucent copies trailing behind lead dot */}
-            {drawn && GHOST_OFFSETS.map((offset, gi) => {
-              const ghostT = Math.max(0, dotPos - offset)
-              const ghostPos = dotXY(ghostT)
-              const ghostRadius = 0.85 * (1 - gi * 0.12)
-              return (
+            {/* Static nodes — no traveling dot, no pulsing, no splatter */}
+            {NODE_X.map((nx, i) => (
+              <g key={i}>
                 <circle
-                  key={`ghost-${gi}`}
-                  cx={ghostPos.x}
-                  cy={ghostPos.y}
-                  r={ghostRadius}
-                  fill="#2E5247"
-                  opacity={GHOST_OPACITIES[gi]}
+                  cx={nx}
+                  cy={NODE_Y}
+                  r={2.3}
+                  fill="var(--color-umber)"
+                  stroke="rgba(244,237,222,0.35)"
+                  strokeWidth={0.4}
                 />
-              )
-            })}
-
-            {/* Lead dot — terracotta, no bloom filter (replaced by ghost trail + splatter) */}
-            {drawn && (
-              <>
-                {/* Warm glow ring */}
                 <circle
-                  cx={dot1.x}
-                  cy={dot1.y}
-                  r="2.0"
-                  fill="rgba(194,96,58,0.20)"
+                  cx={nx}
+                  cy={NODE_Y}
+                  r={0.65}
+                  fill="rgba(244,237,222,0.55)"
                 />
-                {/* Core dot */}
-                <circle
-                  cx={dot1.x}
-                  cy={dot1.y}
-                  r="0.85"
-                  fill="#2E5247"
-                />
-              </>
-            )}
-
-            {/* Nodes */}
-            {NODE_X.map((nx, i) => {
-              const isPulsing = pulsingNode === i && drawn
-              return (
-                <g key={i}>
-                  {/* Splatter burst — 7 micro-dots radiate outward on node pulse */}
-                  {isPulsing && SPLATTER_ANGLES.map((angle, si) => {
-                    const rad = (angle * Math.PI) / 180
-                    const dx = Math.cos(rad) * SPLATTER_RADIUS
-                    const dy = Math.sin(rad) * SPLATTER_RADIUS
-                    const splatterR = 0.25 + (si % 3) * 0.1
-                    return (
-                      <circle
-                        key={`splat-${si}`}
-                        cx={nx + dx}
-                        cy={NODE_Y + dy}
-                        r={splatterR}
-                        fill="#2E5247"
-                        opacity={0.55}
-                      />
-                    )
-                  })}
-                  {/* Node ring */}
-                  <circle
-                    cx={nx}
-                    cy={NODE_Y}
-                    r={isPulsing ? 2.9 : 2.3}
-                    fill="var(--color-umber)"
-                    stroke={isPulsing ? '#2E5247' : 'rgba(244,237,222,0.25)'}
-                    strokeWidth={isPulsing ? 0.55 : 0.4}
-                    style={{
-                      transition: 'r 0.25s ease, stroke 0.25s ease, stroke-width 0.25s ease',
-                    }}
-                  />
-                  {/* Node center */}
-                  <circle
-                    cx={nx}
-                    cy={NODE_Y}
-                    r={isPulsing ? 1.0 : 0.65}
-                    fill={isPulsing ? '#2E5247' : 'rgba(244,237,222,0.4)'}
-                    style={{ transition: 'r 0.25s ease, fill 0.25s ease' }}
-                  />
-                </g>
-              )
-            })}
+              </g>
+            ))}
           </svg>
 
           {/* Node labels + swatch tiles */}
@@ -452,7 +306,7 @@ export default function PaintFlow() {
             }}
           >
             {NODES.map((node, i) => {
-              const isPulsing = pulsingNode === i && drawn
+              const isPulsing = false  // no traveling-dot pulse anymore
               return (
                 <div
                   key={node.id}
