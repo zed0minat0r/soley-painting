@@ -69,18 +69,32 @@ function Paintbrush() {
     return shape
   }, [])
 
-  // Vertical bristle striations — many thin lines on the broad face so the
-  // tuft reads as densely packed bristles
+  // Vertical bristle striations — dense visible lines on the broad face so
+  // the tuft reads unambiguously as bristles.
   const bristleLines = useMemo(() => {
-    const lines: { x: number; height: number }[] = []
-    const N = 22
+    const lines: { x: number; xTip: number; height: number; thick: number; shade: string }[] = []
+    const N = 32
     for (let i = 0; i < N; i++) {
       const tx = i / (N - 1) - 0.5
-      // Lines splay outward toward the tip — base width 1.35, tip width 1.62
-      lines.push({ x: tx * 1.35, height: 1.0 })
+      // Base of bristle pack spans x = -0.72 .. 0.72 (matches bristleShape baseHalf)
+      // Tip of bristle pack spans x = -0.85 .. 0.85 (tipHalf — splayed)
+      const xBase = tx * 1.40   // close to base width 1.44 (= 0.72 * 2)
+      const xTip  = tx * 1.66   // close to tip width 1.70 (= 0.85 * 2)
+      // Mix of widths + shades so the striations don't look mechanical
+      const thick = i % 3 === 0 ? 0.028 : 0.022
+      const shade = i % 5 === 0 ? '#5C4838' : i % 3 === 0 ? '#7A5F44' : '#8F7456'
+      lines.push({ x: xBase, xTip, height: 1.02, thick, shade })
     }
     return lines
   }, [])
+
+  // Bristle clump rings — three faint horizontal bands across the tuft,
+  // suggesting the way bristles bend / clump together at multiple heights
+  const clumpBands = useMemo(() => [
+    { y: 0.95, opacity: 0.35 },
+    { y: 1.30, opacity: 0.28 },
+    { y: 1.60, opacity: 0.22 },
+  ], [])
 
   useFrame((state) => {
     const t = state.clock.elapsedTime
@@ -188,19 +202,73 @@ function Paintbrush() {
         <meshStandardMaterial color="#D4C29A" roughness={0.92} metalness={0.0} />
       </mesh>
 
-      {/* Vertical bristle striations on the front broad face */}
-      {bristleLines.map((line, i) => (
-        <mesh key={`b-front-${i}`} position={[line.x, 1.18, 0.13]}>
-          <boxGeometry args={[0.014, line.height, 0.002]} />
-          <meshStandardMaterial color="#A89070" roughness={0.95} metalness={0} />
-        </mesh>
-      ))}
+      {/* Vertical bristle striations — densely packed dark lines on the front
+          broad face. Tilted to splay outward so they follow the bristle taper. */}
+      {bristleLines.map((line, i) => {
+        const dx = line.xTip - line.x
+        const angle = Math.atan2(dx, line.height)
+        const cx = (line.x + line.xTip) / 2
+        return (
+          <mesh key={`b-front-${i}`} position={[cx, 1.18, 0.135]} rotation={[0, 0, -angle]}>
+            <boxGeometry args={[line.thick, line.height, 0.004]} />
+            <meshStandardMaterial color={line.shade} roughness={0.95} metalness={0} />
+          </mesh>
+        )
+      })}
       {/* Same striations on the back broad face */}
-      {bristleLines.map((line, i) => (
-        <mesh key={`b-back-${i}`} position={[line.x, 1.18, -0.13]}>
-          <boxGeometry args={[0.014, line.height, 0.002]} />
-          <meshStandardMaterial color="#A89070" roughness={0.95} metalness={0} />
-        </mesh>
+      {bristleLines.map((line, i) => {
+        const dx = line.xTip - line.x
+        const angle = Math.atan2(dx, line.height)
+        const cx = (line.x + line.xTip) / 2
+        return (
+          <mesh key={`b-back-${i}`} position={[cx, 1.18, -0.135]} rotation={[0, 0, -angle]}>
+            <boxGeometry args={[line.thick, line.height, 0.004]} />
+            <meshStandardMaterial color={line.shade} roughness={0.95} metalness={0} />
+          </mesh>
+        )
+      })}
+
+      {/* Horizontal clump bands — subtle dark bands where bristle bundles
+          naturally clump together, visible across the broad face */}
+      {clumpBands.map((band, i) => (
+        <group key={`band-${i}`}>
+          <mesh position={[0, band.y, 0.135]}>
+            <boxGeometry args={[1.55, 0.022, 0.004]} />
+            <meshStandardMaterial
+              color="#6F5840"
+              roughness={0.95}
+              metalness={0}
+              transparent
+              opacity={band.opacity}
+            />
+          </mesh>
+          <mesh position={[0, band.y, -0.135]}>
+            <boxGeometry args={[1.55, 0.022, 0.004]} />
+            <meshStandardMaterial
+              color="#6F5840"
+              roughness={0.95}
+              metalness={0}
+              transparent
+              opacity={band.opacity}
+            />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Edge-view bristle striations — short dark lines on the THIN side of
+          the tuft, so even when the brush is rotated edge-on the bristle
+          texture is still visible. */}
+      {[-0.66, -0.33, 0, 0.33, 0.66].map((y, i) => (
+        <group key={`edge-${i}`}>
+          <mesh position={[0.86, 1.18 - 0.45 + y * 0.5, 0]} rotation={[0, Math.PI / 2, 0]}>
+            <boxGeometry args={[0.18, 0.018, 0.002]} />
+            <meshStandardMaterial color="#6F5840" roughness={0.95} metalness={0} />
+          </mesh>
+          <mesh position={[-0.86, 1.18 - 0.45 + y * 0.5, 0]} rotation={[0, Math.PI / 2, 0]}>
+            <boxGeometry args={[0.18, 0.018, 0.002]} />
+            <meshStandardMaterial color="#6F5840" roughness={0.95} metalness={0} />
+          </mesh>
+        </group>
       ))}
 
       {/* ── PAINT-SOAKED BRISTLE BASE — translucent layer at the base where
