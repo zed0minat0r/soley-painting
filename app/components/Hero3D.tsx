@@ -1,32 +1,17 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 
-/* ── Soley Painting — Roller Stripe Hero
-   Technique: A paint roller sweeps left→right at constant velocity, leaving
-   a horizontal stripe of fresh paint in the current brand color. After the
-   stripe completes, it holds, then fades, then the roller cycles to the next
-   brand color and re-enters from the left.
-
-   Phase machine: sweeping → holding → fading → (next color)
-   4 brand colors: rust → ochre → stone-deeper → umber-lighter → back to rust
-
-   Constant velocity via rollerX = elapsed / SWEEP_DURATION_MS (no ease, no lerp).
-   ref: Site A (Arch Painting) — cinematic, physical-craft motion as brand statement
+/* ── Soley Painting — Liquid Paint Pour Hero
+   Technique: A continuous viscous stream of paint pours from the top of the
+   canvas, falls under gravity, and pools at the bottom. The stream cycles
+   through the brand palette (rust → ochre → stone → umber). SVG turbulence
+   + feDisplacementMap give the stream its organic wobble. Pool ripples and
+   falling droplets are SMIL-animated. No new deps, no WebGL.
 */
 
-// ── Constant-velocity particle drift data ─────────────────────────────────
-type Particle = {
-  id: number
-  x: number
-  y: number
-  r: number
-  color: string
-  opacity: number
-  dur: number
-  delay: number
-}
-
+// ── Ambient drifting particles (background atmosphere) ────────────────────
+type Particle = { id: number; x: number; y: number; r: number; color: string; opacity: number; dur: number; delay: number }
 const PARTICLES: Particle[] = [
   { id:0, x:8,  y:90, r:3.5, color:'#BF5B38', opacity:0.18, dur:16, delay:0 },
   { id:1, x:18, y:75, r:2.5, color:'#B8884A', opacity:0.14, dur:18, delay:2.4 },
@@ -40,169 +25,26 @@ const PARTICLES: Particle[] = [
   { id:9, x:70, y:55, r:2.5, color:'#BF5B38', opacity:0.16, dur:17, delay:2.0 },
 ]
 
-// ── Brand color cycle: rust → ochre → stone-deeper → umber-lighter ────────
-const STRIPE_COLORS = [
-  { hex: '#BF5B38', name: 'rust' },
-  { hex: '#B8884A', name: 'ochre' },
-  { hex: '#5C4838', name: 'stone' },
-  { hex: '#3D2A1E', name: 'umber' },
-]
+// ── Paint pour palette cycle ──────────────────────────────────────────────
+const PAINT_COLORS = ['#BF5B38', '#B8884A', '#5C4838', '#3D2A1E']
+const COLOR_NAMES  = ['Rust', 'Ochre', 'Stone', 'Umber']
+const SECONDS_PER_COLOR = 4
+const TOTAL_CYCLE_SECONDS = SECONDS_PER_COLOR * PAINT_COLORS.length
 
-// ── ViewBox constants — matches current 16:7 aspect canvas ────────────────
-const VB_W = 560   // viewBox width
-const VB_H = 200   // viewBox height
-
-// Stripe geometry
-const STRIPE_Y    = 84    // top of stripe band
-const STRIPE_H    = 32    // height of stripe band (roller kiss-line center = STRIPE_Y + STRIPE_H/2)
-const STRIPE_CX   = STRIPE_Y + STRIPE_H / 2  // y-center of stripe = 100
-
-// Roller geometry (in viewBox units)
-const ROLLER_W    = 80    // cylinder body width
-const ROLLER_H    = 26    // cylinder body height
-const ROLLER_CY   = STRIPE_CX  // roller rides on stripe center line
-
-// Roller handle — rises up-right from cylinder center
-// Yoke attaches at right center of cylinder
-const YOKE_X_OFF  = ROLLER_W / 2   // x offset from roller center to yoke attach
-const YOKE_Y_OFF  = 0               // at cylinder center
-const HANDLE_DX   = 28              // handle extends dx to the right
-const HANDLE_DY   = -54             // and dy upward
-const GRIP_W      = 28              // grip rectangle width
-const GRIP_H      = 7               // grip rectangle height
-
-// Timing
-const SWEEP_DURATION_MS = 4000   // roller crosses full canvas
-const HOLD_DURATION_MS  = 2200   // stripe holds after roller exits
-const FADE_DURATION_MS  = 500    // fade out
-
-// The roller starts at x = -(ROLLER_W/2) - 20 (off-screen left)
-// and ends at x = VB_W + ROLLER_W/2 + 20 (off-screen right)
-const ROLLER_START_X = -(ROLLER_W / 2) - 20
-const ROLLER_END_X   = VB_W + ROLLER_W / 2 + 20
-const ROLLER_TRAVEL  = ROLLER_END_X - ROLLER_START_X
-
-type Phase = 'sweeping' | 'holding' | 'fading' | 'idle'
+// Build a values string for SMIL stop-color cycling, looping back to the first
+const colorCycleValues = [...PAINT_COLORS, PAINT_COLORS[0]].join('; ')
+// Pool color lags slightly behind the stream — start one slot delayed
+const poolColorValues = [...PAINT_COLORS.slice(-1), ...PAINT_COLORS].join('; ')
 
 export default function Hero3D() {
-  const rafRef      = useRef<number>(0)
-  const timeoutRef  = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const phaseRef    = useRef<Phase>('idle')
-  const startRef    = useRef<number>(0)
-  const colorIdxRef = useRef<number>(0)
+  const [colorIdx, setColorIdx] = useState(0)
 
-  // Animated state
-  const [colorIdx, setColorIdx]     = useState(0)
-  const [rollerX, setRollerX]       = useState(ROLLER_START_X)
-  const [stripeWidth, setStripeWidth] = useState(0)
-  const [canvasOpacity, setCanvasOpacity] = useState(1)
-
-  // Derived
-  const color = STRIPE_COLORS[colorIdx].hex
-
-  const startCycle = useCallback((idx: number) => {
-    const normIdx = idx % STRIPE_COLORS.length
-    colorIdxRef.current = normIdx
-    phaseRef.current = 'sweeping'
-    setColorIdx(normIdx)
-    setRollerX(ROLLER_START_X)
-    setStripeWidth(0)
-    setCanvasOpacity(1)
-    startRef.current = performance.now()
-
-    const sweep = (now: number) => {
-      if (phaseRef.current !== 'sweeping') return
-      const elapsed  = now - startRef.current
-      const progress = Math.min(elapsed / SWEEP_DURATION_MS, 1)
-
-      // Constant velocity: rollerX grows linearly
-      const rx = ROLLER_START_X + progress * ROLLER_TRAVEL
-      setRollerX(rx)
-
-      // Stripe width: grows from left edge (x=0) to wherever the roller
-      // center currently is, clamped to VB_W
-      const leftEdge  = 0
-      const stripeEnd = Math.max(0, rx - ROLLER_W / 2)  // stripe trails the roller's left face
-      const sw = Math.min(Math.max(stripeEnd - leftEdge, 0), VB_W)
-      setStripeWidth(sw)
-
-      if (progress < 1) {
-        rafRef.current = requestAnimationFrame(sweep)
-      } else {
-        // Roller has exited — ensure stripe is full width
-        setStripeWidth(VB_W)
-        phaseRef.current = 'holding'
-        timeoutRef.current = setTimeout(() => {
-          phaseRef.current = 'fading'
-          const fadeStart = performance.now()
-          const fade = (n: number) => {
-            const t = Math.min((n - fadeStart) / FADE_DURATION_MS, 1)
-            setCanvasOpacity(1 - t)
-            if (t < 1) {
-              rafRef.current = requestAnimationFrame(fade)
-            } else {
-              setCanvasOpacity(0)
-              phaseRef.current = 'idle'
-              timeoutRef.current = setTimeout(() => {
-                startCycle(normIdx + 1)
-              }, 120)
-            }
-          }
-          rafRef.current = requestAnimationFrame(fade)
-        }, HOLD_DURATION_MS)
-      }
-    }
-
-    rafRef.current = requestAnimationFrame(sweep)
-  }, [])
-
-  // Boot
   useEffect(() => {
-    const t = setTimeout(() => startCycle(0), 400)
-    return () => {
-      clearTimeout(t)
-      cancelAnimationFrame(rafRef.current)
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    }
-  }, [startCycle])
-
-  // Roller center X in viewBox coords
-  const rx = rollerX
-
-  // Roller body rect coords
-  const rollerLeft  = rx - ROLLER_W / 2
-  const rollerTop   = ROLLER_CY - ROLLER_H / 2
-
-  // Yoke attach point (right side of cylinder center)
-  const yokeX = rx + YOKE_X_OFF
-  const yokeY = ROLLER_CY + YOKE_Y_OFF
-
-  // Handle tip
-  const handleTipX = yokeX + HANDLE_DX
-  const handleTipY = yokeY + HANDLE_DY
-
-  // Grip center
-  const gripCX = handleTipX
-  const gripCY = handleTipY
-
-  // Subtle imperfect stripe edges: very small wave via SVG path instead of plain rect
-  // Top edge: slight saw-tooth. Bottom edge: slight opposite wave.
-  // Implemented as a clipPath + full-width rect.
-  const stripeTopWave = (sw: number) => {
-    if (sw <= 0) return ''
-    // Simple: flat top with tiny step variation
-    const steps = Math.floor(sw / 14)
-    let d = `M 0 ${STRIPE_Y}`
-    for (let i = 0; i <= steps; i++) {
-      const x = Math.min(i * 14, sw)
-      const jitter = (i % 2 === 0) ? -0.8 : 0.8
-      d += ` L ${x} ${STRIPE_Y + jitter}`
-    }
-    d += ` L ${sw} ${STRIPE_Y + STRIPE_H}`
-    d += ` L 0 ${STRIPE_Y + STRIPE_H}`
-    d += ' Z'
-    return d
-  }
+    const interval = setInterval(() => {
+      setColorIdx(prev => (prev + 1) % PAINT_COLORS.length)
+    }, SECONDS_PER_COLOR * 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <section
@@ -399,7 +241,7 @@ export default function Hero3D() {
         Owner-operated. Same crew start to finish. Free walkthrough, written quote in 24 hours.
       </p>
 
-      {/* ── ROLLER STRIPE CENTERPIECE ── */}
+      {/* ── LIQUID PAINT POUR CENTERPIECE ── */}
       <div
         className="hero-canvas-wrap"
         style={{
@@ -429,7 +271,7 @@ export default function Hero3D() {
         />
 
         <svg
-          viewBox={`0 0 ${VB_W} ${VB_H}`}
+          viewBox="0 0 560 245"
           preserveAspectRatio="xMidYMid meet"
           width="100%"
           height="100%"
@@ -437,209 +279,172 @@ export default function Hero3D() {
             display: 'block',
             position: 'relative',
             zIndex: 2,
-            opacity: canvasOpacity,
           }}
-          aria-label="Paint roller applying a stripe of color"
+          aria-label="Liquid paint pouring through the Soley brand palette"
         >
           <defs>
-            {/* Stripe gradient — slightly darker at edges, lighter center (wet paint look) */}
-            <linearGradient id="stripe-grad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stopColor={color} stopOpacity="0.82" />
-              <stop offset="30%"  stopColor={color} stopOpacity="0.97" />
-              <stop offset="60%"  stopColor={color} stopOpacity="1.0"  />
-              <stop offset="85%"  stopColor={color} stopOpacity="0.93" />
-              <stop offset="100%" stopColor={color} stopOpacity="0.75" />
-            </linearGradient>
+            {/* Viscous distortion — gives the stream organic wobble */}
+            <filter id="viscous" x="-15%" y="-5%" width="130%" height="115%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.008 0.025" numOctaves="2" seed="3">
+                <animate attributeName="baseFrequency"
+                         values="0.008 0.025; 0.011 0.03; 0.007 0.022; 0.009 0.028; 0.008 0.025"
+                         dur="10s" repeatCount="indefinite" />
+              </feTurbulence>
+              <feDisplacementMap in="SourceGraphic" scale="3.5" />
+            </filter>
 
-            {/* Wet sheen on top surface of stripe */}
-            <linearGradient id="stripe-sheen" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"  stopColor="#ffffff" stopOpacity="0.18" />
-              <stop offset="40%" stopColor="#ffffff" stopOpacity="0.04" />
+            {/* Pool sheen — white highlight on top of pool */}
+            <linearGradient id="pool-sheen" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stopColor="#ffffff" stopOpacity="0.30" />
               <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
             </linearGradient>
 
-            {/* Roller cylinder gradient — dry painter-tan surface with paint saturation on leading edge */}
-            <linearGradient id="roller-body" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%"   stopColor="#C8B89A" stopOpacity="0.95" />
-              <stop offset="60%"  stopColor="#D4C8AE" stopOpacity="1.0"  />
-              <stop offset="85%"  stopColor={color}   stopOpacity="0.65" />
-              <stop offset="100%" stopColor={color}   stopOpacity="0.90" />
+            {/* Pool inner-shadow rim */}
+            <radialGradient id="pool-rim" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"  stopColor="#000000" stopOpacity="0" />
+              <stop offset="85%" stopColor="#000000" stopOpacity="0" />
+              <stop offset="100%" stopColor="#000000" stopOpacity="0.35" />
+            </radialGradient>
+
+            {/* Stream highlight band — lighter centerline */}
+            <linearGradient id="stream-highlight" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stopColor="#ffffff" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
             </linearGradient>
 
-            {/* Roller end caps */}
-            <radialGradient id="roller-cap-l" cx="30%" cy="40%" r="70%">
-              <stop offset="0%"   stopColor="#E0D4BE" />
-              <stop offset="100%" stopColor="#A89A80" />
+            {/* Background subtle vignette to lift the pour visually */}
+            <radialGradient id="canvas-vignette" cx="50%" cy="50%" r="65%">
+              <stop offset="0%"  stopColor="#F4EDE3" stopOpacity="0" />
+              <stop offset="100%" stopColor="#1A0F08" stopOpacity="0.10" />
             </radialGradient>
-            <radialGradient id="roller-cap-r" cx="70%" cy="40%" r="70%">
-              <stop offset="0%"   stopColor={color} stopOpacity="0.9" />
-              <stop offset="100%" stopColor={color} stopOpacity="0.6" />
-            </radialGradient>
-
-            {/* Clip path for imperfect stripe edges */}
-            <clipPath id="stripe-clip">
-              {stripeWidth > 0 && (
-                <path d={stripeTopWave(stripeWidth)} />
-              )}
-            </clipPath>
           </defs>
 
-          {/* Linen wall — subtle horizontal grain lines to suggest surface */}
-          {[30, 60, 90, 120, 150, 170].map((y, i) => (
-            <line
-              key={i}
-              x1="0" y1={y} x2={VB_W} y2={y}
-              stroke="#E0D5C5"
-              strokeWidth="0.4"
-              opacity={0.35}
-            />
+          {/* Subtle horizontal grain — suggests a flat wall surface */}
+          {[30, 60, 90, 120, 150, 180, 205].map((y, i) => (
+            <line key={i} x1="0" y1={y} x2="560" y2={y} stroke="#E0D5C5" strokeWidth="0.4" opacity={0.32} />
           ))}
 
-          {/* ── PAINT STRIPE ── */}
-          {stripeWidth > 0 && (
-            <g clipPath="url(#stripe-clip)">
-              {/* Base paint color */}
-              <rect
-                x={0}
-                y={STRIPE_Y}
-                width={stripeWidth}
-                height={STRIPE_H}
-                fill="url(#stripe-grad)"
+          {/* Canvas vignette */}
+          <rect x="0" y="0" width="560" height="245" fill="url(#canvas-vignette)" />
+
+          {/* ── PAINT STREAM (with viscous distortion filter) ── */}
+          <g filter="url(#viscous)">
+            {/* Stream body — thicker, taller, widens into the pool */}
+            <path
+              d="M 264 0 L 261 40 L 258 80 L 261 120 L 258 160 L 256 200 L 254 222 L 306 222 L 304 200 L 302 160 L 299 120 L 302 80 L 299 40 L 296 0 Z"
+            >
+              <animate
+                attributeName="fill"
+                values={colorCycleValues}
+                dur={`${TOTAL_CYCLE_SECONDS}s`}
+                repeatCount="indefinite"
               />
-              {/* Wet sheen highlight on top third */}
-              <rect
-                x={0}
-                y={STRIPE_Y}
-                width={stripeWidth}
-                height={STRIPE_H * 0.45}
-                fill="url(#stripe-sheen)"
-              />
-            </g>
-          )}
+            </path>
 
-          {/* ── PAINT ROLLER ── */}
-          <g>
-            {/* Handle — the pole going from yoke up to grip */}
-            <line
-              x1={yokeX}
-              y1={yokeY}
-              x2={handleTipX}
-              y2={handleTipY}
-              stroke="#3D2A1E"
-              strokeWidth="4"
-              strokeLinecap="round"
+            {/* Centerline highlight (wet sheen down the middle) */}
+            <path
+              d="M 273 0 L 272 70 L 273 140 L 274 210 L 286 210 L 287 140 L 286 70 L 287 0 Z"
+              fill="url(#stream-highlight)"
             />
 
-            {/* Yoke bracket — small L connecting handle to roller left-end */}
-            {/* Yoke goes from handle base down and left to roller axle */}
-            <line
-              x1={yokeX}
-              y1={yokeY}
-              x2={rx - ROLLER_W / 2 + 6}
-              y2={ROLLER_CY}
-              stroke="#5C4030"
-              strokeWidth="3.5"
-              strokeLinecap="round"
-            />
-            {/* Yoke right arm to roller axle right */}
-            <line
-              x1={yokeX}
-              y1={yokeY}
-              x2={rx + ROLLER_W / 2 - 6}
-              y2={ROLLER_CY}
-              stroke="#5C4030"
-              strokeWidth="3.5"
-              strokeLinecap="round"
-            />
-
-            {/* Roller cylinder body */}
-            <rect
-              x={rollerLeft}
-              y={rollerTop}
-              width={ROLLER_W}
-              height={ROLLER_H}
-              rx="4"
-              fill="url(#roller-body)"
-            />
-
-            {/* Roller texture lines (nap texture on the cylinder) */}
-            {Array.from({ length: 6 }, (_, i) => {
-              const lx = rollerLeft + 8 + i * 12
-              return (
-                <line
-                  key={i}
-                  x1={lx} y1={rollerTop + 2}
-                  x2={lx} y2={rollerTop + ROLLER_H - 2}
-                  stroke="#A89880"
-                  strokeWidth="0.7"
-                  opacity="0.4"
+            {/* Falling droplets — staggered, repeating */}
+            {[0, 0.6, 1.3, 2.1, 2.9].map((delay, i) => (
+              <circle key={i} cx={278 + (i % 2 === 0 ? -3 : 3)} cy="0" r={1.8 + (i % 2) * 0.7}>
+                <animate
+                  attributeName="cy"
+                  from="-10" to="225"
+                  dur="2.6s"
+                  begin={`${delay}s`}
+                  repeatCount="indefinite"
                 />
-              )
-            })}
+                <animate
+                  attributeName="opacity"
+                  values="0; 0.75; 0.75; 0"
+                  keyTimes="0; 0.1; 0.85; 1"
+                  dur="2.6s"
+                  begin={`${delay}s`}
+                  repeatCount="indefinite"
+                />
+                <animate
+                  attributeName="fill"
+                  values={colorCycleValues}
+                  dur={`${TOTAL_CYCLE_SECONDS}s`}
+                  repeatCount="indefinite"
+                />
+              </circle>
+            ))}
+          </g>
 
-            {/* Left end cap */}
-            <ellipse
-              cx={rollerLeft}
-              cy={ROLLER_CY}
-              rx={4}
-              ry={ROLLER_H / 2}
-              fill="url(#roller-cap-l)"
-            />
+          {/* ── PAINT POOL — outside the viscous filter for a steadier rim ── */}
+          <g>
+            {/* Pool shadow on linen — soft darkness underneath */}
+            <ellipse cx="280" cy="232" rx="200" ry="11" fill="#1A0F08" opacity="0.10" />
 
-            {/* Right end cap — paint-saturated side */}
-            <ellipse
-              cx={rollerLeft + ROLLER_W}
-              cy={ROLLER_CY}
-              rx={4}
-              ry={ROLLER_H / 2}
-              fill="url(#roller-cap-r)"
-            />
-
-            {/* Paint bead below roller — thin film at application line */}
-            {stripeWidth > 0 && (
-              <ellipse
-                cx={rx - ROLLER_W / 2 + 2}
-                cy={STRIPE_Y + STRIPE_H - 1}
-                rx={6}
-                ry={1.5}
-                fill={color}
-                opacity={0.55}
+            {/* Pool body — larger and more present */}
+            <ellipse cx="280" cy="222" rx="200" ry="16">
+              <animate
+                attributeName="fill"
+                values={poolColorValues}
+                dur={`${TOTAL_CYCLE_SECONDS}s`}
+                repeatCount="indefinite"
               />
-            )}
+              <animate
+                attributeName="rx"
+                values="196; 204; 198; 202; 196"
+                dur="6s"
+                repeatCount="indefinite"
+              />
+            </ellipse>
 
-            {/* Grip — rectangular handle end with slight taper */}
-            <rect
-              x={gripCX - GRIP_W / 2}
-              y={gripCY - GRIP_H / 2}
-              width={GRIP_W}
-              height={GRIP_H}
-              rx={GRIP_H / 2}
-              fill="#2A1A0E"
-            />
-            {/* Grip highlight ring */}
-            <rect
-              x={gripCX - GRIP_W / 2 + 4}
-              y={gripCY - 1.5}
-              width={8}
-              height={3}
-              rx={1.5}
-              fill="#6A5040"
-              opacity={0.6}
-            />
+            {/* Pool rim shadow */}
+            <ellipse cx="280" cy="222" rx="200" ry="16" fill="url(#pool-rim)" />
+
+            {/* Ripples — three staggered concentric ripples emanating from impact */}
+            {[0, 1.2, 2.4].map((delay, i) => (
+              <ellipse key={i} cx="280" cy="218" fill="none" strokeWidth="1.4">
+                <animate attributeName="rx" from="12" to="160" dur="3.6s" begin={`${delay}s`} repeatCount="indefinite" />
+                <animate attributeName="ry" from="2" to="12"   dur="3.6s" begin={`${delay}s`} repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.6; 0.5; 0" keyTimes="0; 0.4; 1" dur="3.6s" begin={`${delay}s`} repeatCount="indefinite" />
+                <animate attributeName="stroke" values={poolColorValues} dur={`${TOTAL_CYCLE_SECONDS}s`} repeatCount="indefinite" />
+              </ellipse>
+            ))}
+
+            {/* Pool sheen — white highlight on top */}
+            <ellipse cx="280" cy="216" rx="194" ry="6" fill="url(#pool-sheen)" />
+
+            {/* Impact splash spots — tiny droplet beads around the impact point */}
+            <circle cx="244" cy="216" r="1.6" opacity="0.55">
+              <animate attributeName="fill" values={poolColorValues} dur={`${TOTAL_CYCLE_SECONDS}s`} repeatCount="indefinite" />
+            </circle>
+            <circle cx="314" cy="215" r="2.0" opacity="0.55">
+              <animate attributeName="fill" values={poolColorValues} dur={`${TOTAL_CYCLE_SECONDS}s`} repeatCount="indefinite" />
+            </circle>
+            <circle cx="222" cy="220" r="1.2" opacity="0.45">
+              <animate attributeName="fill" values={poolColorValues} dur={`${TOTAL_CYCLE_SECONDS}s`} repeatCount="indefinite" />
+            </circle>
+            <circle cx="336" cy="222" r="1.6" opacity="0.50">
+              <animate attributeName="fill" values={poolColorValues} dur={`${TOTAL_CYCLE_SECONDS}s`} repeatCount="indefinite" />
+            </circle>
+            <circle cx="200" cy="224" r="0.9" opacity="0.40">
+              <animate attributeName="fill" values={poolColorValues} dur={`${TOTAL_CYCLE_SECONDS}s`} repeatCount="indefinite" />
+            </circle>
+            <circle cx="360" cy="226" r="1.1" opacity="0.42">
+              <animate attributeName="fill" values={poolColorValues} dur={`${TOTAL_CYCLE_SECONDS}s`} repeatCount="indefinite" />
+            </circle>
           </g>
 
           {/* Color name label — bottom right */}
           <text
-            x={VB_W - 8}
-            y={VB_H - 8}
+            x={552}
+            y={238}
             textAnchor="end"
             fontFamily="var(--font-body), sans-serif"
             fontSize="10"
             letterSpacing="2"
-            fill="rgba(34,24,16,0.3)"
+            fill="rgba(34,24,16,0.32)"
             style={{ textTransform: 'uppercase' }}
           >
-            {STRIPE_COLORS[colorIdx].name}  {colorIdx + 1}/{STRIPE_COLORS.length}
+            {COLOR_NAMES[colorIdx]}  {colorIdx + 1}/{PAINT_COLORS.length}
           </text>
         </svg>
       </div>
