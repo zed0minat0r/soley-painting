@@ -57,8 +57,10 @@ export default function SectionDivider({ flip = false }: { flip?: boolean }) {
     return () => cancelAnimationFrame(rafRef.current)
   }, [active])
 
-  const bg = flip ? 'var(--color-umber)' : 'var(--color-chalk)'
-  const hairlineOpacity = flip ? 'rgba(245,240,234,0.18)' : 'rgba(44,31,22,0.12)'
+  // Default to umber so dividers between dark sections don't read as a bright
+  // cream stripe. `flip` now switches to chalk for transitions into light sections.
+  const bg = flip ? 'var(--color-chalk)' : 'var(--color-umber)'
+  const hairlineOpacity = flip ? 'rgba(44,31,22,0.12)' : 'rgba(245,240,234,0.18)'
 
   return (
     <div
@@ -125,46 +127,28 @@ export default function SectionDivider({ flip = false }: { flip?: boolean }) {
         {DROPS.map(({ color, highlight, delay }, i) => (
           <svg
             key={i}
-            width="20"
-            height="32"
-            viewBox="0 0 20 32"
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
             fill="none"
             style={{
               animation: active
                 ? `drop-pulse 2s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s infinite`
                 : 'none',
-              filter: `drop-shadow(0 0 5px ${color}90) drop-shadow(0 3px 8px ${color}50)`,
+              filter: `drop-shadow(0 0 4px ${color}80)`,
             }}
           >
-            {/* Main teardrop body with drip elongation at bottom */}
-            <path
-              d="M10 0 C10 0 20 11 20 18 A10 10 0 0 1 0 18 C0 11 10 0 10 0 Z"
-              fill={color}
-            />
-            {/* Drip elongation — narrow teardrop tail */}
-            <path
-              d="M10 26 C10 26 7 28 8 30 C8.5 31.5 11.5 31.5 12 30 C13 28 10 26 10 26 Z"
-              fill={color}
-              opacity="0.7"
-            />
-            {/* Gloss highlight — bright ellipse upper-left of drop */}
+            {/* Solid round dot — replaces the previous teardrop+tail */}
+            <circle cx="7" cy="7" r="5" fill={color} />
+            {/* Small gloss highlight upper-left */}
             <ellipse
-              cx="7.5"
-              cy="10"
-              rx="2.5"
-              ry="4"
+              cx="5.5"
+              cy="5.5"
+              rx="1.2"
+              ry="1.7"
               fill={highlight}
-              opacity="0.55"
-              transform="rotate(-18 7.5 10)"
-            />
-            {/* Specular pinpoint */}
-            <ellipse
-              cx="6.5"
-              cy="8"
-              rx="1"
-              ry="1.5"
-              fill="rgba(255,255,255,0.7)"
-              transform="rotate(-18 6.5 8)"
+              opacity="0.65"
+              transform="rotate(-18 5.5 5.5)"
             />
           </svg>
         ))}
