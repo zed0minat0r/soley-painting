@@ -262,6 +262,27 @@ export default function PaintFlow() {
                 pointerEvents: 'none',
               }}
             />
+            {/* Single traveling dot — slow left → right loop along the
+                connector, no splatter or trail. Pure motion cue. */}
+            <div
+              aria-hidden
+              className="paintflow-travel-dot"
+              style={{
+                position: 'absolute',
+                left: '10%',
+                top: '34px',
+                width: '10px',
+                height: '10px',
+                marginLeft: '-5px',
+                marginTop: '-5px',
+                borderRadius: '50%',
+                background: 'var(--color-ochre)',
+                boxShadow: '0 0 8px 2px rgba(201,168,118,0.55)',
+                zIndex: 2,
+                pointerEvents: 'none',
+                animation: 'paintflow-dot-travel 7s linear infinite',
+              }}
+            />
             {NODES.map((node, i) => {
               const isPulsing = false  // no traveling-dot pulse anymore
               return (

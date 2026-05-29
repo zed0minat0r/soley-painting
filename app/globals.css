@@ -218,6 +218,14 @@
   will-change: transform;
 }
 
+/* ── PaintFlow single traveling dot — left → right along connector ───── */
+@keyframes paintflow-dot-travel {
+  0%   { left: 10%; opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 1; }
+  100% { left: 90%; opacity: 0; }
+}
+
 /* ── Char stagger animation for Process titles ──────────────────────── */
 @keyframes char-in {
   from { opacity: 0; transform: translateY(12px); }

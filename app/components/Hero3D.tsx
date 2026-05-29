@@ -110,8 +110,6 @@ export default function Hero3D() {
           right: 0,
           overflow: 'hidden',
           padding: '0.75rem 0',
-          borderTop: '1px solid rgba(201,168,118,0.18)',
-          borderBottom: '1px solid rgba(201,168,118,0.18)',
           background: '#0F1E18',
           zIndex: 60,
         }}
