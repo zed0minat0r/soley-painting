@@ -12,14 +12,14 @@ import Hero3DCanvas from './Hero3DCanvas'
 type Particle = { id: number; x: number; y: number; r: number; color: string; opacity: number; dur: number; delay: number }
 const PARTICLES: Particle[] = [
   { id:0, x:8,  y:90, r:3.5, color:'#244238', opacity:0.18, dur:16, delay:0 },
-  { id:1, x:18, y:75, r:2.5, color:'#B87333', opacity:0.14, dur:18, delay:2.4 },
-  { id:2, x:32, y:85, r:4,   color:'#B87333', opacity:0.16, dur:14, delay:1.1 },
+  { id:1, x:18, y:75, r:2.5, color:'#C9A876', opacity:0.14, dur:18, delay:2.4 },
+  { id:2, x:32, y:85, r:4,   color:'#C9A876', opacity:0.16, dur:14, delay:1.1 },
   { id:3, x:52, y:95, r:2,   color:'#244238', opacity:0.12, dur:20, delay:3.7 },
-  { id:4, x:65, y:80, r:3,   color:'#B87333', opacity:0.15, dur:15, delay:5.2 },
-  { id:5, x:78, y:88, r:2.5, color:'#B87333', opacity:0.13, dur:17, delay:0.8 },
+  { id:4, x:65, y:80, r:3,   color:'#C9A876', opacity:0.15, dur:15, delay:5.2 },
+  { id:5, x:78, y:88, r:2.5, color:'#C9A876', opacity:0.13, dur:17, delay:0.8 },
   { id:6, x:88, y:70, r:3.5, color:'#244238', opacity:0.17, dur:16, delay:6.3 },
-  { id:7, x:45, y:92, r:2,   color:'#B87333', opacity:0.11, dur:19, delay:4.1 },
-  { id:8, x:24, y:60, r:3,   color:'#B87333', opacity:0.14, dur:14, delay:7.5 },
+  { id:7, x:45, y:92, r:2,   color:'#C9A876', opacity:0.11, dur:19, delay:4.1 },
+  { id:8, x:24, y:60, r:3,   color:'#C9A876', opacity:0.14, dur:14, delay:7.5 },
   { id:9, x:70, y:55, r:2.5, color:'#244238', opacity:0.16, dur:17, delay:2.0 },
 ]
 
@@ -52,8 +52,8 @@ export default function Hero3D() {
             <stop offset="100%" stopColor="#244238" stopOpacity="0" />
           </radialGradient>
           <radialGradient id="gobo-ochre" cx="18%" cy="82%" r="40%" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#B87333" stopOpacity="0.06" />
-            <stop offset="100%" stopColor="#B87333" stopOpacity="0" />
+            <stop offset="0%" stopColor="#C9A876" stopOpacity="0.06" />
+            <stop offset="100%" stopColor="#C9A876" stopOpacity="0" />
           </radialGradient>
         </defs>
         <rect x="0" y="0" width="100%" height="100%" fill="url(#gobo-warm)" />
@@ -93,7 +93,7 @@ export default function Hero3D() {
           height: 'min(700px, 100vw)',
           borderRadius: '50%',
           background:
-            'radial-gradient(circle, rgba(36,66,56,0.10) 0%, rgba(184,115,51,0.05) 55%, transparent 80%)',
+            'radial-gradient(circle, rgba(36,66,56,0.10) 0%, rgba(201,168,118,0.05) 55%, transparent 80%)',
           pointerEvents: 'none',
         }}
       />
@@ -128,7 +128,7 @@ export default function Hero3D() {
           textAlign: 'center',
           maxWidth: '20ch',
           textShadow:
-            '0 0 1px #fff, 0 0 10px rgba(36,66,56,0.75), 0 0 28px rgba(184,115,51,0.35)',
+            '0 0 1px #fff, 0 0 10px rgba(36,66,56,0.75), 0 0 28px rgba(201,168,118,0.35)',
         }}
       >
         Every wall{' '}
@@ -168,7 +168,7 @@ export default function Hero3D() {
             inset: 0,
             pointerEvents: 'none',
             background:
-              'radial-gradient(circle at 50% 52%, rgba(36,66,56,0.22) 0%, rgba(61,42,30,0) 55%), radial-gradient(circle at 35% 35%, rgba(184,115,51,0.14) 0%, rgba(61,42,30,0) 50%)',
+              'radial-gradient(circle at 50% 52%, rgba(36,66,56,0.22) 0%, rgba(61,42,30,0) 55%), radial-gradient(circle at 35% 35%, rgba(201,168,118,0.14) 0%, rgba(61,42,30,0) 50%)',
             filter: 'blur(8px)',
           }}
         />
@@ -187,7 +187,7 @@ export default function Hero3D() {
           marginTop: '2.5rem',
           textAlign: 'center',
           textShadow:
-            '0 0 1px rgba(255,255,255,0.5), 0 0 8px rgba(184,115,51,0.55), 0 0 20px rgba(36,66,56,0.25)',
+            '0 0 1px rgba(255,255,255,0.5), 0 0 8px rgba(201,168,118,0.55), 0 0 20px rgba(36,66,56,0.25)',
         }}
       >
         Meticulous surface prep. Durable finishes. One point of contact

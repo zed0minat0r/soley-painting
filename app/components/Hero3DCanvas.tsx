@@ -14,7 +14,7 @@ import * as THREE from 'three'
 
 // Brand palette cycle (Forest / Bone / Copper migration):
 //   forest primary → copper accent → sage mid → deep forest
-const PAINT_COLORS = ['#244238', '#B87333', '#5A7060', '#14241D']
+const PAINT_COLORS = ['#244238', '#C9A876', '#5A7060', '#14241D']
 const SECONDS_PER_COLOR = 3.5
 
 // Cubic ease-in-out for smooth color transitions
@@ -103,7 +103,7 @@ function Paintbrush() {
       {/* Ochre branded ring — Soley accent near the butt */}
       <mesh position={[0, -1.12, 0]} scale={[1, 1, 0.85]}>
         <cylinderGeometry args={[0.29, 0.29, 0.08, 40]} />
-        <meshStandardMaterial color="#B87333" roughness={0.4} metalness={0.35} />
+        <meshStandardMaterial color="#C9A876" roughness={0.4} metalness={0.35} />
       </mesh>
       {/* Butt knob — round bulb at the end (classic Purdy / Wooster shape) */}
       <mesh position={[0, -1.30, 0]} scale={[1, 0.85, 0.85]}>
@@ -226,7 +226,7 @@ function Scene() {
       {/* Forest rim from the right — brand accent picking out the silhouette */}
       <directionalLight position={[7, 0.5, 1]} intensity={1.1} color="#244238" />
       {/* Copper rim from the left */}
-      <directionalLight position={[-7, 0.5, 2]} intensity={0.9} color="#B87333" />
+      <directionalLight position={[-7, 0.5, 2]} intensity={0.9} color="#C9A876" />
       {/* Soft underlight to lift the bristles */}
       <pointLight position={[0, -1, 3]} intensity={0.6} color="#F2EBD9" />
       <Paintbrush />

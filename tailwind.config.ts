@@ -5,7 +5,7 @@ import type { Config } from 'tailwindcss'
 // --color-linen  #F2EBD9  Bone    — main background
 // --color-stone  #EEE4D0  Warm Bone — alt background
 // --color-umber  #14241D  Deep Forest — text/dark sections
-// --color-ochre  #B87333  Copper  — accent
+// --color-ochre  #C9A876  Copper  — accent
 const config: Config = {
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -30,9 +30,9 @@ const config: Config = {
           dark: '#DCCFB2',
         },
         ochre: {
-          DEFAULT: '#B87333',  // copper
-          light: '#D08F4C',
-          dark: '#8E5824',
+          DEFAULT: '#C9A876',  // copper
+          light: '#D6BA8C',
+          dark: '#9C8455',
         },
         umber: {
           DEFAULT: '#14241D',  // deep forest
@@ -50,9 +50,9 @@ const config: Config = {
           dark: '#EEE4D0',
         },
         gold: {
-          DEFAULT: '#B87333',
-          light: '#D08F4C',
-          dark: '#8E5824',
+          DEFAULT: '#C9A876',
+          light: '#D6BA8C',
+          dark: '#9C8455',
         },
         // Legacy primary scale — recoloured to a green ramp
         primary: {
@@ -69,9 +69,9 @@ const config: Config = {
         },
         // accent — copper scale
         accent: {
-          400: '#D08F4C',
-          500: '#B87333',
-          600: '#8E5824',
+          400: '#D6BA8C',
+          500: '#C9A876',
+          600: '#9C8455',
         },
         dark: {
           100: '#F4EDDE',

@@ -11,7 +11,7 @@
   --color-linen:  #F2EBD9;  /* main background — warm bone (was #F2EBD9) */
   --color-stone:  #EEE4D0;  /* alt warm background — slightly warmer bone */
   --color-umber:  #14241D;  /* text / dark sections — very deep forest (was #14241D) */
-  --color-ochre:  #B87333;  /* accent — burnished copper (was #B87333) */
+  --color-ochre:  #C9A876;  /* accent — burnished copper (was #C9A876) */
   /* Aliases */
   --color-terra:  var(--color-rust);
   --color-chalk:  var(--color-linen);
@@ -151,12 +151,12 @@
   text-shadow:
     0 0 1px #fff,
     0 0 10px rgba(36, 66, 56, 0.75),
-    0 0 28px rgba(184, 115, 51, 0.35);
+    0 0 28px rgba(201, 168, 118, 0.35);
 }
 .glow-sub {
   text-shadow:
     0 0 1px rgba(255,255,255,0.5),
-    0 0 8px rgba(184, 115, 51, 0.55),
+    0 0 8px rgba(201, 168, 118, 0.55),
     0 0 20px rgba(36, 66, 56, 0.25);
 }
 /* ── SSR-safe scroll reveal (catalog item #9) ─────────────────────────

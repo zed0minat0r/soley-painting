@@ -326,8 +326,8 @@ export default function LiveEstimate() {
                   width: '7px',
                   height: '7px',
                   borderRadius: '50%',
-                  background: isSent ? 'var(--color-terra)' : 'rgba(184,115,51,0.6)',
-                  boxShadow: isSent ? '0 0 8px rgba(194,96,58,0.6)' : '0 0 6px rgba(184,115,51,0.4)',
+                  background: isSent ? 'var(--color-terra)' : 'rgba(201,168,118,0.6)',
+                  boxShadow: isSent ? '0 0 8px rgba(194,96,58,0.6)' : '0 0 6px rgba(201,168,118,0.4)',
                   transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                   flexShrink: 0,
                 }}

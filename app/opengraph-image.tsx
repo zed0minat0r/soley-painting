@@ -20,7 +20,7 @@ export default async function OgImage() {
   const UMBER = '#14241D'
   const LINEN = '#F2EBD9'
   const RUST = '#244238'
-  const OCHRE = '#B87333'
+  const OCHRE = '#C9A876'
   const STONE = '#8C7B6B'
 
   return new ImageResponse(
@@ -60,7 +60,7 @@ export default async function OgImage() {
             right: 0,
             width: '500px',
             height: '400px',
-            background: `radial-gradient(ellipse at 100% 100%, rgba(184,115,51,0.12) 0%, transparent 65%)`,
+            background: `radial-gradient(ellipse at 100% 100%, rgba(201,168,118,0.12) 0%, transparent 65%)`,
             display: 'flex',
           }}
         />

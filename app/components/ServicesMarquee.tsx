@@ -10,10 +10,10 @@ import { useScroll, useVelocity, useTransform, useSpring, motion } from 'framer-
 const ITEMS = [
   { label: 'Interior Painting',   color: '#F2EBD9' },   // linen
   { label: 'Exterior Painting',   color: '#244238' },   // rust
-  { label: 'Commercial',          color: '#B87333' },   // ochre
+  { label: 'Commercial',          color: '#C9A876' },   // ochre
   { label: 'Cabinet & Trim',      color: '#EEE4D0' },   // stone
   { label: 'Specialty Coatings',  color: '#244238' },   // rust
-  { label: 'Surface Prep',        color: '#B87333' },   // ochre
+  { label: 'Surface Prep',        color: '#C9A876' },   // ochre
   { label: 'Color Consultation',  color: '#F2EBD9' },   // linen
   { label: 'Free Estimate',       color: '#EEE4D0' },   // stone
 ]

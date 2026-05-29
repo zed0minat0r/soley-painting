@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react'
 
 /* ── Brand accent bar colors — Drop Cloth & Rust palette ─────────────────── */
 // Rotation: rust / stone / ochre / linen / rust (teal removed)
-const PANEL_BAR_COLORS = ['#244238', '#EEE4D0', '#B87333', '#F2EBD9', '#244238']
+const PANEL_BAR_COLORS = ['#244238', '#EEE4D0', '#C9A876', '#F2EBD9', '#244238']
 
 /* ── Service SVG icons — painter-trade visual language, matches SectionDivider/PaintFlow ── */
 // Each returns a 28x28 SVG with stroke in the panel accent color
@@ -146,7 +146,7 @@ const PANELS = [
   {
     id: 'cabinet',
     title: 'Cabinet & Trim',
-    accent: '#B87333',
+    accent: '#C9A876',
     accentText: '#122520',
     bg: '#122520',
     headline: 'The highest-margin upgrade in any room.',

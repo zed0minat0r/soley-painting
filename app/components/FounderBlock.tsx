@@ -62,7 +62,7 @@ export default function FounderBlock() {
           width: '420px',
           height: '420px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(184,115,51,0.08) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(201,168,118,0.08) 0%, transparent 70%)',
           pointerEvents: 'none',
         }}
       />
