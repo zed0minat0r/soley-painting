@@ -8,75 +8,70 @@ export default function Footer() {
         color: 'var(--color-chalk)',
       }}
     >
-      {/* Main footer body — condensed single-row layout */}
+      {/* Main footer body — fully centered stack */}
       <div
-        className="container-width footer-condensed"
+        className="container-width"
         style={{
-          paddingTop: '3rem',
-          paddingBottom: '2rem',
+          paddingTop: '3.5rem',
+          paddingBottom: '2.5rem',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '2rem',
+          textAlign: 'center',
+          gap: '1rem',
         }}
       >
-        {/* Brand + tagline */}
-        <div>
-          <p
-            style={{
-              fontFamily: 'var(--font-heading)',
-              fontWeight: 700,
-              fontSize: '1.375rem',
-              color: 'var(--color-chalk)',
-              lineHeight: 1.1,
-              marginBottom: '0.5rem',
-            }}
-          >
-            Soley&rsquo;s<span style={{ color: 'var(--color-ochre)' }}> Painting</span>
-          </p>
-          <p
-            style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.875rem',
-              color: 'rgba(244,237,222,0.55)',
-              maxWidth: '34ch',
-            }}
-          >
-            15+ years · South Eastern PA · Fully insured · Owner Sean Soley
-          </p>
-        </div>
-
-        {/* Contact CTAs */}
-        <div
+        {/* Brand */}
+        <p
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-end',
-            gap: '0.5rem',
+            fontFamily: 'var(--font-heading)',
+            fontWeight: 700,
+            fontSize: '1.5rem',
+            color: 'var(--color-chalk)',
+            lineHeight: 1.1,
+            margin: 0,
           }}
         >
-          <a
-            href="tel:+14849485573"
-            style={{
-              fontFamily: 'var(--font-heading)',
-              fontSize: '1.5rem',
-              fontWeight: 700,
-              color: 'var(--color-ochre)',
-              textDecoration: 'none',
-              letterSpacing: '0.02em',
-            }}
-          >
-            (484) 948-5573
-          </a>
-          <a
-            href="#contact"
-            className="btn-primary"
-            style={{ padding: '0.625rem 1.25rem', fontSize: '0.8125rem' }}
-          >
-            Get a Free Estimate
-          </a>
-        </div>
+          Soley&rsquo;s<span style={{ color: 'var(--color-ochre)' }}> Painting</span>
+        </p>
+
+        {/* Tagline */}
+        <p
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '0.875rem',
+            color: 'rgba(244,237,222,0.55)',
+            margin: 0,
+            maxWidth: '40ch',
+          }}
+        >
+          15+ years · South Eastern PA · Fully insured · Owner Sean Soley
+        </p>
+
+        {/* Phone */}
+        <a
+          href="tel:+14849485573"
+          style={{
+            fontFamily: 'var(--font-heading)',
+            fontSize: '1.625rem',
+            fontWeight: 700,
+            color: 'var(--color-ochre)',
+            textDecoration: 'none',
+            letterSpacing: '0.02em',
+            marginTop: '0.5rem',
+          }}
+        >
+          (484) 948-5573
+        </a>
+
+        {/* Estimate CTA */}
+        <a
+          href="#contact"
+          className="btn-primary"
+          style={{ padding: '0.75rem 1.5rem', fontSize: '0.875rem', marginTop: '0.5rem' }}
+        >
+          Get a Free Estimate
+        </a>
       </div>
 
       {/* Bottom bar — minimal copyright */}
