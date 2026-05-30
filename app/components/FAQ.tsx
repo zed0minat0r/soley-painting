@@ -179,7 +179,7 @@ export default function FAQ() {
       id="faq"
       style={{
         background: 'var(--color-umber)',
-        padding: '7rem 0',
+        padding: 'clamp(3.5rem, 7vw, 5rem) 0',
         position: 'relative',
         overflow: 'hidden',
       }}

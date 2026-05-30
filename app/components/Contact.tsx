@@ -42,7 +42,7 @@ export default function Contact() {
       ref={sectionRef}
       style={{
         background: 'var(--color-chalk)',
-        padding: '7rem 0',
+        padding: 'clamp(3.5rem, 7vw, 5rem) 0',
         position: 'relative',
       }}
     >
