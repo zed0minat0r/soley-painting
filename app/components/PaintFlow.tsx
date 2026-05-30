@@ -97,7 +97,6 @@ export default function PaintFlow() {
   // border-draw stagger. Section renders statically the first time it paints.
   const drawn = true
   const blindsOpen = true
-  const borderDrawn = true
 
   return (
     <section
@@ -110,57 +109,9 @@ export default function PaintFlow() {
         overflow: 'hidden',
       }}
     >
-      {/* Animated paint-stroke border — chalk border draws itself in on entry.
-          Uses 4 pseudo-border lines (top, right, bottom, left) each animating
-          their scaleX/scaleY from 0→1 with staggered delays. */}
-      {/* Top border stroke */}
-      <div style={{
-        position: 'absolute', top: '6px', left: '6px', right: '6px', height: '2px',
-        background: 'rgba(244,237,222,0.18)',
-        transformOrigin: 'left center',
-        transform: borderDrawn ? 'scaleX(1)' : 'scaleX(0)',
-        transition: 'transform 0.6s cubic-bezier(0.16,1,0.3,1) 0s',
-        pointerEvents: 'none',
-      }} />
-      {/* Right border stroke */}
-      <div style={{
-        position: 'absolute', top: '6px', right: '6px', bottom: '6px', width: '2px',
-        background: 'rgba(244,237,222,0.18)',
-        transformOrigin: 'top center',
-        transform: borderDrawn ? 'scaleY(1)' : 'scaleY(0)',
-        transition: 'transform 0.5s cubic-bezier(0.16,1,0.3,1) 0.55s',
-        pointerEvents: 'none',
-      }} />
-      {/* Bottom border stroke */}
-      <div style={{
-        position: 'absolute', bottom: '6px', left: '6px', right: '6px', height: '2px',
-        background: 'rgba(244,237,222,0.18)',
-        transformOrigin: 'right center',
-        transform: borderDrawn ? 'scaleX(1)' : 'scaleX(0)',
-        transition: 'transform 0.5s cubic-bezier(0.16,1,0.3,1) 1.0s',
-        pointerEvents: 'none',
-      }} />
-      {/* Left border stroke */}
-      <div style={{
-        position: 'absolute', top: '6px', left: '6px', bottom: '6px', width: '2px',
-        background: 'rgba(244,237,222,0.18)',
-        transformOrigin: 'bottom center',
-        transform: borderDrawn ? 'scaleY(1)' : 'scaleY(0)',
-        transition: 'transform 0.5s cubic-bezier(0.16,1,0.3,1) 1.45s',
-        pointerEvents: 'none',
-      }} />
-
-      {/* Terracotta top stripe */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '3px',
-          background: 'linear-gradient(90deg, var(--color-rust), var(--color-ochre))',
-        }}
-      />
+      {/* Decorative perimeter borders (4 chalk stroke divs) and terracotta
+          top stripe removed — they read as random horizontal/vertical lines
+          and don't add value with the new clean section transitions. */}
 
       {/* Horizontal blind reveal strips removed — this was the "horizontal
           blinder effect" the user reported. The entry animation overlaid
