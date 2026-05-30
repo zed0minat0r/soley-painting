@@ -256,19 +256,8 @@ export default function FAQ() {
         </div>
       </div>
 
-      {/* Bottom edge accent */}
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '1px',
-          background:
-            'linear-gradient(90deg, transparent, var(--color-ochre) 40%, var(--color-rust) 60%, transparent)',
-        }}
-      />
+      {/* Section-bottom accent strip removed — read as a hairline at the
+          top of the SmoothEdge bridge below this section. */}
     </section>
   )
 }

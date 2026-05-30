@@ -369,18 +369,8 @@ export default function WhySoley() {
         overflow: 'hidden',
       }}
     >
-      {/* Diagonal accent strip */}
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '1px',
-          background: 'linear-gradient(90deg, transparent, var(--color-rust) 30%, var(--color-ochre) 70%, transparent)',
-        }}
-      />
+      {/* Section-bottom accent strip removed — read as a hairline at the
+          top of the SmoothEdge bridge below this section. */}
 
       <div className="container-width">
         {/* Section header */}
