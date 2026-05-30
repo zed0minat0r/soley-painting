@@ -96,14 +96,29 @@ const PANEL_ICONS: Record<string, React.ComponentType<{ color: string }>> = {
   specialty: IconSpecialty,
 }
 
-/* ── Panel data (Scout catalog item #4 + #2 palette) ─────────────────── */
+/* ── Panel data — staggered forest / bone backgrounds for visual rhythm ── */
+// Dark template — text is bone, accent is champagne
+const DARK = {
+  bg:     '#14241D', // deep forest
+  text:   '#F2EBD9', // bone
+  muted:  'rgba(242,235,217,0.65)',
+  eyebrow:'rgba(242,235,217,0.45)',
+  accent: '#C9A876', // champagne
+}
+// Light template — text is deep forest, accent is the same forest
+const LIGHT = {
+  bg:     '#F2EBD9', // bone
+  text:   '#14241D', // deep forest
+  muted:  'rgba(20,36,29,0.7)',
+  eyebrow:'rgba(20,36,29,0.5)',
+  accent: '#244238', // forest primary
+}
+
 const PANELS = [
   {
     id: 'interior',
     title: 'Interior',
-    accent: '#F4EDDE',
-    accentText: '#122520',
-    bg: '#122520',
+    ...DARK,
     headline: 'Rooms that feel new — without moving furniture.',
     descriptor:
       'Walls, ceilings, trim, and crown molding. We protect every surface with drop-cloth floor-to-ceiling coverage before the first brush touches a wall.',
@@ -116,9 +131,7 @@ const PANELS = [
   {
     id: 'exterior',
     title: 'Exterior',
-    accent: '#EEE4D0',
-    accentText: '#14241D',
-    bg: '#1F1712',
+    ...LIGHT,
     headline: 'Weather-ready from the first coat.',
     descriptor:
       'Siding, fascia, soffits, doors, and shutters. Every trim gap caulked before primer — skip prep and the best paint fails in two seasons.',
@@ -131,9 +144,7 @@ const PANELS = [
   {
     id: 'commercial',
     title: 'Commercial',
-    accent: '#2E5247',
-    accentText: '#F4EDDE',
-    bg: '#221812',
+    ...DARK,
     headline: 'Professional finish. Minimal disruption.',
     descriptor:
       'Office buildings, retail, multi-unit residential, and HOA common areas. We schedule around your operation — nights, weekends, phased rollouts.',
@@ -146,9 +157,7 @@ const PANELS = [
   {
     id: 'cabinet',
     title: 'Cabinet & Trim',
-    accent: '#C9A876',
-    accentText: '#122520',
-    bg: '#122520',
+    ...LIGHT,
     headline: 'The highest-margin upgrade in any room.',
     descriptor:
       'Kitchen, bathroom, and built-in cabinets refinished with factory-grade finish quality. Spray-applied for a glass-smooth surface that holds color longer than brush-applied coatings.',
@@ -161,9 +170,7 @@ const PANELS = [
   {
     id: 'specialty',
     title: 'Specialty',
-    accent: '#2E5247',
-    accentText: '#F4EDDE',
-    bg: '#1A130E',
+    ...DARK,
     headline: 'Beyond standard paint.',
     descriptor:
       "Epoxy floors, deck staining, fence staining, concrete sealer, and venetian plaster. Services that set Soley's apart from volume-play competitors.",
@@ -387,7 +394,7 @@ export default function ServicesScrollLock() {
                   fontFamily: 'var(--font-body)',
                   fontSize: '0.875rem',
                   letterSpacing: '0.15em',
-                  color: 'rgba(244,237,222,0.25)',
+                  color: panel.eyebrow,
                   zIndex: 2,
                 }}
               >
@@ -480,7 +487,7 @@ export default function ServicesScrollLock() {
                           fontSize: '0.875rem',
                           letterSpacing: '0.18em',
                           textTransform: "uppercase",
-                          color: "rgba(244,237,222,0.45)",
+                          color: panel.eyebrow,
                         }}
                       >
                         Soley&rsquo;s Painting
@@ -498,7 +505,7 @@ export default function ServicesScrollLock() {
                       fontSize: 'clamp(2.5rem, 5.5vw, 5.5rem)',
                       letterSpacing: '0.06em',
                       textTransform: 'uppercase',
-                      color: 'var(--color-chalk)',
+                      color: panel.text,
                       lineHeight: 1,
                       marginBottom: '0.5rem',
                     }}
@@ -529,7 +536,7 @@ export default function ServicesScrollLock() {
                     fontFamily: 'var(--font-body)',
                     fontSize: '1rem',
                     lineHeight: 1.75,
-                    color: 'rgba(244,237,222,0.65)',
+                    color: panel.muted,
                     maxWidth: '44ch',
                     marginBottom: '1.75rem',
                   }}
@@ -548,7 +555,7 @@ export default function ServicesScrollLock() {
                         gap: '0.75rem',
                         fontFamily: 'var(--font-body)',
                         fontSize: '0.875rem',
-                        color: 'rgba(244,237,222,0.78)',
+                        color: panel.text,
                         marginBottom: '0.625rem',
                       }}
                     >
