@@ -184,19 +184,8 @@ export default function FAQ() {
         overflow: 'hidden',
       }}
     >
-      {/* Subtle terracotta accent bar — top edge */}
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '2px',
-          background:
-            'linear-gradient(90deg, transparent, var(--color-rust) 25%, var(--color-ochre) 75%, transparent)',
-        }}
-      />
+      {/* Section-top accent bar removed — read as a hairline at the bottom
+          of the SmoothEdge gradient above. */}
 
       <div className="container-width">
         <div
