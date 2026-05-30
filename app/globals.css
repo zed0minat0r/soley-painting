@@ -34,7 +34,10 @@
   }
   body {
     font-family: var(--font-body);
-    background-color: var(--color-linen);
+    /* bg matches the first + last sections (Hero + Footer), both umber, so
+       the overscroll/bounce zones at the top and bottom of the page never
+       expose a contrasting strip. */
+    background-color: var(--color-umber);
     color: var(--color-umber);
     overflow-x: clip;
     overscroll-behavior: contain;
