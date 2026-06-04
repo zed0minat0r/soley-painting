@@ -385,21 +385,7 @@ export default function ServicesScrollLock() {
                 }}
               />
 
-              {/* Panel number — top right label */}
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '2.5rem',
-                  right: '3rem',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '0.875rem',
-                  letterSpacing: '0.15em',
-                  color: panel.eyebrow,
-                  zIndex: 2,
-                }}
-              >
-                0{i + 1} / 0{PANELS.length}
-              </span>
+              {/* "01 / 05" pagination indicator removed — read as awkward */}
 
               {/* BUG-022 fix: Right-column panel numeral at full opacity fills the dark void.
                   Positioned in the right 50% of the panel as a foreground design element.
