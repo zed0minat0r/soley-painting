@@ -186,9 +186,9 @@ export default function Hero3D() {
       <div
         className="hero-canvas-wrap"
         style={{
-          width: 'min(620px, 92vw)',
+          width: 'min(560px, 88vw)',
           aspectRatio: '1 / 1',
-          maxHeight: '62vh',
+          maxHeight: '54vh',
           position: 'relative',
         }}
       >
@@ -208,33 +208,15 @@ export default function Hero3D() {
         <Hero3DCanvas />
       </div>
 
-      {/* Body copy */}
-      <p
-        className="glow-sub"
-        style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: '1rem',
-          lineHeight: 1.7,
-          color: 'rgba(242, 235, 217, 0.72)',
-          maxWidth: '46ch',
-          marginTop: '2.5rem',
-          textAlign: 'center',
-          textShadow:
-            '0 0 1px rgba(255,255,255,0.5), 0 0 8px rgba(201,168,118,0.55), 0 0 20px rgba(36,66,56,0.25)',
-        }}
-      >
-        Sean Soley and the same crew on every job — start to finish.
-        Free walkthrough, written quote, fair pricing.
-      </p>
-
-      {/* CTAs */}
+      {/* CTAs — body copy below the brush removed (was redundant with the
+          tagline above + trust signals below). */}
       <div
         style={{
           display: 'flex',
           gap: '1rem',
           flexWrap: 'wrap',
           justifyContent: 'center',
-          marginTop: '2rem',
+          marginTop: '2.5rem',
         }}
       >
         <a href="#contact" className="btn-primary">Request a Free Estimate</a>
