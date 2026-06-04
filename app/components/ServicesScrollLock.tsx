@@ -114,6 +114,64 @@ const LIGHT = {
   accent: '#244238', // forest primary
 }
 
+/* ServiceSwatch — hand-painted-feel color composition rendered on the
+   right side of each service panel. Three overlapping organic blobs +
+   one small accent dot. Same composition geometry across all panels;
+   only the colors change per service. Reads as a paint-card / Clare-
+   blob test in the brand's category-native visual language. */
+function ServiceSwatch({ palette, accent }: { palette: readonly string[]; accent: string }) {
+  return (
+    <svg
+      viewBox="0 0 240 280"
+      width="100%"
+      height="100%"
+      style={{ display: 'block', overflow: 'visible' }}
+      aria-hidden="true"
+    >
+      {/* Large primary blob — top-left of composition */}
+      <path
+        d="M 90 30 C 145 22, 195 50, 200 100 C 205 150, 175 195, 120 200 C 70 205, 25 175, 22 120 C 18 70, 45 38, 90 30 Z"
+        fill={palette[0]}
+        opacity="0.95"
+      />
+      {/* Mid blob — overlapping, lower-right */}
+      <path
+        d="M 130 105 C 175 100, 210 130, 208 175 C 205 215, 175 240, 135 235 C 90 230, 70 200, 75 160 C 80 125, 100 108, 130 105 Z"
+        fill={palette[1]}
+        opacity="0.92"
+      />
+      {/* Accent blob — small, off to the side */}
+      <path
+        d="M 35 175 C 60 168, 85 180, 88 205 C 90 225, 70 240, 50 235 C 28 228, 18 205, 35 175 Z"
+        fill={palette[2]}
+        opacity="0.95"
+      />
+      {/* Highlight dot — small, punctuates */}
+      <ellipse cx="170" cy="55" rx="14" ry="13" fill={palette[3]} opacity="0.9" />
+      {/* Champagne hairline — thin curved brush stroke for craft cue */}
+      <path
+        d="M 30 250 C 80 245, 160 248, 220 240"
+        stroke={accent}
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.5"
+      />
+    </svg>
+  )
+}
+
+/* Per-service color palette for the painted-swatch composition on the
+   right side of each panel. 4 colors each, organized as: primary, mid,
+   accent, highlight. Reads as a paint card / Clare-blob composition. */
+const SWATCHES = {
+  interior:  ['#E8DDC8', '#B5C49A', '#C9A876', '#F4EDDE'], // warm whites + sage + champagne
+  exterior:  ['#3F5645', '#6B8071', '#B5C5D1', '#244238'], // forest depth + sky slate
+  commercial:['#5A4F44', '#8C8175', '#C9A876', '#2C3530'], // warm taupe + neutral + champagne
+  cabinet:   ['#EEE4D0', '#6F8474', '#1A1A1A', '#C9A876'], // cream + sage + black accent
+  specialty: ['#C9A876', '#5C4838', '#8F8C7E', '#DCD3BE'], // champagne gloss + walnut stain + concrete
+} as const
+
 const PANELS = [
   {
     id: 'interior',
@@ -387,10 +445,9 @@ export default function ServicesScrollLock() {
 
               {/* "01 / 05" pagination indicator removed — read as awkward */}
 
-              {/* BUG-022 fix: Right-column panel numeral at full opacity fills the dark void.
-                  Positioned in the right 50% of the panel as a foreground design element.
-                  Full opacity per RULE 8 — not a ghost/faded number behind content.
-                  Hidden on mobile via .panel-numeral-right in globals.css */}
+              {/* Right-column visual — painted color-field composition unique to
+                  each service (replaces the previous "01" numeral). Hidden on
+                  mobile via .panel-numeral-right in globals.css. */}
               <div
                 aria-hidden="true"
                 className="panel-numeral-right"
@@ -399,35 +456,26 @@ export default function ServicesScrollLock() {
                   right: '4vw',
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-end',
+                  width: 'clamp(280px, 28vw, 420px)',
                   pointerEvents: 'none',
                   zIndex: 1,
                 }}
               >
+                <ServiceSwatch
+                  palette={SWATCHES[panel.id as keyof typeof SWATCHES]}
+                  accent={panel.accent}
+                />
                 <span
                   style={{
-                    fontFamily: 'var(--font-heading)',
-                    fontWeight: 700,
-                    fontSize: 'clamp(7rem, 14vw, 14rem)',
-                    lineHeight: 1,
-                    color: panel.accent,
-                    userSelect: 'none',
-                    letterSpacing: '-0.04em',
-                  }}
-                >
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <span
-                  style={{
+                    display: 'block',
+                    marginTop: '1.25rem',
                     fontFamily: 'var(--font-body)',
                     fontWeight: 500,
                     fontSize: '0.875rem',
-                    letterSpacing: '0.2em',
+                    letterSpacing: '0.22em',
                     textTransform: 'uppercase',
                     color: panel.accent,
-                    marginTop: '0.5rem',
+                    textAlign: 'right',
                   }}
                 >
                   {panel.title}
