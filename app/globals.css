@@ -909,39 +909,273 @@ a:focus-visible {
   font-size: 0.875rem !important; /* 14px floor — bumped from 0.6875rem (11px) */
 }
 
-/* ── PaintFlow responsive layout — BUG-036 fix ───────────────────────────── */
-/* Desktop default: generous padding, header has 3.5rem bottom margin */
+/* ── PaintFlow layout + glow ────────────────────────────────────────────── */
 .paintflow-section {
-  padding: 5rem 0 4.5rem;
+  padding: 6rem 0 5.5rem;
 }
 .paintflow-header {
-  margin-bottom: 3.5rem;
-}
-.paintflow-node-labels {
-  margin-top: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 4.5rem;
 }
 
-/* Mobile: reduce padding so diagram fills more of the section */
+/* Row of 5 stations, evenly spaced, with the gradient track running between
+   them. position:relative anchors the absolutely-positioned track/pulse. */
+.paintflow-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  --paintflow-track-y: 118px;
+}
+.paintflow-station {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  position: relative;
+  text-align: center;
+  padding: 0 0.5rem;
+}
+
+/* Big foreground 01-05 numeral — italic serif, ochre, full opacity. NOT a
+   ghost number; sits above the icon as a strong visual order anchor. */
+.paintflow-numeral {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(2.6rem, 4.2vw, 4.25rem);
+  line-height: 1;
+  color: var(--color-ochre);
+  text-shadow: 0 0 28px rgba(201, 168, 118, 0.7), 0 0 6px rgba(201, 168, 118, 0.85);
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.02em;
+}
+
+/* Radial halo behind the icon disc — big diffuse bloom so each station
+   reads like a spotlight on the studio floor. */
+.paintflow-halo {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(201, 168, 118, 0.55) 0%,
+    rgba(201, 168, 118, 0.22) 28%,
+    rgba(94, 138, 113, 0.10) 50%,
+    transparent 72%
+  );
+  filter: blur(2px);
+  pointer-events: none;
+  z-index: 0;
+  animation: paintflow-halo-breathe 4.5s ease-in-out infinite;
+}
+
+/* Icon disc — 88px desktop. Two layers: outer ring with gradient border,
+   inner solid disc that holds the SVG icon. Sits at z-index 3 (above the
+   connector track at z-index 1 and the pulse at z-index 2). */
+.paintflow-disc {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 220deg,
+    rgba(201, 168, 118, 0.75) 0deg,
+    rgba(36, 66, 56, 0.55) 120deg,
+    rgba(201, 168, 118, 0.75) 240deg,
+    rgba(36, 66, 56, 0.55) 360deg
+  );
+  padding: 2px;
+  box-shadow:
+    0 0 0 1px rgba(242, 235, 217, 0.06),
+    0 0 22px rgba(201, 168, 118, 0.32),
+    0 0 60px rgba(201, 168, 118, 0.18),
+    inset 0 0 18px rgba(20, 36, 29, 0.7);
+  animation: paintflow-disc-pulse 4.5s ease-in-out infinite;
+}
+.paintflow-disc-ring {
+  display: none; /* hooked for future iteration; conic-gradient padding handles ring effect */
+}
+.paintflow-disc-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 28%,
+    rgba(48, 78, 65, 1) 0%,
+    rgba(20, 36, 29, 1) 70%
+  );
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(244, 237, 222, 0.9);
+}
+
+.paintflow-label {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-chalk, #F2EBD9);
+  margin-top: 1.25rem;
+  text-shadow: 0 0 12px rgba(201, 168, 118, 0.25);
+}
+.paintflow-sub {
+  font-family: var(--font-body);
+  font-size: 0.84rem;
+  color: rgba(244, 237, 222, 0.55);
+  line-height: 1.4;
+  max-width: 18ch;
+}
+
+/* Swatch — bigger color puddle below the sub label, glows in its own hue */
+.paintflow-swatch {
+  display: inline-block;
+  width: 44px;
+  height: 10px;
+  border-radius: 999px;
+  margin-top: 0.85rem;
+}
+
+/* Connector pulse — translucent ochre highlight flowing left → right. */
+@keyframes paintflow-pulse-flow {
+  0%   { background-position: -30% 0; }
+  100% { background-position: 130% 0; }
+}
+/* Subtle breathing on the halo + disc shadow */
+@keyframes paintflow-halo-breathe {
+  0%, 100% { opacity: 0.85; transform: translateX(-50%) scale(1); }
+  50%      { opacity: 1;    transform: translateX(-50%) scale(1.06); }
+}
+@keyframes paintflow-disc-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(242, 235, 217, 0.06),
+      0 0 22px rgba(201, 168, 118, 0.32),
+      0 0 60px rgba(201, 168, 118, 0.18),
+      inset 0 0 18px rgba(20, 36, 29, 0.7);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(242, 235, 217, 0.10),
+      0 0 32px rgba(201, 168, 118, 0.5),
+      0 0 84px rgba(201, 168, 118, 0.28),
+      inset 0 0 18px rgba(20, 36, 29, 0.7);
+  }
+}
+
+/* Tablet: tighten the row, smaller discs */
+@media (max-width: 1024px) {
+  .paintflow-row { --paintflow-track-y: 102px; }
+  .paintflow-disc { width: 76px; height: 76px; }
+  .paintflow-halo { top: 56px; width: 200px; height: 200px; }
+}
+
+/* Mobile: collapse to a VERTICAL timeline. Vertical track in the gutter,
+   stations stack with their labels on the right of the disc. */
 @media (max-width: 639px) {
   .paintflow-section {
-    padding: 3rem 0 3rem;
+    padding: 3.5rem 0 3.5rem;
   }
   .paintflow-header {
-    margin-bottom: 1.25rem;
-    gap: 0.75rem !important;
+    margin-bottom: 2.25rem;
+    gap: 0.75rem;
   }
-  .paintflow-node-labels {
-    margin-top: 1rem;
+  /* Row becomes a vertical stack */
+  .paintflow-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.75rem;
+    padding-left: 1.25rem;
+    --paintflow-track-y: 0;
   }
-  /* Shrink icon circles on mobile to save vertical space */
-  .paintflow-node-icon {
-    width: 36px !important;
-    height: 36px !important;
+  /* Track becomes a vertical line on the left edge */
+  .paintflow-track,
+  .paintflow-track-pulse {
+    left: calc(1.25rem + 32px) !important;
+    right: auto !important;
+    top: 32px !important;
+    bottom: 32px !important;
+    width: 3px !important;
+    height: auto !important;
   }
-  /* Scale down SVG icons inside circles on mobile */
-  .paintflow-node-icon svg {
-    width: 20px !important;
-    height: 20px !important;
+  .paintflow-track-pulse {
+    background:
+      linear-gradient(180deg, transparent 0%, rgba(242,235,217,0.85) 50%, transparent 100%) !important;
+    background-size: 100% 28% !important;
+    background-repeat: no-repeat !important;
+    background-position: 0 -30% !important;
+    animation: paintflow-pulse-flow-v 4.5s linear infinite !important;
+  }
+  @keyframes paintflow-pulse-flow-v {
+    0%   { background-position: 0 -30%; }
+    100% { background-position: 0 130%; }
+  }
+  /* Each station: horizontal layout, disc on the left, text on the right */
+  .paintflow-station {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    text-align: left;
+    gap: 1rem;
+    padding: 0;
+  }
+  /* Order: numeral above, then disc, then label/sub stacked to the right.
+     We achieve this with a CSS grid-like flow using flex order + a small
+     inner wrapper. Simpler approach: hide the numeral, keep the disc + halo
+     prominent, and let label/sub stack to the right of the disc. */
+  .paintflow-numeral {
+    position: absolute;
+    top: -10px;
+    left: 76px;
+    font-size: 1.5rem;
+    margin: 0;
+  }
+  .paintflow-halo {
+    top: -10px;
+    left: 32px;
+    transform: none;
+    width: 140px;
+    height: 140px;
+  }
+  .paintflow-disc {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+  }
+  .paintflow-disc-inner svg {
+    width: 30px;
+    height: 30px;
+  }
+  .paintflow-label {
+    margin-top: 0;
+    font-size: 0.95rem;
+  }
+  .paintflow-sub {
+    font-size: 0.82rem;
+    max-width: none;
+  }
+  .paintflow-swatch {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 8px;
   }
 }
 
