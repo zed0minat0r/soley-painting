@@ -1,15 +1,15 @@
 'use client'
 
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 /* ── "The Process" timeline — 5-stage paint workflow.
-   Each station shows: foreground numeral (01-05), large glowing icon orbit,
-   color swatch puddle, label + sublabel. Connector between stations is a
-   thick gradient track with a flowing ochre pulse animated across it.
-   Background carries radial atmosphere pools so the row reads as illuminated
-   stations on a dark studio floor, not flat dots on a line. */
+   Auto-advances through each stage. Active station gets intense glow,
+   scaled numeral, color-shifted label, fully visible sub-label, and a
+   pulsing color-swatch. A traveling spotlight on the connector tracks the
+   active station. Cycle: 2.8s per step → 14s full loop. */
 
 const NODE_SWATCHES = ['#244238', '#C9A876', '#F2EBD9', '#C9A876', '#244238']
+const STEP_MS = 2800
 
 const NODES = [
   {
@@ -82,6 +82,14 @@ const NODES = [
 
 export default function PaintFlow() {
   const sectionRef = useRef<HTMLElement>(null)
+  const [active, setActive] = useState(0)
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setActive((i) => (i + 1) % NODES.length)
+    }, STEP_MS)
+    return () => clearInterval(id)
+  }, [])
 
   return (
     <section
@@ -155,86 +163,58 @@ export default function PaintFlow() {
           </p>
         </div>
 
-        {/* Timeline row */}
-        <div className="paintflow-row" style={{ position: 'relative' }}>
-          {/* Connector — thick gradient track with an animated ochre pulse
-              flowing left → right. Layer 1: base gradient track. Layer 2:
-              traveling pulse (a translucent ochre highlight at 28% width
-              that animates background-position across the full row). */}
-          <div
-            aria-hidden
-            className="paintflow-track"
-            style={{
-              position: 'absolute',
-              left: '10%',
-              right: '10%',
-              top: 'var(--paintflow-track-y, 96px)',
-              height: '3px',
-              borderRadius: '999px',
-              background:
-                'linear-gradient(90deg, rgba(36,66,56,0.85) 0%, rgba(201,168,118,0.85) 50%, rgba(36,66,56,0.85) 100%)',
-              boxShadow: '0 0 18px rgba(201,168,118,0.3), 0 0 4px rgba(201,168,118,0.45)',
-              zIndex: 1,
-            }}
-          />
-          <div
-            aria-hidden
-            className="paintflow-track-pulse"
-            style={{
-              position: 'absolute',
-              left: '10%',
-              right: '10%',
-              top: 'var(--paintflow-track-y, 96px)',
-              height: '3px',
-              borderRadius: '999px',
-              background:
-                'linear-gradient(90deg, transparent 0%, rgba(242,235,217,0.85) 50%, transparent 100%)',
-              backgroundSize: '28% 100%',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: '-30% 0',
-              animation: 'paintflow-pulse-flow 4.5s linear infinite',
-              zIndex: 2,
-              pointerEvents: 'none',
-              mixBlendMode: 'screen',
-            }}
-          />
+        {/* Timeline row — desktop: horizontal, mobile: vertical (CSS handles).
+            data-active drives the spotlight position via a CSS variable. */}
+        <div
+          className="paintflow-row"
+          style={
+            {
+              ['--active' as string]: active,
+              ['--count' as string]: NODES.length,
+            } as React.CSSProperties
+          }
+        >
+          {/* Connector track — gradient base */}
+          <div aria-hidden className="paintflow-track" />
+          {/* Spotlight on the connector — translates to the active station's
+              center. Width-bound by --count so it sits exactly under each
+              station. CSS transitions the transform smoothly. */}
+          <div aria-hidden className="paintflow-spotlight" />
 
-          {NODES.map((node, i) => (
-            <div key={node.id} className="paintflow-station">
-              {/* Foreground numeral — large ochre serif italic, full opacity.
-                  NOT a ghost number — sits above the icon as a strong visual
-                  anchor for the step order. */}
-              <span className="paintflow-numeral">
-                {String(i + 1).padStart(2, '0')}
-              </span>
-
-              {/* Glow orbit — radial halo behind the icon circle */}
-              <span aria-hidden className="paintflow-halo" />
-
-              {/* Icon disc — 80px desktop, scales down on mobile. Double ring
-                  effect: a thick gradient outer ring and an inner solid disc. */}
-              <span className="paintflow-disc">
-                <span className="paintflow-disc-ring" />
-                <span className="paintflow-disc-inner">
-                  {node.icon}
+          {NODES.map((node, i) => {
+            const isActive = i === active
+            return (
+              <div
+                key={node.id}
+                className={`paintflow-station${isActive ? ' is-active' : ''}`}
+                style={{ ['--swatch' as string]: NODE_SWATCHES[i] } as React.CSSProperties}
+                onMouseEnter={() => setActive(i)}
+              >
+                <span className="paintflow-numeral">
+                  {String(i + 1).padStart(2, '0')}
                 </span>
-              </span>
 
-              {/* Label block */}
-              <span className="paintflow-label">{node.label}</span>
-              <span className="paintflow-sub">{node.sub}</span>
+                <span aria-hidden className="paintflow-halo" />
 
-              {/* Color swatch — bigger paint-drip below the sub label.
-                  Shows which palette tone applies at this step. */}
-              <span
-                className="paintflow-swatch"
-                style={{
-                  background: NODE_SWATCHES[i],
-                  boxShadow: `0 0 14px ${NODE_SWATCHES[i]}66, 0 2px 4px rgba(0,0,0,0.45)`,
-                }}
-              />
-            </div>
-          ))}
+                <span className="paintflow-disc">
+                  <span className="paintflow-disc-inner">
+                    {node.icon}
+                  </span>
+                  {/* Active-state ring burst — scales outward when active */}
+                  <span aria-hidden className="paintflow-burst" />
+                </span>
+
+                <span className="paintflow-label">{node.label}</span>
+                <span className="paintflow-sub">{node.sub}</span>
+
+                <span
+                  aria-hidden
+                  className="paintflow-swatch"
+                  style={{ background: NODE_SWATCHES[i] }}
+                />
+              </div>
+            )
+          })}
         </div>
       </div>
     </section>
