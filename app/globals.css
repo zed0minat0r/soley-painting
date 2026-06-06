@@ -1323,15 +1323,18 @@ a:focus-visible {
     font-size: 1.5rem;
     margin: 0;
   }
+  /* Mobile halo: center on the disc itself, not on the station row.
+     Disc is 64px wide at the row's left edge → disc center = x:32.
+     Halo box is 140px wide → set left to -38px so box center lands on x:32. */
   .paintflow-halo {
     top: -10px;
-    left: 32px;
+    left: -38px;
     transform: scale(0.85);
     width: 140px;
     height: 140px;
   }
   .paintflow-station.is-active .paintflow-halo {
-    transform: scale(1.15) !important;
+    transform: scale(1) !important;
   }
   .paintflow-disc {
     width: 64px;
