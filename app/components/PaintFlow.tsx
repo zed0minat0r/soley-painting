@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from 'react'
    active station. Cycle: 2.8s per step → 14s full loop. */
 
 const NODE_SWATCHES = ['#244238', '#C9A876', '#F2EBD9', '#C9A876', '#244238']
-const STEP_MS = 2800
+const STEP_MS = 4800
 
 const NODES = [
   {
