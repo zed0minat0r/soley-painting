@@ -221,14 +221,6 @@
   will-change: transform;
 }
 
-/* ── PaintFlow single traveling dot — left → right along connector ───── */
-@keyframes paintflow-dot-travel {
-  0%   { left: 10%; opacity: 0; }
-  8%   { opacity: 1; }
-  92%  { opacity: 1; }
-  100% { left: 90%; opacity: 0; }
-}
-
 /* ── Char stagger animation for Process titles ──────────────────────── */
 @keyframes char-in {
   from { opacity: 0; transform: translateY(12px); }
@@ -963,28 +955,29 @@ a:focus-visible {
   pointer-events: none;
 }
 
-/* Active-step spotlight — a bright ochre blob that translates along the
-   track to sit under the active disc. Uses --active to compute its X
-   position: each station owns 1/count of the row's full width; we place
-   the spotlight at (active + 0.5) / count of the row width, then adjust
-   so it sits between the 10%/90% track endpoints. */
+/* Active-step spotlight — a bright ochre blob that sits centered on the
+   active station's disc. Station i's center is at (i + 0.5) * (100%/count)
+   of the row width. We set `left` to that center and use translateX(-50%)
+   to center the spotlight glyph on the anchor. Transitioning `left` looks
+   smoother than transform-only here because the path follows the row's
+   actual layout regardless of viewport width. */
 .paintflow-spotlight {
   position: absolute;
-  top: calc(var(--paintflow-track-y) - 4px);
-  left: 10%;
-  width: calc(80% / var(--count));
-  height: 11px;
+  top: calc(var(--paintflow-track-y) - 5px);
+  left: calc((var(--active) + 0.5) * (100% / var(--count)));
+  width: 110px;
+  height: 13px;
   border-radius: 999px;
   background: radial-gradient(
     ellipse 50% 100% at 50% 50%,
     rgba(242, 235, 217, 0.95) 0%,
-    rgba(201, 168, 118, 0.8) 30%,
-    rgba(201, 168, 118, 0.2) 70%,
+    rgba(201, 168, 118, 0.75) 30%,
+    rgba(201, 168, 118, 0.12) 70%,
     transparent 100%
   );
-  filter: blur(1px);
-  transform: translateX(calc(var(--active) * 100%));
-  transition: transform 0.7s cubic-bezier(0.7, 0, 0.2, 1);
+  filter: blur(2px);
+  transform: translateX(-50%);
+  transition: left 0.95s cubic-bezier(0.65, 0, 0.2, 1), filter 0.95s ease;
   z-index: 2;
   pointer-events: none;
   mix-blend-mode: screen;
@@ -1004,7 +997,11 @@ a:focus-visible {
   letter-spacing: 0.02em;
   opacity: 0.45;
   transform: translateY(0);
-  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.3, 1.2, 0.4, 1), text-shadow 0.6s ease, color 0.6s ease;
+  transition:
+    opacity 0.7s cubic-bezier(0.55, 0.05, 0.2, 1),
+    transform 0.7s cubic-bezier(0.25, 1.4, 0.3, 1),
+    text-shadow 0.7s ease,
+    color 0.7s ease;
 }
 
 /* Radial halo behind the icon disc — big diffuse bloom so each station
@@ -1028,7 +1025,10 @@ a:focus-visible {
   pointer-events: none;
   z-index: 0;
   opacity: 0.5;
-  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.3, 1.2, 0.4, 1), background 0.6s ease;
+  transition:
+    opacity 0.7s cubic-bezier(0.55, 0.05, 0.2, 1) 0.08s,
+    transform 0.7s cubic-bezier(0.25, 1.4, 0.3, 1) 0.08s,
+    background 0.7s ease 0.08s;
 }
 
 /* Icon disc — 88px desktop. Conic-gradient outer ring with an inner solid
@@ -1054,7 +1054,10 @@ a:focus-visible {
     0 0 0 1px rgba(242, 235, 217, 0.06),
     0 0 18px rgba(201, 168, 118, 0.22),
     inset 0 0 18px rgba(20, 36, 29, 0.7);
-  transition: transform 0.6s cubic-bezier(0.3, 1.2, 0.4, 1), box-shadow 0.6s ease, background 0.6s ease;
+  transition:
+    transform 0.7s cubic-bezier(0.25, 1.4, 0.3, 1) 0.12s,
+    box-shadow 0.7s ease 0.12s,
+    background 0.7s ease 0.12s;
 }
 .paintflow-disc-inner {
   width: 100%;
@@ -1095,7 +1098,11 @@ a:focus-visible {
   color: rgba(244, 237, 222, 0.55);
   margin-top: 1.25rem;
   text-shadow: 0 0 12px rgba(201, 168, 118, 0.0);
-  transition: color 0.6s ease, text-shadow 0.6s ease, transform 0.6s cubic-bezier(0.3, 1.2, 0.4, 1), letter-spacing 0.6s ease;
+  transition:
+    color 0.7s ease 0.18s,
+    text-shadow 0.7s ease 0.18s,
+    transform 0.7s cubic-bezier(0.25, 1.4, 0.3, 1) 0.18s,
+    letter-spacing 0.7s ease 0.18s;
 }
 .paintflow-sub {
   font-family: var(--font-body);
@@ -1103,7 +1110,7 @@ a:focus-visible {
   color: rgba(244, 237, 222, 0.32);
   line-height: 1.4;
   max-width: 18ch;
-  transition: color 0.6s ease, opacity 0.6s ease;
+  transition: color 0.7s ease 0.22s, opacity 0.7s ease 0.22s;
 }
 
 /* Swatch — bigger color puddle below the sub label, glows in its own hue */
@@ -1116,7 +1123,10 @@ a:focus-visible {
   opacity: 0.45;
   box-shadow: 0 0 0 rgba(0, 0, 0, 0);
   transform: scaleX(0.85);
-  transition: opacity 0.6s ease, box-shadow 0.6s ease, transform 0.6s cubic-bezier(0.3, 1.2, 0.4, 1);
+  transition:
+    opacity 0.7s ease 0.26s,
+    box-shadow 0.7s ease 0.26s,
+    transform 0.7s cubic-bezier(0.25, 1.4, 0.3, 1) 0.26s;
 }
 
 /* ─── Active-station effects ─────────────────────────────────────────────
@@ -1280,24 +1290,22 @@ a:focus-visible {
     ) !important;
   }
   .paintflow-spotlight {
-    /* Vertical spotlight: width=11px, height=1/count of total row height */
-    left: calc(1.25rem + 32px - 4px) !important;
+    /* Vertical mobile spotlight: anchored at active station's center via
+       top calc + translateY(-50%) to center the glyph. */
+    left: calc(1.25rem + 32px) !important;
     right: auto !important;
-    top: 32px !important;
-    width: 11px !important;
-    /* Each station roughly height/count tall; we compute via flex-equal but
-       the visual blob just needs to land near each disc — use 72px fixed
-       (disc + sub combined approximation) and translate down by 96px per
-       step. */
-    height: 72px !important;
+    top: calc((var(--active) + 0.5) * (100% / var(--count))) !important;
+    width: 13px !important;
+    height: 80px !important;
     background: radial-gradient(
       ellipse 100% 50% at 50% 50%,
       rgba(242, 235, 217, 0.95) 0%,
-      rgba(201, 168, 118, 0.8) 30%,
-      rgba(201, 168, 118, 0.2) 70%,
+      rgba(201, 168, 118, 0.75) 30%,
+      rgba(201, 168, 118, 0.12) 70%,
       transparent 100%
     );
-    transform: translateY(calc(var(--active) * (100% + 1.75rem * 0.6))) !important;
+    transform: translate(-50%, -50%) !important;
+    transition: top 0.95s cubic-bezier(0.65, 0, 0.2, 1), filter 0.95s ease !important;
   }
   /* Each station: horizontal layout, disc on the left, text on the right */
   .paintflow-station {
