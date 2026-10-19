@@ -1,44 +1,15 @@
-# CLAUDE.md — Soley Painting
+# Soley's Painting & Home Improvements
 
-Next.js 14 marketing site for Soley Painting, a residential / commercial painting company. Agent-loop-driven build.
+Single-file static site: `index.html` (+ `img/`). No build step. The Next.js / three.js version is tag `v1-nextjs`;
+its agent-loop docs are in `docs/agent-loop/`.
 
-## Working guidelines
-
-- **Read MEMORY.md FIRST** at the start of every cycle. The Penn Tech feature catalog (`project_penn_tech_baseline.md`) is the floor for this project. Each Penn Tech feature should ship in a brand-specific painter form (cube → 3D paintbrush, IT-puzzles tagline → painter-equivalent, services scroll-lock with painting service categories, etc.).
-- **Do NOT copy Penn Tech moves verbatim.** The catalog dictates the *kind* of feature, not the implementation. Adapt to the painting brand.
-- **Ask questions** if instructions are unclear; better to clarify than assume.
-
-## Tech stack
-
-- Next.js 14 App Router (TypeScript)
-- Tailwind CSS (terracotta + teal palette in tailwind.config.ts)
-- Framer Motion for non-SSR-rendered animations
-- React Three Fiber + three.js for the 3D hero centerpiece
-- Lucide React for icons
-
-## Page structure (target — agents build out)
-
-```
-Hero3D (3D paintbrush centerpiece + headline + CTAs + services marquee)
-SectionDivider (paint-drop motif)
-ServicesScrollLock (5 painting services in horizontally-locked panels)
-Workflow (paint-flow visualization: prep → prime → paint → finish)
-Process (auto-advancing horizontal timeline)
-Contact (form + contact info)
-```
-
-## Brand voice
-
-Honest, hands-on, professional. The painter equivalent of "we answer the phone." No fake testimonials, no fake star ratings, no invented project counts until real numbers exist.
-
-## Commands
-
-```bash
-npm run dev    # http://localhost:3000
-npm run build  # production build
-npm run lint   # ESLint
-```
-
-## Deploy
-
-Vercel (auto-deploys on push to main).
+- Real facts: owner Sean Soley, (484) 948-5573, South Eastern PA, 15+ years, fully insured, locally owned.
+  No email address known, so the form composes an SMS to Sean (sms: link) rather than posting anywhere.
+- Every service, color swatch and ticker word lives in the `DATA` object at the foot of index.html.
+- Color tool: `img/room.jpg` + `img/room-mask.png` (white RGBA, alpha = wall). The wall layer is a
+  multiply-blended color div masked by the PNG. CSS masks need CORS, so it shows NOTHING over file:// -
+  test over http (`python3 -m http.server`).
+- `?nosplash=1` skips the splash.
+- Deploys: GitHub Pages (https://zed0minat0r.github.io/soley-painting/) and Vercel (soley-painting.vercel.app,
+  static via vercel.json). Text links with `?v=<short sha>`.
+- Image URLs carry `?h=<sha1[:8]>` of their bytes; re-stamp after replacing an image.
