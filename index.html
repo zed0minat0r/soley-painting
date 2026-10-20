@@ -475,10 +475,13 @@ const DATA = {
 };
 
 /* ===== splash ===== */
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+let siteOn = false;
 const qs = new URLSearchParams(location.search);
 const splash = document.getElementById("splash");
 const rises = [...document.querySelectorAll(".rise")];
 function showSite(){
+  siteOn = true;
   document.body.classList.remove("pre","lock");
   rises.forEach((el,i)=>{ el.style.transitionDelay = (i*90)+"ms"; });
   setTimeout(()=>document.getElementById("h1").classList.add("drawn"),300);
@@ -600,7 +603,7 @@ const nav = document.getElementById("nav"), dock = document.getElementById("dock
 function onScroll(){
   nav.classList.toggle("sc", scrollY > 10);
   const q = quote.getBoundingClientRect();
-  dock.classList.toggle("show", scrollY > innerHeight*0.8 && q.top > innerHeight*0.9);
+  dock.classList.toggle("show", siteOn && scrollY > innerHeight*0.8 && q.top > innerHeight*0.9);
   railTick();
 }
 addEventListener("scroll", onScroll, { passive:true }); onScroll();
