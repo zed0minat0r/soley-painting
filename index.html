@@ -247,8 +247,10 @@ footer a{text-decoration:none;color:var(--paper)}
 footer .cp{margin-top:36px;font-size:13px;opacity:.55}
 
 /* sticky call on phones */
-.dock{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:40;display:none;gap:10px;transform:translateY(140%);transition:transform .5s var(--ease)}
-.dock.show{transform:none}
+/* hidden means INVISIBLE, not just pushed below the fold: iOS uncovers the strip under the viewport while its toolbar resizes */
+.dock{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:40;display:none;gap:10px;
+  transform:translateY(140%);opacity:0;visibility:hidden;transition:transform .5s var(--ease),opacity .3s,visibility 0s linear .5s}
+.dock.show{transform:none;opacity:1;visibility:visible;transition:transform .5s var(--ease),opacity .3s,visibility 0s}
 .dock .btn{flex:1;box-shadow:0 10px 30px rgba(0,0,0,.25)}
 .dock .btn-dark{background:var(--ink);color:var(--paper)}
 @media(max-width:720px){.dock{display:flex}}
@@ -492,7 +494,7 @@ else {
   document.getElementById("enter").addEventListener("click", () => {
     const coat = document.getElementById("coat");
     coat.classList.add("go");
-    setTimeout(() => { splash.remove(); window.scrollTo(0,0); }, 720);
+    setTimeout(() => { splash.remove(); window.scrollTo({ top:0, behavior:"instant" }); }, 720);
     setTimeout(showSite, 820);
     setTimeout(() => coat.remove(), 1600);
   });
